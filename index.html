@@ -655,7 +655,7 @@
     .galeria-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      grid-auto-rows: 220px;
+      grid-auto-rows: 240px;
       gap: 16px;
     }
     .galeria-item {
@@ -680,8 +680,6 @@
     }
     .galeria-item:hover img { transform: scale(1.1); }
     .galeria-item:hover::after { opacity: 1; }
-    .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
-    .galeria-item:nth-child(5) { grid-column: span 2; }
 
     /* Lightbox */
     .lightbox {
@@ -904,8 +902,7 @@
       .about-grid { grid-template-columns: 1fr; gap: 40px; }
       .contacto-grid { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr 1fr; }
-      .galeria-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 180px; }
-      .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+      .galeria-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 200px; }
     }
     @media (max-width: 768px) {
       .navbar-links { 
@@ -928,9 +925,7 @@
       .stat-item:nth-child(2) { border-right: none; }
       .cursos-grid { grid-template-columns: 1fr 1fr; }
       .about-features { grid-template-columns: 1fr; }
-      .galeria-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 160px; }
-      .galeria-item:nth-child(1) { grid-column: span 2; }
-      .galeria-item:nth-child(5) { grid-column: span 1; }
+      .galeria-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; }
       .form-row { grid-template-columns: 1fr; }
       .footer-grid { grid-template-columns: 1fr; gap: 30px; }
       .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
@@ -940,8 +935,128 @@
       .stats-bar .container { grid-template-columns: 1fr 1fr; padding: 28px 16px; }
       .hero h1 { font-size: 2rem; }
       .galeria-grid { grid-template-columns: 1fr; grid-auto-rows: 200px; }
-      .galeria-item:nth-child(1), .galeria-item:nth-child(5) { grid-column: span 1; grid-row: span 1; }
       .opinion-card { min-width: 280px; max-width: 280px; }
+    }
+    /* ===== MODAL CURSO ===== */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 3000;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: var(--blanco);
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      overflow: hidden;
+      animation: scaleIn 0.3s ease;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-img {
+      width: 100%;
+      height: 220px;
+      object-fit: cover;
+    }
+    .modal-body {
+      padding: 28px;
+    }
+    .modal-body h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--verde-primario);
+      margin-bottom: 10px;
+    }
+    .modal-body .modal-desc {
+      font-size: 0.95rem;
+      color: var(--gris-texto);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    .modal-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+    .modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      background: rgba(37, 80, 0, 0.07);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--verde-primario);
+    }
+    .modal-cert {
+      background: rgba(37, 80, 0, 0.05);
+      border: 1px solid rgba(37, 80, 0, 0.12);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 24px;
+    }
+    .modal-cert h4 {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--verde-primario);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-cert ul {
+      list-style: none;
+      padding: 0;
+    }
+    .modal-cert ul li {
+      font-size: 0.88rem;
+      color: var(--gris-texto);
+      padding: 4px 0;
+      padding-left: 20px;
+      position: relative;
+    }
+    .modal-cert ul li::before {
+      content: '✓';
+      position: absolute;
+      left: 0;
+      color: var(--verde-claro);
+      font-weight: 700;
+    }
+    .modal-buttons {
+      display: flex;
+      gap: 12px;
+    }
+    .modal-buttons .btn { flex: 1; justify-content: center; font-size: 0.9rem; padding: 14px 20px; }
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(0,0,0,0.4);
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transicion);
+      z-index: 10;
+    }
+    .modal-close:hover { background: rgba(0,0,0,0.6); }
+    .modal-content { position: relative; }
+    @media (max-width: 480px) {
+      .modal-buttons { flex-direction: column; }
+      .modal-body h2 { font-size: 1.25rem; }
     }
   </style>
 </head>
@@ -1176,11 +1291,41 @@
             <label>Mensaje</label>
             <textarea placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
           </div>
-          <button class="btn btn-primary" onclick="alert('¡Gracias por tu mensaje! Te contactaremos pronto.')">Enviar Mensaje →</button>
+          <button class="btn btn-primary" onclick="enviarMensaje()">Enviar Mensaje →</button>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- ===== MODAL CURSO ===== -->
+  <div class="modal-overlay" id="cursoModal">
+    <div class="modal-content">
+      <button class="modal-close" id="modalClose">✕</button>
+      <img class="modal-img" id="modalImg" src="" alt="">
+      <div class="modal-body">
+        <h2 id="modalTitle"></h2>
+        <p class="modal-desc" id="modalDesc"></p>
+        <div class="modal-badge-row">
+          <span class="modal-badge">📚 100% Online</span>
+          <span class="modal-badge">🎓 Certificado</span>
+          <span class="modal-badge">⏱ A tu ritmo</span>
+        </div>
+        <div class="modal-cert">
+          <h4>📜 Certificación con Valor Curricular</h4>
+          <ul>
+            <li>Certificado con valor curricular</li>
+            <li>Código QR escaneable de verificación</li>
+            <li>Folio único de respaldo</li>
+            <li>Avalado por AgroTec America</li>
+          </ul>
+        </div>
+        <div class="modal-buttons">
+          <a href="#" class="btn btn-primary" id="modalInscribirse">Inscribirme →</a>
+          <button class="btn btn-secondary" onclick="closeCursoModal()">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== FOOTER ===== -->
   <footer class="footer">
@@ -1308,7 +1453,7 @@
       let display = showAll ? filtered : filtered.slice(0, 8);
 
       grid.innerHTML = display.map((c, i) => `
-        <div class="curso-card animate visible" style="animation-delay:${i * 0.08}s">
+        <div class="curso-card animate visible" style="animation-delay:${i * 0.08}s" onclick="openCursoModal('${c.nombre.replace(/'/g, "\\'")}', '${c.img}', '${c.desc.replace(/'/g, "\\'")}')">
           <div class="curso-card-img">
             <img src="${c.img}" alt="${c.nombre}" loading="lazy">
             <span class="curso-card-badge">Online</span>
@@ -1392,6 +1537,45 @@
       document.body.style.overflow = '';
     }
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+
+    // ===== MODAL CURSO =====
+    function openCursoModal(nombre, img, desc) {
+      document.getElementById('modalTitle').textContent = nombre;
+      document.getElementById('modalImg').src = img;
+      document.getElementById('modalImg').alt = nombre;
+      document.getElementById('modalDesc').textContent = desc;
+      const msg = encodeURIComponent(`¡Hola AgroTec America! 🌱 Me interesa inscribirme en el curso: "${nombre}". ¿Me pueden dar más información?`);
+      document.getElementById('modalInscribirse').href = `https://wa.me/5212361066811?text=${msg}`;
+      document.getElementById('modalInscribirse').target = '_blank';
+      document.getElementById('cursoModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeCursoModal() {
+      document.getElementById('cursoModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('modalClose').addEventListener('click', closeCursoModal);
+    document.getElementById('cursoModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeCursoModal();
+    });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCursoModal(); });
+
+    // ===== ENVIAR MENSAJE CONTACTO =====
+    function enviarMensaje() {
+      const nombre = document.querySelector('.contacto-form input[type="text"]').value.trim();
+      const email = document.querySelector('.contacto-form input[type="email"]').value.trim();
+      const curso = document.getElementById('cursoSelect').value;
+      const mensaje = document.querySelector('.contacto-form textarea').value.trim();
+      
+      let waMsg = '¡Hola AgroTec America! 🌱';
+      if (nombre) waMsg += `\nMi nombre es: ${nombre}`;
+      if (email) waMsg += `\nEmail: ${email}`;
+      if (curso) waMsg += `\nCurso de interés: ${curso}`;
+      if (mensaje) waMsg += `\nMensaje: ${mensaje}`;
+      
+      alert('¡Gracias por tu mensaje! Te contactaremos pronto. 🌿');
+      window.open(`https://wa.me/5212361066811?text=${encodeURIComponent(waMsg)}`, '_blank');
+    }
 
     // ===== POPULATE SELECT =====
     function populateSelect() {
