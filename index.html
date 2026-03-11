@@ -1,492 +1,1451 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AGROTEC AMERICAN | Líderes en capacitación agrícola y asesoría técnica en México</title>
-  <meta
-    name="description"
-    content="AGROTEC AMERICAN: líderes en capacitación agrícola y asesoría técnica en México. Más de 2000 alumnos capacitados y más de 50 cursos profesionales."
-  />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AgroTec America — Capacitaciones Agrícolas Especializadas</title>
+  <meta name="description" content="Consultora privada de agronomía dedicada a ofrecer soluciones técnicas, eficientes y sustentables. Cursos online especializados para el sector agrícola.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ===== CSS VARIABLES ===== */
+    :root {
+      --verde-primario: #255000;
+      --verde-medio: #588100;
+      --verde-claro: #8db600;
+      --verde-lima: #c6da52;
+      --amarillo-suave: #ffff8b;
+      --blanco: #ffffff;
+      --negro: #111111;
+      --gris-claro: #f5f7f0;
+      --gris-texto: #4a4a4a;
+      --sombra: 0 4px 30px rgba(37, 80, 0, 0.12);
+      --sombra-hover: 0 8px 40px rgba(37, 80, 0, 0.22);
+      --transicion: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      --font-display: 'Playfair Display', Georgia, serif;
+      --font-body: 'Source Sans 3', 'Segoe UI', sans-serif;
+    }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  />
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; font-size: 16px; }
+    body {
+      font-family: var(--font-body);
+      color: var(--gris-texto);
+      background: var(--blanco);
+      overflow-x: hidden;
+      line-height: 1.7;
+    }
+    img { max-width: 100%; height: auto; display: block; }
+    a { text-decoration: none; color: inherit; }
+    ul { list-style: none; }
 
-  <link rel="stylesheet" href="css/styles.css" />
+    /* ===== UTILIDADES ===== */
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
+    .section-tag {
+      display: inline-block;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.75rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--verde-claro);
+      margin-bottom: 12px;
+    }
+    .section-title {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 700;
+      color: var(--verde-primario);
+      line-height: 1.2;
+      margin-bottom: 16px;
+    }
+    .section-desc {
+      font-size: 1.1rem;
+      color: var(--gris-texto);
+      max-width: 620px;
+      line-height: 1.8;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: none;
+      transition: var(--transicion);
+    }
+    .btn-primary {
+      background: var(--verde-primario);
+      color: var(--blanco);
+    }
+    .btn-primary:hover {
+      background: var(--verde-medio);
+      transform: translateY(-2px);
+      box-shadow: var(--sombra-hover);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--verde-primario);
+      border: 2px solid var(--verde-primario);
+    }
+    .btn-secondary:hover {
+      background: var(--verde-primario);
+      color: var(--blanco);
+      transform: translateY(-2px);
+    }
+
+    /* ===== ANIMACIONES ===== */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideInLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes scaleIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .animate { opacity: 0; }
+    .animate.visible { animation: fadeInUp 0.8s ease forwards; }
+    .animate-delay-1 { animation-delay: 0.15s !important; }
+    .animate-delay-2 { animation-delay: 0.3s !important; }
+    .animate-delay-3 { animation-delay: 0.45s !important; }
+    .animate-delay-4 { animation-delay: 0.6s !important; }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      padding: 16px 0;
+      transition: var(--transicion);
+      background: transparent;
+    }
+    .navbar.scrolled {
+      background: rgba(37, 80, 0, 0.95);
+      backdrop-filter: blur(12px);
+      padding: 10px 0;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.15);
+    }
+    .navbar .container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .navbar-logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .navbar-logo img {
+      height: 48px;
+      width: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--verde-lima);
+    }
+    .navbar-logo span {
+      font-family: var(--font-display);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--blanco);
+    }
+    .navbar-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+    .navbar-links a {
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.85);
+      letter-spacing: 0.5px;
+      position: relative;
+      transition: var(--transicion);
+    }
+    .navbar-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--verde-lima);
+      transition: width 0.3s ease;
+    }
+    .navbar-links a:hover { color: var(--amarillo-suave); }
+    .navbar-links a:hover::after { width: 100%; }
+    .navbar-cta {
+      padding: 10px 24px !important;
+      background: var(--verde-lima) !important;
+      color: var(--verde-primario) !important;
+      font-weight: 700 !important;
+      border-radius: 50px;
+      font-size: 0.85rem !important;
+    }
+    .navbar-cta:hover {
+      background: var(--amarillo-suave) !important;
+      transform: translateY(-2px);
+    }
+    .navbar-cta::after { display: none !important; }
+
+    /* Hamburger */
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      padding: 4px;
+      z-index: 1001;
+    }
+    .hamburger span {
+      width: 26px;
+      height: 2.5px;
+      background: var(--blanco);
+      border-radius: 2px;
+      transition: var(--transicion);
+    }
+    .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(5px, 5px); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(5px, -5px); }
+
+    /* ===== HERO ===== */
+    .hero {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      background: var(--verde-primario);
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: url('img/banner.jpg') center/cover no-repeat;
+      opacity: 0.25;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(37,80,0,0.92) 0%, rgba(88,129,0,0.75) 50%, rgba(37,80,0,0.88) 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      animation: slideInLeft 1s ease forwards;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: rgba(198, 218, 82, 0.2);
+      border: 1px solid var(--verde-lima);
+      color: var(--verde-lima);
+      padding: 6px 18px;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: clamp(2.5rem, 5.5vw, 4rem);
+      font-weight: 800;
+      color: var(--blanco);
+      line-height: 1.1;
+      margin-bottom: 20px;
+    }
+    .hero h1 em {
+      font-style: normal;
+      color: var(--verde-lima);
+    }
+    .hero p {
+      font-size: 1.15rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.8;
+      margin-bottom: 36px;
+      max-width: 560px;
+    }
+    .hero-buttons { display: flex; gap: 16px; flex-wrap: wrap; }
+    .hero-buttons .btn-primary {
+      background: var(--verde-lima);
+      color: var(--verde-primario);
+      font-weight: 700;
+    }
+    .hero-buttons .btn-primary:hover {
+      background: var(--amarillo-suave);
+    }
+    .hero-buttons .btn-secondary {
+      border-color: rgba(255,255,255,0.5);
+      color: var(--blanco);
+    }
+    .hero-buttons .btn-secondary:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: var(--blanco);
+    }
+
+    /* Decorative shapes */
+    .hero-decor {
+      position: absolute;
+      z-index: 1;
+      border-radius: 50%;
+      opacity: 0.08;
+      background: var(--verde-lima);
+    }
+    .hero-decor-1 { width: 400px; height: 400px; top: -100px; right: -100px; }
+    .hero-decor-2 { width: 250px; height: 250px; bottom: -80px; left: 10%; }
+    .hero-decor-3 { width: 150px; height: 150px; top: 40%; right: 15%; animation: float 6s ease-in-out infinite; }
+
+    /* Stats bar */
+    .stats-bar {
+      position: relative;
+      z-index: 3;
+      margin-top: -50px;
+      margin-bottom: 0;
+    }
+    .stats-bar .container {
+      background: var(--blanco);
+      border-radius: 16px;
+      box-shadow: var(--sombra);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 40px 20px;
+      gap: 20px;
+    }
+    .stat-item {
+      text-align: center;
+      padding: 0 16px;
+      border-right: 1px solid #e8eee0;
+    }
+    .stat-item:last-child { border-right: none; }
+    .stat-number {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--verde-primario);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--gris-texto);
+      font-weight: 500;
+    }
+
+    /* ===== CURSOS ===== */
+    .cursos {
+      padding: 100px 0 80px;
+      background: var(--gris-claro);
+    }
+    .cursos-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .cursos-header .section-desc { margin: 0 auto; }
+
+    /* Filtro */
+    .cursos-filter {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 40px;
+    }
+    .filter-btn {
+      padding: 8px 22px;
+      border-radius: 50px;
+      border: 2px solid #dce5d0;
+      background: var(--blanco);
+      font-family: var(--font-body);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--gris-texto);
+      cursor: pointer;
+      transition: var(--transicion);
+    }
+    .filter-btn:hover, .filter-btn.active {
+      background: var(--verde-primario);
+      border-color: var(--verde-primario);
+      color: var(--blanco);
+    }
+
+    /* Grid de cursos */
+    .cursos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+    }
+    .curso-card {
+      background: var(--blanco);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 16px rgba(37, 80, 0, 0.06);
+      transition: var(--transicion);
+      cursor: pointer;
+    }
+    .curso-card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--sombra-hover);
+    }
+    .curso-card-img {
+      position: relative;
+      height: 200px;
+      overflow: hidden;
+    }
+    .curso-card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .curso-card:hover .curso-card-img img {
+      transform: scale(1.08);
+    }
+    .curso-card-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: var(--verde-primario);
+      color: var(--verde-lima);
+      padding: 4px 14px;
+      border-radius: 50px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    .curso-card-body { padding: 20px; }
+    .curso-card-body h3 {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--verde-primario);
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+    .curso-card-body p {
+      font-size: 0.88rem;
+      color: var(--gris-texto);
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+    .curso-card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .curso-card-footer .curso-type {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--verde-medio);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .curso-card-footer .curso-arrow {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--gris-claro);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transicion);
+      font-size: 1.1rem;
+      color: var(--verde-primario);
+    }
+    .curso-card:hover .curso-arrow {
+      background: var(--verde-primario);
+      color: var(--blanco);
+    }
+
+    /* Ver más cursos */
+    .cursos-more {
+      text-align: center;
+      margin-top: 40px;
+    }
+
+    /* ===== SOBRE NOSOTROS ===== */
+    .about {
+      padding: 100px 0;
+      background: var(--blanco);
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+    .about-visual {
+      position: relative;
+    }
+    .about-img-main {
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--sombra);
+    }
+    .about-img-main img {
+      width: 100%;
+      height: 420px;
+      object-fit: cover;
+    }
+    .about-accent {
+      position: absolute;
+      bottom: -20px;
+      right: -20px;
+      width: 180px;
+      height: 180px;
+      background: var(--verde-lima);
+      border-radius: 20px;
+      z-index: -1;
+      opacity: 0.4;
+    }
+    .about-text .section-desc { margin-bottom: 30px; }
+    .about-features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .about-feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .about-feature-icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: 12px;
+      background: rgba(37, 80, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+    }
+    .about-feature h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--verde-primario);
+      margin-bottom: 2px;
+    }
+    .about-feature p {
+      font-size: 0.82rem;
+      color: var(--gris-texto);
+      line-height: 1.5;
+    }
+
+    /* ===== OPINIONES ===== */
+    .opiniones {
+      padding: 100px 0;
+      background: var(--verde-primario);
+      position: relative;
+      overflow: hidden;
+    }
+    .opiniones::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 600px;
+      height: 600px;
+      background: rgba(198, 218, 82, 0.06);
+      border-radius: 50%;
+    }
+    .opiniones .section-tag { color: var(--verde-lima); }
+    .opiniones .section-title { color: var(--blanco); }
+    .opiniones .section-desc { color: rgba(255,255,255,0.7); }
+    .opiniones-header {
+      text-align: center;
+      margin-bottom: 50px;
+      position: relative;
+      z-index: 2;
+    }
+    .opiniones-header .section-desc { margin: 0 auto; }
+    .opiniones-track {
+      display: flex;
+      gap: 24px;
+      overflow-x: auto;
+      padding: 10px 24px 30px;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .opiniones-track::-webkit-scrollbar { display: none; }
+    .opinion-card {
+      min-width: 320px;
+      max-width: 320px;
+      background: rgba(255,255,255,0.08);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      overflow: hidden;
+      scroll-snap-align: start;
+      transition: var(--transicion);
+    }
+    .opinion-card:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-4px);
+    }
+    .opinion-card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .opiniones-nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 30px;
+      position: relative;
+      z-index: 2;
+    }
+    .opiniones-nav button {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,0.3);
+      background: transparent;
+      color: var(--blanco);
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: var(--transicion);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .opiniones-nav button:hover {
+      background: var(--verde-lima);
+      border-color: var(--verde-lima);
+      color: var(--verde-primario);
+    }
+
+    /* ===== GALERÍA ===== */
+    .galeria {
+      padding: 100px 0;
+      background: var(--gris-claro);
+    }
+    .galeria-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+    .galeria-header .section-desc { margin: 0 auto; }
+    .galeria-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: 220px;
+      gap: 16px;
+    }
+    .galeria-item {
+      border-radius: 14px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+    }
+    .galeria-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s ease;
+    }
+    .galeria-item::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(37,80,0,0.5) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+    .galeria-item:hover img { transform: scale(1.1); }
+    .galeria-item:hover::after { opacity: 1; }
+    .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 2; }
+    .galeria-item:nth-child(5) { grid-column: span 2; }
+
+    /* Lightbox */
+    .lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+    .lightbox.active { display: flex; }
+    .lightbox img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      object-fit: contain;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 32px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: var(--transicion);
+    }
+    .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+
+    /* ===== CONTACTO ===== */
+    .contacto {
+      padding: 100px 0;
+      background: var(--blanco);
+    }
+    .contacto-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 60px;
+      align-items: start;
+    }
+    .contacto-info { padding-top: 20px; }
+    .contacto-info .section-desc { margin-bottom: 36px; }
+    .contacto-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .contacto-item-icon {
+      width: 50px;
+      height: 50px;
+      min-width: 50px;
+      border-radius: 14px;
+      background: rgba(37, 80, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+    }
+    .contacto-item h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--verde-primario);
+      margin-bottom: 4px;
+    }
+    .contacto-item p {
+      font-size: 0.9rem;
+      color: var(--gris-texto);
+    }
+    .contacto-form {
+      background: var(--gris-claro);
+      padding: 40px;
+      border-radius: 20px;
+      border: 1px solid #e8eee0;
+    }
+    .contacto-form h3 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--verde-primario);
+      margin-bottom: 24px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      margin-bottom: 18px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--verde-primario);
+      margin-bottom: 6px;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px 16px;
+      border: 2px solid #dce5d0;
+      border-radius: 12px;
+      font-family: var(--font-body);
+      font-size: 0.95rem;
+      color: var(--negro);
+      background: var(--blanco);
+      transition: var(--transicion);
+      outline: none;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--verde-claro);
+      box-shadow: 0 0 0 4px rgba(141, 182, 0, 0.15);
+    }
+    .form-group textarea { resize: vertical; min-height: 120px; }
+    .contacto-form .btn { width: 100%; justify-content: center; padding: 16px; font-size: 1rem; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: var(--verde-primario);
+      padding: 60px 0 0;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+      gap: 40px;
+      padding-bottom: 40px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .footer-brand p {
+      color: rgba(255,255,255,0.65);
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin-top: 16px;
+      max-width: 300px;
+    }
+    .footer-col h4 {
+      font-family: var(--font-display);
+      color: var(--blanco);
+      font-size: 1.05rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+    .footer-col a {
+      display: block;
+      color: rgba(255,255,255,0.6);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+      transition: var(--transicion);
+    }
+    .footer-col a:hover { color: var(--verde-lima); transform: translateX(4px); }
+    .footer-bottom {
+      padding: 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-bottom p {
+      color: rgba(255,255,255,0.4);
+      font-size: 0.82rem;
+    }
+    .footer-socials {
+      display: flex;
+      gap: 12px;
+    }
+    .footer-socials a {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(255,255,255,0.6);
+      transition: var(--transicion);
+      font-size: 0.95rem;
+    }
+    .footer-socials a:hover {
+      background: var(--verde-lima);
+      border-color: var(--verde-lima);
+      color: var(--verde-primario);
+    }
+
+    /* ===== SCROLL TO TOP ===== */
+    .scroll-top {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--verde-primario);
+      color: var(--blanco);
+      border: none;
+      font-size: 1.3rem;
+      cursor: pointer;
+      box-shadow: var(--sombra);
+      transition: var(--transicion);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .scroll-top.visible { opacity: 1; pointer-events: auto; }
+    .scroll-top:hover { background: var(--verde-medio); transform: translateY(-4px); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 1024px) {
+      .about-grid { grid-template-columns: 1fr; gap: 40px; }
+      .contacto-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .galeria-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 180px; }
+      .galeria-item:nth-child(1) { grid-column: span 2; grid-row: span 1; }
+    }
+    @media (max-width: 768px) {
+      .navbar-links { 
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        background: rgba(37, 80, 0, 0.98);
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 28px;
+      }
+      .navbar-links.open { display: flex; }
+      .navbar-links a { font-size: 1.2rem; }
+      .hamburger { display: flex; }
+      .stats-bar .container { grid-template-columns: 1fr 1fr; }
+      .stat-item:nth-child(2) { border-right: none; }
+      .cursos-grid { grid-template-columns: 1fr 1fr; }
+      .about-features { grid-template-columns: 1fr; }
+      .galeria-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 160px; }
+      .galeria-item:nth-child(1) { grid-column: span 2; }
+      .galeria-item:nth-child(5) { grid-column: span 1; }
+      .form-row { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr; gap: 30px; }
+      .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+    }
+    @media (max-width: 480px) {
+      .cursos-grid { grid-template-columns: 1fr; }
+      .stats-bar .container { grid-template-columns: 1fr 1fr; padding: 28px 16px; }
+      .hero h1 { font-size: 2rem; }
+      .galeria-grid { grid-template-columns: 1fr; grid-auto-rows: 200px; }
+      .galeria-item:nth-child(1), .galeria-item:nth-child(5) { grid-column: span 1; grid-row: span 1; }
+      .opinion-card { min-width: 280px; max-width: 280px; }
+    }
+  </style>
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="bg-glow bg-glow-1"></div>
-  <div class="bg-glow bg-glow-2"></div>
 
-  <header class="site-header" id="top">
-    <div class="container header-inner">
-      <a href="#top" class="brand">
-        <img
-          src="assets/logo/logo-agrotec-american.jpg"
-          alt="AGROTEC AMERICAN"
-          class="brand-logo"
-        />
-        <div class="brand-text">
-          <span class="brand-name">AGROTEC AMERICAN</span>
-          <span class="brand-tag">Capacitación agrícola y asesoría técnica</span>
-        </div>
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#inicio" class="navbar-logo">
+        <img src="img/logo.jpg" alt="AgroTec America Logo">
+        <span>AgroTec America</span>
       </a>
-
-      <nav class="desktop-nav">
+      <div class="navbar-links" id="navLinks">
         <a href="#inicio">Inicio</a>
         <a href="#cursos">Cursos</a>
-        <a href="#beneficios">Beneficios</a>
-        <a href="#consultoria">Consultoría</a>
+        <a href="#nosotros">Nosotros</a>
         <a href="#opiniones">Opiniones</a>
-        <a href="#graduados">Graduados</a>
-        <a href="#contacto">Contacto</a>
-      </nav>
-
-      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+        <a href="#galeria">Galería</a>
+        <a href="#contacto" class="navbar-cta">Contáctanos</a>
+      </div>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </div>
     </div>
+  </nav>
 
-    <nav class="mobile-nav" id="mobileNav">
-      <a href="#inicio">Inicio</a>
-      <a href="#cursos">Cursos</a>
-      <a href="#beneficios">Beneficios</a>
-      <a href="#consultoria">Consultoría</a>
-      <a href="#opiniones">Opiniones</a>
-      <a href="#graduados">Graduados</a>
-      <a href="#contacto">Contacto</a>
-    </nav>
-  </header>
-
-  <main>
-    <section class="hero" id="inicio">
-      <div class="container hero-grid">
-        <div class="hero-copy reveal">
-          <div class="eyebrow">
-            <span class="eyebrow-dot"></span>
-            Formación especializada para productores, técnicos y empresas
-          </div>
-
-          <h1>Líderes en capacitación agrícola y asesoría técnica en México</h1>
-
-          <p class="hero-text">
-            En AGROTEC AMERICAN impulsamos el desarrollo del sector agropecuario
-            con cursos profesionales en vivo, acceso a clases grabadas,
-            certificado con valor oficial, QR y folio único, además de
-            asesoría técnica enfocada en resultados reales.
-          </p>
-
-          <div class="hero-actions">
-            <a href="#cursos" class="btn btn-primary">Ver cursos</a>
-            <a
-              href="https://wa.me/5212361066811?text=Hola,%20quiero%20informaci%C3%B3n%20de%20los%20cursos%20de%20AGROTEC%20AMERICAN"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="btn btn-whatsapp"
-            >
-              Inscribirme por WhatsApp
-            </a>
-          </div>
-
-          <div class="hero-trust">
-            <div class="trust-item">+2000 alumnos capacitados</div>
-            <div class="trust-item">+50 cursos profesionales</div>
-            <div class="trust-item">En vivo + grabaciones</div>
-            <div class="trust-item">Certificado con QR y folio</div>
-          </div>
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="inicio">
+    <div class="hero-decor hero-decor-1"></div>
+    <div class="hero-decor hero-decor-2"></div>
+    <div class="hero-decor hero-decor-3"></div>
+    <div class="container">
+      <div class="hero-content">
+        <span class="hero-tag">🌱 Educación Agrícola de Vanguardia</span>
+        <h1>Transformamos el futuro agrícola con <em>innovación</em></h1>
+        <p>Somos una consultora privada de agronomía dedicada a ofrecer capacitaciones especializadas para el sector agrícola, industrial y ambiental. Conocimiento de vanguardia y resultados concretos.</p>
+        <div class="hero-buttons">
+          <a href="#cursos" class="btn btn-primary">Ver Cursos →</a>
+          <a href="#nosotros" class="btn btn-secondary">Conócenos</a>
         </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="hero-visual reveal">
-          <div class="hero-banner-card">
-            <img
-              src="assets/banner/banner-principal.jpg"
-              alt="Banner AGROTEC AMERICAN"
-            />
-            <div class="hero-banner-overlay"></div>
-            <div class="hero-banner-content">
-              <span class="hero-badge">AGROTEC AMERICAN</span>
-              <h3>Capacitación agrícola de alto impacto</h3>
-              <p>
-                Cursos diseñados para aplicar conocimientos técnicos
-                directamente en campo, producción, propagación, calidad y
-                manejo de cultivos.
-              </p>
+  <!-- ===== STATS BAR ===== -->
+  <div class="stats-bar animate">
+    <div class="container">
+      <div class="stat-item">
+        <div class="stat-number">28+</div>
+        <div class="stat-label">Cursos Especializados</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">500+</div>
+        <div class="stat-label">Alumnos Graduados</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">15+</div>
+        <div class="stat-label">Expertos Docentes</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">98%</div>
+        <div class="stat-label">Satisfacción</div>
+      </div>
+    </div>
+  </div>
 
-              <div class="mini-stats">
-                <div>
-                  <strong>+2000</strong>
-                  <span>alumnos</span>
-                </div>
-                <div>
-                  <strong>+50</strong>
-                  <span>cursos</span>
-                </div>
-                <div>
-                  <strong>100%</strong>
-                  <span>online</span>
-                </div>
+  <!-- ===== CURSOS ===== -->
+  <section class="cursos" id="cursos">
+    <div class="container">
+      <div class="cursos-header animate">
+        <span class="section-tag">Nuestros Cursos</span>
+        <h2 class="section-title">Capacítate con los Mejores</h2>
+        <p class="section-desc">Cursos online especializados en agricultura, medio ambiente e industria. Aprende a tu ritmo con respaldo profesional.</p>
+      </div>
+
+      <div class="cursos-filter animate">
+        <button class="filter-btn active" data-filter="todos">Todos</button>
+        <button class="filter-btn" data-filter="cultivos">Cultivos</button>
+        <button class="filter-btn" data-filter="tecnicas">Técnicas</button>
+        <button class="filter-btn" data-filter="gestion">Gestión</button>
+      </div>
+
+      <div class="cursos-grid" id="cursosGrid">
+        <!-- Cards generadas por JS -->
+      </div>
+
+      <div class="cursos-more animate">
+        <button class="btn btn-secondary" id="btnVerMas">Ver Todos los Cursos</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SOBRE NOSOTROS ===== -->
+  <section class="about" id="nosotros">
+    <div class="container">
+      <div class="about-grid">
+        <div class="about-visual animate">
+          <div class="about-img-main">
+            <img src="img/banner.jpg" alt="AgroTec America en campo">
+          </div>
+          <div class="about-accent"></div>
+        </div>
+        <div class="about-text">
+          <span class="section-tag animate">Sobre Nosotros</span>
+          <h2 class="section-title animate animate-delay-1">Líderes en Capacitación Agrícola</h2>
+          <p class="section-desc animate animate-delay-2">En AgroTec America, nos enorgullece ser líderes en capacitaciones especializadas para el sector agrícola, industrial y ambiental. Nuestra misión es acompañar a los productores en su crecimiento, proporcionando conocimiento de vanguardia, experiencia sólida y un compromiso firme con la mejora continua en el campo.</p>
+          <div class="about-features animate animate-delay-3">
+            <div class="about-feature">
+              <div class="about-feature-icon">🎓</div>
+              <div>
+                <h4>Certificación</h4>
+                <p>Avalados por expertos del sector</p>
+              </div>
+            </div>
+            <div class="about-feature">
+              <div class="about-feature-icon">🌍</div>
+              <div>
+                <h4>100% Online</h4>
+                <p>Aprende desde cualquier lugar</p>
+              </div>
+            </div>
+            <div class="about-feature">
+              <div class="about-feature-icon">🔬</div>
+              <div>
+                <h4>Innovación</h4>
+                <p>Técnicas de vanguardia</p>
+              </div>
+            </div>
+            <div class="about-feature">
+              <div class="about-feature-icon">🤝</div>
+              <div>
+                <h4>Acompañamiento</h4>
+                <p>Soporte continuo al alumno</p>
               </div>
             </div>
           </div>
+          <a href="#contacto" class="btn btn-primary animate animate-delay-4">Solicitar Información →</a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-          <div class="hero-float-card">
-            <span class="pulse-dot"></span>
-            Clases en vivo + clases pregrabadas + certificación oficial
+  <!-- ===== OPINIONES ===== -->
+  <section class="opiniones" id="opiniones">
+    <div class="container">
+      <div class="opiniones-header">
+        <span class="section-tag">Testimonios</span>
+        <h2 class="section-title">Lo que Dicen Nuestros Alumnos</h2>
+        <p class="section-desc">Cientos de profesionales ya transformaron su carrera con nuestros cursos.</p>
+      </div>
+      <div class="opiniones-track" id="opinionesTrack">
+        <!-- Generadas por JS -->
+      </div>
+      <div class="opiniones-nav">
+        <button id="opPrev">◀</button>
+        <button id="opNext">▶</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== GALERÍA ===== -->
+  <section class="galeria" id="galeria">
+    <div class="container">
+      <div class="galeria-header animate">
+        <span class="section-tag">Galería Visual</span>
+        <h2 class="section-title">Nuestra Comunidad en Acción</h2>
+        <p class="section-desc">Momentos memorables de nuestros alumnos graduados y eventos.</p>
+      </div>
+      <div class="galeria-grid animate" id="galeriaGrid">
+        <!-- Generadas por JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox -->
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">✕</button>
+    <img src="" alt="Vista ampliada" id="lightboxImg">
+  </div>
+
+  <!-- ===== CONTACTO ===== -->
+  <section class="contacto" id="contacto">
+    <div class="container">
+      <div class="contacto-grid">
+        <div class="contacto-info">
+          <span class="section-tag animate">Contacto</span>
+          <h2 class="section-title animate animate-delay-1">¿Listo para Capacitarte?</h2>
+          <p class="section-desc animate animate-delay-2">Contáctanos y te asesoraremos para encontrar el curso ideal para ti. Estamos aquí para impulsar tu crecimiento profesional.</p>
+          <div class="animate animate-delay-3">
+            <div class="contacto-item">
+              <div class="contacto-item-icon">📧</div>
+              <div>
+                <h4>Email</h4>
+                <p>info@agrotecamerica.com</p>
+              </div>
+            </div>
+            <div class="contacto-item">
+              <div class="contacto-item-icon">📱</div>
+              <div>
+                <h4>WhatsApp</h4>
+                <p>+52 1 XXX XXX XXXX</p>
+              </div>
+            </div>
+            <div class="contacto-item">
+              <div class="contacto-item-icon">📍</div>
+              <div>
+                <h4>Ubicación</h4>
+                <p>América Latina</p>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="metrics section">
-      <div class="container">
-        <div class="section-head center reveal">
-          <span class="section-kicker">Impacto</span>
-          <h2>Experiencia que respalda nuestra formación</h2>
-          <p>
-            Capacitamos a productores, técnicos y empresas del sector
-            agropecuario con programas especializados, prácticos y modernos.
-          </p>
-        </div>
-
-        <div class="metrics-grid">
-          <article class="metric-card reveal">
-            <h3>+2000</h3>
-            <p>Alumnos capacitados en programas especializados</p>
-          </article>
-
-          <article class="metric-card reveal">
-            <h3>+50</h3>
-            <p>Cursos profesionales impartidos</p>
-          </article>
-
-          <article class="metric-card reveal">
-            <h3>Todos</h3>
-            <p>Formación para productores, técnicos y empresas</p>
-          </article>
-
-          <article class="metric-card reveal">
-            <h3>Online</h3>
-            <p>Clases en vivo, grabaciones y acceso desde cualquier lugar</p>
-          </article>
+        <div class="contacto-form animate">
+          <h3>Envíanos un Mensaje</h3>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nombre Completo</label>
+              <input type="text" placeholder="Tu nombre">
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" placeholder="tu@email.com">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Curso de Interés</label>
+            <select id="cursoSelect">
+              <option value="">Selecciona un curso...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Mensaje</label>
+            <textarea placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="alert('¡Gracias por tu mensaje! Te contactaremos pronto.')">Enviar Mensaje →</button>
         </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="featured section" id="cursos">
-      <div class="container">
-        <div class="section-head reveal">
-          <span class="section-kicker">Catálogo</span>
-          <h2>Todos nuestros cursos disponibles</h2>
-          <p>
-            Explora nuestro catálogo completo de capacitación agrícola. Cada
-            curso incluye clases en vivo, contenido pregrabado, certificado con
-            valor oficial, QR y folio único.
-          </p>
-        </div>
-
-        <div class="filters reveal">
-          <button class="filter-btn active" data-filter="all">Todos</button>
-          <button class="filter-btn" data-filter="produccion">Producción</button>
-          <button class="filter-btn" data-filter="nutricion">Nutrición y suelo</button>
-          <button class="filter-btn" data-filter="cultivos">Cultivos específicos</button>
-          <button class="filter-btn" data-filter="innovacion">Innovación y gestión</button>
-        </div>
-
-        <div class="courses-grid" id="coursesGrid"></div>
-      </div>
-    </section>
-
-    <section class="benefits section" id="beneficios">
-      <div class="container">
-        <div class="section-head center reveal">
-          <span class="section-kicker">Beneficios</span>
-          <h2>Lo que incluye cada programa</h2>
-          <p>
-            Una experiencia de capacitación completa, moderna y enfocada en
-            resultados reales para el sector agropecuario.
-          </p>
-        </div>
-
-        <div class="benefits-grid">
-          <article class="benefit-card reveal">
-            <div class="benefit-icon">01</div>
-            <h3>Clases en vivo</h3>
-            <p>Sesiones impartidas por especialistas con enfoque técnico y práctico.</p>
-          </article>
-
-          <article class="benefit-card reveal">
-            <div class="benefit-icon">02</div>
-            <h3>Clases pregrabadas</h3>
-            <p>Acceso adicional a contenidos para reforzar el aprendizaje.</p>
-          </article>
-
-          <article class="benefit-card reveal">
-            <div class="benefit-icon">03</div>
-            <h3>Certificado oficial</h3>
-            <p>Constancia con valor oficial, QR y folio único de validación.</p>
-          </article>
-
-          <article class="benefit-card reveal">
-            <div class="benefit-icon">04</div>
-            <h3>Plataforma de repetición</h3>
-            <p>Repite las clases y consulta el contenido cuando lo necesites.</p>
-          </article>
-
-          <article class="benefit-card reveal">
-            <div class="benefit-icon">05</div>
-            <h3>Grupo de WhatsApp</h3>
-            <p>Comparte experiencias con otros profesionales del sector agrícola.</p>
-          </article>
-
-          <article class="benefit-card reveal">
-            <div class="benefit-icon">06</div>
-            <h3>Aplicación práctica</h3>
-            <p>Temas enfocados en decisiones, procesos y resultados de campo.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="consulting section" id="consultoria">
-      <div class="container consulting-grid">
-        <div class="consulting-copy reveal">
-          <span class="section-kicker">Consultoría agrícola</span>
-          <h2>Capacitación y asesoría técnica para fortalecer operaciones reales</h2>
-          <p>
-            AGROTEC AMERICAN integra formación especializada y consultoría
-            agrícola para acompañar a productores, técnicos y empresas en la
-            mejora de procesos, toma de decisiones, profesionalización y
-            desempeño en campo.
-          </p>
-
-          <ul class="consulting-list">
-            <li>Capacitación para productores y equipos técnicos</li>
-            <li>Actualización profesional en temas agrícolas clave</li>
-            <li>Asesoría con enfoque técnico y práctico</li>
-            <li>Programas alineados a necesidades reales del sector</li>
-          </ul>
-
-          <a
-            href="https://wa.me/5212361066811?text=Hola,%20quiero%20informaci%C3%B3n%20sobre%20consultor%C3%ADa%20agr%C3%ADcola%20de%20AGROTEC%20AMERICAN"
-            class="btn btn-primary"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Solicitar consultoría
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#inicio" class="navbar-logo">
+            <img src="img/logo.jpg" alt="AgroTec America" style="border-radius:50%;width:48px;height:48px;object-fit:cover;border:2px solid var(--verde-lima)">
+            <span style="color:white;font-family:var(--font-display);font-weight:700;font-size:1.2rem">AgroTec America</span>
           </a>
+          <p>Consultora privada de agronomía dedicada a ofrecer soluciones técnicas, eficientes y sustentables para el sector agrícola.</p>
         </div>
-
-        <div class="consulting-panel reveal">
-          <div class="panel-line"></div>
-
-          <div class="panel-block">
-            <span>Especialidad</span>
-            <strong>Capacitación agrícola</strong>
-          </div>
-
-          <div class="panel-block">
-            <span>Audiencia</span>
-            <strong>Productores, técnicos y empresas</strong>
-          </div>
-
-          <div class="panel-block">
-            <span>Modalidad</span>
-            <strong>En vivo + grabado</strong>
-          </div>
-
-          <div class="panel-block">
-            <span>Certificación</span>
-            <strong>QR y folio único</strong>
-          </div>
+        <div class="footer-col">
+          <h4>Navegación</h4>
+          <a href="#inicio">Inicio</a>
+          <a href="#cursos">Cursos</a>
+          <a href="#nosotros">Sobre Nosotros</a>
+          <a href="#opiniones">Opiniones</a>
+          <a href="#galeria">Galería</a>
         </div>
-      </div>
-    </section>
-
-    <section class="opinions section" id="opiniones">
-      <div class="container">
-        <div class="section-head center reveal">
-          <span class="section-kicker">Opiniones</span>
-          <h2>Lo que dicen nuestros alumnos</h2>
-          <p>
-            La experiencia de nuestros participantes fortalece la confianza en
-            cada programa de formación.
-          </p>
+        <div class="footer-col">
+          <h4>Cursos Populares</h4>
+          <a href="#">Hidroponía</a>
+          <a href="#">Bioinsumos</a>
+          <a href="#">Fertirrigación</a>
+          <a href="#">Agronomía</a>
+          <a href="#">Cacao</a>
         </div>
-
-        <div class="opinions-grid">
-          <img src="assets/opiniones/opinion-01.png" alt="Opinión 1" class="opinion-card reveal" />
-          <img src="assets/opiniones/opinion-02.png" alt="Opinión 2" class="opinion-card reveal" />
-          <img src="assets/opiniones/opinion-03.png" alt="Opinión 3" class="opinion-card reveal" />
-          <img src="assets/opiniones/opinion-04.png" alt="Opinión 4" class="opinion-card reveal" />
-          <img src="assets/opiniones/opinion-05.png" alt="Opinión 5" class="opinion-card reveal" />
-          <img src="assets/opiniones/opinion-06.png" alt="Opinión 6" class="opinion-card reveal" />
+        <div class="footer-col">
+          <h4>Contacto</h4>
+          <a href="mailto:info@agrotecamerica.com">info@agrotecamerica.com</a>
+          <a href="#">WhatsApp</a>
+          <a href="#">Facebook</a>
+          <a href="#">Instagram</a>
         </div>
       </div>
-    </section>
-
-    <section class="graduates section" id="graduados">
-      <div class="container">
-        <div class="section-head center reveal">
-          <span class="section-kicker">Graduados</span>
-          <h2>Alumnos que ya forman parte de nuestra comunidad</h2>
-          <p>
-            Compartimos algunos momentos de quienes han confiado en AGROTEC
-            AMERICAN para fortalecer su preparación profesional.
-          </p>
+      <div class="footer-bottom">
+        <p>&copy; 2026 AgroTec America. Todos los derechos reservados.</p>
+        <div class="footer-socials">
+          <a href="#" aria-label="Facebook">f</a>
+          <a href="#" aria-label="Instagram">in</a>
+          <a href="#" aria-label="WhatsApp">wa</a>
         </div>
-
-        <div class="graduates-grid">
-          <img src="assets/graduados/graduado-01.jpg" alt="Graduado 1" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-02.jpg" alt="Graduado 2" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-03.jpg" alt="Graduado 3" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-04.jpg" alt="Graduado 4" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-05.jpg" alt="Graduado 5" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-06.jpg" alt="Graduado 6" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-07.jpg" alt="Graduado 7" class="graduate-card reveal" />
-          <img src="assets/graduados/graduado-08.jpg" alt="Graduado 8" class="graduate-card reveal" />
-        </div>
-      </div>
-    </section>
-
-    <section class="cta-final section" id="contacto">
-      <div class="container cta-box reveal">
-        <span class="section-kicker">Inscripciones abiertas</span>
-        <h2>Lleva tu formación agrícola al siguiente nivel</h2>
-        <p>
-          Capacítate con AGROTEC AMERICAN y accede a programas especializados,
-          clases en vivo, grabaciones y certificación validable.
-        </p>
-
-        <div class="cta-actions">
-          <a
-            href="https://wa.me/5212361066811?text=Hola,%20quiero%20inscribirme%20a%20los%20cursos%20de%20AGROTEC%20AMERICAN"
-            class="btn btn-whatsapp"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Inscribirme por WhatsApp
-          </a>
-
-          <a href="#cursos" class="btn btn-secondary">Ver catálogo</a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <div>
-        <strong>AGROTEC AMERICAN</strong>
-        <p>Líderes en capacitación agrícola y asesoría técnica en México.</p>
-      </div>
-
-      <div class="footer-links">
-        <a href="#inicio">Inicio</a>
-        <a href="#cursos">Cursos</a>
-        <a href="#consultoria">Consultoría</a>
-        <a href="#contacto">Contacto</a>
       </div>
     </div>
   </footer>
 
-  <div class="floating-socials">
-    <a
-      href="https://www.facebook.com/profile.php?id=61576342622056"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="social-btn social-facebook"
-      aria-label="Facebook"
-      title="Facebook"
-    >
-      <span>f</span>
-    </a>
+  <!-- Scroll to top -->
+  <button class="scroll-top" id="scrollTop">↑</button>
 
-    <a
-      href="https://www.instagram.com/agrotec_american/"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="social-btn social-instagram"
-      aria-label="Instagram"
-      title="Instagram"
-    >
-      <span>◎</span>
-    </a>
+  <script>
+    // ===== DATOS DE CURSOS =====
+    const cursosData = [
+      { nombre: "Agronomía para No Agrónomos", img: "img/cursos/agronomia.jpeg", cat: "tecnicas", desc: "Fundamentos de agronomía accesibles para todos los profesionales." },
+      { nombre: "Hidroponía para Todos", img: "img/cursos/hidroponia.jpeg", cat: "tecnicas", desc: "Aprende cultivo sin suelo de forma práctica y eficiente." },
+      { nombre: "Bioinsumos", img: "img/cursos/bioinsumos.jpeg", cat: "tecnicas", desc: "Producción y uso de insumos biológicos para agricultura sustentable." },
+      { nombre: "Fertirrigación", img: "img/cursos/fertirrigacion.jpeg", cat: "tecnicas", desc: "Técnicas avanzadas de riego y nutrición de cultivos." },
+      { nombre: "Producción de Cacao", img: "img/cursos/cacao.jpeg", cat: "cultivos", desc: "Manejo integral del cultivo de cacao de alta calidad." },
+      { nombre: "Producción de Papaya", img: "img/cursos/papaya.jpeg", cat: "cultivos", desc: "Del vivero a la cosecha: todo sobre el cultivo de papaya." },
+      { nombre: "Cultivo de Melón", img: "img/cursos/melon.jpeg", cat: "cultivos", desc: "Manejo técnico y comercial del cultivo de melón." },
+      { nombre: "Producción de Girasol", img: "img/cursos/girasol.jpeg", cat: "cultivos", desc: "Siembra, manejo y cosecha del girasol productivo." },
+      { nombre: "Biofábricas", img: "img/cursos/biofabricas.jpeg", cat: "tecnicas", desc: "Diseño y operación de biofábricas para insumos agrícolas." },
+      { nombre: "Polinizadores", img: "img/cursos/polinizadores.jpeg", cat: "tecnicas", desc: "Importancia y manejo de polinizadores en la agricultura." },
+      { nombre: "Producción de Hongos", img: "img/cursos/hongos.jpeg", cat: "cultivos", desc: "Cultivo y comercialización de hongos comestibles." },
+      { nombre: "Lombricomposta", img: "img/cursos/lombricomposta.jpeg", cat: "tecnicas", desc: "Producción de fertilizante orgánico mediante lombricultura." },
+      { nombre: "Manejo de Viveros", img: "img/cursos/viveros.jpeg", cat: "tecnicas", desc: "Gestión profesional de viveros agrícolas y forestales." },
+      { nombre: "Producción de Plántulas", img: "img/cursos/plantulas.jpeg", cat: "cultivos", desc: "Técnicas para producción de plántulas de alta calidad." },
+      { nombre: "Manejo de Chiles Verdes", img: "img/cursos/chiles.jpeg", cat: "cultivos", desc: "Producción y manejo integral de chiles verdes." },
+      { nombre: "Aprovechamiento del Nopal", img: "img/cursos/nopal.jpeg", cat: "cultivos", desc: "Producción y aprovechamiento sustentable del nopal." },
+      { nombre: "Cultivo de Tomatillo", img: "img/cursos/tomatillo.jpeg", cat: "cultivos", desc: "Manejo agronómico del tomatillo de cáscara." },
+      { nombre: "Árboles Frutales", img: "img/cursos/arboles.jpeg", cat: "cultivos", desc: "Manejo y producción de diversas especies frutales." },
+      { nombre: "Hierbas Aromáticas", img: "img/cursos/hierbas.jpeg", cat: "cultivos", desc: "Producción de hierbas aromáticas y medicinales." },
+      { nombre: "Orquídeas", img: "img/cursos/orquideas.jpeg", cat: "cultivos", desc: "Cultivo y cuidado profesional de orquídeas." },
+      { nombre: "Manejo de Pitahaya", img: "img/cursos/pitahaya.jpeg", cat: "cultivos", desc: "Producción del fruto del dragón de forma rentable." },
+      { nombre: "Producción de Caña", img: "img/cursos/cana.jpg", cat: "cultivos", desc: "Manejo integral del cultivo de caña de azúcar." },
+      { nombre: "Maíz", img: "img/cursos/maiz.jpeg", cat: "cultivos", desc: "Producción tecnificada de maíz de alto rendimiento." },
+      { nombre: "Contabilidad Agrícola", img: "img/cursos/contabilidad.jpeg", cat: "gestion", desc: "Finanzas y contabilidad para empresas agropecuarias." },
+      { nombre: "Exportación Agrícola", img: "img/cursos/exportacion.jpeg", cat: "gestion", desc: "Procesos de exportación de productos agrícolas frescos." },
+      { nombre: "Inocuidad Alimentaria", img: "img/cursos/inocuidad.jpeg", cat: "gestion", desc: "Buenas prácticas agroalimentarias y seguridad alimentaria." },
+      { nombre: "IA en Agricultura", img: "img/cursos/ia.jpeg", cat: "tecnicas", desc: "Inteligencia artificial aplicada al sector agropecuario." },
+      { nombre: "Alimentos Funcionales", img: "img/cursos/alimentos.jpeg", cat: "gestion", desc: "Desarrollo y producción de alimentos con valor agregado." },
+    ];
 
-    <a
-      href="https://www.youtube.com/channel/UCa3U00kUr53mLxqf22rN-7A"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="social-btn social-youtube"
-      aria-label="YouTube"
-      title="YouTube"
-    >
-      <span>▶</span>
-    </a>
+    // ===== GALERÍA =====
+    const galeriaImgs = [
+      "img/graduados/546820029_122135326574878087_556524696336951797_n.jpg",
+      "img/graduados/536279937_122131281218878087_219997272954983262_n.jpg",
+      "img/graduados/558679567_122140369808878087_8667827876987976450_n.jpg",
+      "img/graduados/623679111_122158352600878087_2139197888215554837_n.jpg",
+      "img/graduados/648591334_122163440204878087_8019711681512363756_n.jpg",
+      "img/graduados/640907064_122161397378878087_3343519574264199520_n.jpg",
+      "img/graduados/596101817_122149856396878087_7939880500603521693_n.jpg",
+      "img/graduados/647019900_122163442184878087_8032018328224309843_n.jpg",
+      "img/graduados/628690950_122161399898878087_9020541255608278319_n.jpg",
+      "img/graduados/526874169_122128355354878087_5780776123066390259_n.jpg",
+      "img/graduados/544853695_122134479158878087_624542471999675674_n.jpg",
+      "img/graduados/596049611_122149857362878087_2122334435349922538_n.jpg",
+    ];
 
-    <a
-      href="https://wa.me/5212361066811?text=Hola,%20quiero%20informaci%C3%B3n%20de%20AGROTEC%20AMERICAN"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="social-btn social-whatsapp social-whatsapp-main"
-      aria-label="WhatsApp"
-      title="WhatsApp"
-    >
-      <span>✆</span>
-    </a>
-  </div>
+    // ===== OPINIONES =====
+    const opinionesImgs = [
+      "img/opiniones/captura_de_pantalla_2026_03_08_133902.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_133914.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_133922.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_133929.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_133936.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_133944.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_133954.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134003.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134012.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134020.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134038.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134048.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134113.png",
+      "img/opiniones/captura_de_pantalla_2026_03_08_134122.png",
+    ];
 
-  <div class="modal" id="courseModal" aria-hidden="true">
-    <div class="modal-overlay" id="modalOverlay"></div>
+    // ===== RENDER CURSOS =====
+    let showAll = false;
+    let currentFilter = 'todos';
 
-    <div class="modal-dialog">
-      <button class="modal-close" id="modalClose" aria-label="Cerrar">×</button>
+    function renderCursos() {
+      const grid = document.getElementById('cursosGrid');
+      let filtered = currentFilter === 'todos' ? cursosData : cursosData.filter(c => c.cat === currentFilter);
+      let display = showAll ? filtered : filtered.slice(0, 8);
 
-      <div class="modal-top">
-        <span class="modal-kicker">Incluye este curso</span>
-        <h3 id="modalTitle">Título del curso</h3>
-        <p id="modalSummary"></p>
-      </div>
-
-      <div class="modal-content-grid">
-        <div class="modal-card">
-          <h4>Beneficios incluidos</h4>
-          <ul class="modal-list">
-            <li>Clases en vivo con especialista</li>
-            <li>Acceso a clases pregrabadas</li>
-            <li>Certificado con valor oficial</li>
-            <li>QR y folio único de validación</li>
-            <li>Plataforma para repetir clases</li>
-            <li>Grupo de WhatsApp con profesionales</li>
-          </ul>
+      grid.innerHTML = display.map((c, i) => `
+        <div class="curso-card animate visible" style="animation-delay:${i * 0.08}s">
+          <div class="curso-card-img">
+            <img src="${c.img}" alt="${c.nombre}" loading="lazy">
+            <span class="curso-card-badge">Online</span>
+          </div>
+          <div class="curso-card-body">
+            <h3>${c.nombre}</h3>
+            <p>${c.desc}</p>
+            <div class="curso-card-footer">
+              <span class="curso-type">📚 Curso certificado</span>
+              <span class="curso-arrow">→</span>
+            </div>
+          </div>
         </div>
+      `).join('');
 
-        <div class="modal-card">
-          <h4>Temario resumido</h4>
-          <ul class="modal-list" id="modalTopics"></ul>
+      const btn = document.getElementById('btnVerMas');
+      if (filtered.length <= 8) {
+        btn.style.display = 'none';
+      } else {
+        btn.style.display = 'inline-flex';
+        btn.textContent = showAll ? 'Ver Menos' : `Ver Todos los Cursos (${filtered.length})`;
+      }
+    }
+
+    // Filtros
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        showAll = false;
+        renderCursos();
+      });
+    });
+
+    document.getElementById('btnVerMas').addEventListener('click', () => {
+      showAll = !showAll;
+      renderCursos();
+    });
+
+    // ===== RENDER OPINIONES =====
+    function renderOpiniones() {
+      const track = document.getElementById('opinionesTrack');
+      track.innerHTML = opinionesImgs.map(img => `
+        <div class="opinion-card">
+          <img src="${img}" alt="Opinión de alumno" loading="lazy">
         </div>
-      </div>
+      `).join('');
+    }
 
-      <div class="modal-actions">
-        <a
-          href="#"
-          id="modalWhatsapp"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="btn btn-whatsapp"
-        >
-          Solicitar más información
-        </a>
-      </div>
-    </div>
-  </div>
+    // Opiniones navigation
+    document.getElementById('opPrev').addEventListener('click', () => {
+      document.getElementById('opinionesTrack').scrollBy({ left: -344, behavior: 'smooth' });
+    });
+    document.getElementById('opNext').addEventListener('click', () => {
+      document.getElementById('opinionesTrack').scrollBy({ left: 344, behavior: 'smooth' });
+    });
 
-  <script src="js/scripts.js"></script>
+    // ===== RENDER GALERÍA =====
+    function renderGaleria() {
+      const grid = document.getElementById('galeriaGrid');
+      grid.innerHTML = galeriaImgs.map(img => `
+        <div class="galeria-item" onclick="openLightbox('${img}')">
+          <img src="${img}" alt="Alumno graduado" loading="lazy">
+        </div>
+      `).join('');
+    }
+
+    // Lightbox
+    function openLightbox(src) {
+      document.getElementById('lightboxImg').src = src;
+      document.getElementById('lightbox').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    document.getElementById('lightboxClose').addEventListener('click', closeLightbox);
+    document.getElementById('lightbox').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) closeLightbox();
+    });
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+
+    // ===== POPULATE SELECT =====
+    function populateSelect() {
+      const sel = document.getElementById('cursoSelect');
+      cursosData.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.nombre;
+        opt.textContent = c.nombre;
+        sel.appendChild(opt);
+      });
+    }
+
+    // ===== NAVBAR SCROLL =====
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+
+      const scrollBtn = document.getElementById('scrollTop');
+      scrollBtn.classList.toggle('visible', window.scrollY > 400);
+    });
+
+    // ===== HAMBURGER =====
+    document.getElementById('hamburger').addEventListener('click', () => {
+      document.getElementById('hamburger').classList.toggle('active');
+      document.getElementById('navLinks').classList.toggle('open');
+    });
+    document.querySelectorAll('.navbar-links a').forEach(a => {
+      a.addEventListener('click', () => {
+        document.getElementById('hamburger').classList.remove('active');
+        document.getElementById('navLinks').classList.remove('open');
+      });
+    });
+
+    // ===== SCROLL TO TOP =====
+    document.getElementById('scrollTop').addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    // ===== SCROLL ANIMATIONS =====
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.animate').forEach(el => observer.observe(el));
+
+    // ===== INIT =====
+    renderCursos();
+    renderOpiniones();
+    renderGaleria();
+    populateSelect();
+  </script>
 </body>
 </html>
