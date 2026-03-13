@@ -1,7 +1,7 @@
 const coursesData = [
   {
     title: "Agronomía para no agrónomos",
-    image: "assets/cursos/curso-agronomia-para-no-agronomos.jpeg",
+    image: "img/cursos/agronomia.jpeg",
     category: "innovacion",
     tag: "Bases agrícolas",
     description:
@@ -19,7 +19,7 @@ const coursesData = [
   },
   {
     title: "Alimentos",
-    image: "assets/cursos/curso-alimentos.jpeg",
+    image: "img/cursos/alimentos.jpeg",
     category: "innovacion",
     tag: "Agroindustria",
     description:
@@ -37,7 +37,7 @@ const coursesData = [
   },
   {
     title: "Árboles",
-    image: "assets/cursos/curso-arboles.jpeg",
+    image: "img/cursos/arboles.jpeg",
     category: "cultivos",
     tag: "Cultivos perennes",
     description:
@@ -55,7 +55,7 @@ const coursesData = [
   },
   {
     title: "Biofábricas",
-    image: "assets/cursos/curso-biofabricas.jpeg",
+    image: "img/cursos/biofabricas.jpeg",
     category: "innovacion",
     tag: "Biotecnología",
     description:
@@ -73,7 +73,7 @@ const coursesData = [
   },
   {
     title: "Bioinsumos",
-    image: "assets/cursos/curso-bioinsumos.jpeg",
+    image: "img/cursos/bioinsumos.jpeg",
     category: "nutricion",
     tag: "Biotecnología agrícola",
     description:
@@ -91,7 +91,7 @@ const coursesData = [
   },
   {
     title: "Cacao",
-    image: "assets/cursos/curso-cacao.jpeg",
+    image: "img/cursos/cacao.jpeg",
     category: "cultivos",
     tag: "Cultivo específico",
     description:
@@ -109,7 +109,7 @@ const coursesData = [
   },
   {
     title: "Caña",
-    image: "assets/cursos/curso-cana.jpg",
+    image: "img/cursos/cana.jpg",
     category: "cultivos",
     tag: "Cultivo específico",
     description:
@@ -127,7 +127,7 @@ const coursesData = [
   },
   {
     title: "Contabilidad",
-    image: "assets/cursos/curso-contabilidad.jpeg",
+    image: "img/cursos/contabilidad.jpeg",
     category: "innovacion",
     tag: "Gestión",
     description:
@@ -145,7 +145,7 @@ const coursesData = [
   },
   {
     title: "Exportación de productos agrícolas frescos",
-    image: "assets/cursos/curso-exportacion-productos-agricolas-frescos.jpeg",
+    image: "img/cursos/exportacion.jpeg",
     category: "innovacion",
     tag: "Comercio agrícola",
     description:
@@ -163,7 +163,7 @@ const coursesData = [
   },
   {
     title: "Fertirrigación",
-    image: "assets/cursos/curso-fertirrigacion.jpeg",
+    image: "img/cursos/fertirrigacion.jpeg",
     category: "nutricion",
     tag: "Nutrición y riego",
     description:
@@ -181,7 +181,7 @@ const coursesData = [
   },
   {
     title: "Girasol I",
-    image: "assets/cursos/curso-girasol-1.jpeg",
+    image: "img/cursos/girasol.jpeg",
     category: "cultivos",
     tag: "Cultivo específico",
     description:
@@ -199,7 +199,7 @@ const coursesData = [
   },
   {
     title: "Girasol II",
-    image: "assets/cursos/curso-girasol-2.jpg",
+    image: "img/cursos/girasol.jpeg",
     category: "cultivos",
     tag: "Cultivo específico",
     description:
@@ -217,7 +217,7 @@ const coursesData = [
   },
   {
     title: "Hidroponía para todos",
-    image: "assets/cursos/curso-hidroponia-para-todos.jpeg",
+    image: "img/cursos/hidroponia.jpeg",
     category: "produccion",
     tag: "Producción intensiva",
     description:
@@ -235,7 +235,7 @@ const coursesData = [
   },
   {
     title: "Hierbas",
-    image: "assets/cursos/curso-hierbas.jpeg",
+    image: "img/cursos/hierbas.jpeg",
     category: "cultivos",
     tag: "Cultivos especializados",
     description:
@@ -253,7 +253,7 @@ const coursesData = [
   },
   {
     title: "Hongos",
-    image: "assets/cursos/curso-hongos.jpeg",
+    image: "img/cursos/hongos.jpeg",
     category: "produccion",
     tag: "Producción especializada",
     description:
@@ -271,7 +271,7 @@ const coursesData = [
   },
   {
     title: "Inteligencia artificial agrícola",
-    image: "assets/cursos/curso-inteligencia-artificial-agricola.jpeg",
+    image: "img/cursos/ia.jpeg",
     category: "innovacion",
     tag: "Tecnología",
     description:
@@ -289,7 +289,7 @@ const coursesData = [
   },
   {
     title: "Inocuidad alimentaria y buenas prácticas agroalimentarias",
-    image: "assets/cursos/curso-inocuidad-alimentaria.jpeg",
+    image: "img/cursos/inocuidad.jpeg",
     category: "innovacion",
     tag: "Calidad e inocuidad",
     description:
@@ -307,7 +307,7 @@ const coursesData = [
   },
   {
     title: "Lombricomposta",
-    image: "assets/cursos/curso-lombricomposta.jpeg",
+    image: "img/cursos/lombricomposta.jpeg",
     category: "nutricion",
     tag: "Suelo y abonos",
     description:
@@ -325,7 +325,7 @@ const coursesData = [
   },
   {
     title: "Maíz",
-    image: "assets/cursos/curso-maiz.jpeg",
+    image: "img/cursos/maiz.jpeg",
     category: "cultivos",
     tag: "Cultivo específico",
     description:
@@ -343,7 +343,7 @@ const coursesData = [
   },
   {
     title: "Manejo de pitahaya",
-    image: "assets/cursos/curso-manejo-de-pitahaya.jpeg",
+    image: "img/cursos/pitahaya.jpeg",
     category: "cultivos",
     tag: "Frutales",
     description:
@@ -361,7 +361,7 @@ const coursesData = [
   },
   {
     title: "Manejo de viveros",
-    image: "assets/cursos/curso-manejo-de-viveros.jpeg",
+    image: "img/cursos/viveros.jpeg",
     category: "produccion",
     tag: "Propagación",
     description:
@@ -379,7 +379,7 @@ const coursesData = [
   },
   {
     title: "Melón",
-    image: "assets/cursos/curso-melon.jpeg",
+    image: "img/cursos/melon.jpeg",
     category: "cultivos",
     tag: "Hortalizas",
     description:
@@ -397,7 +397,7 @@ const coursesData = [
   },
   {
     title: "Orquídeas",
-    image: "assets/cursos/curso-orquideas.jpeg",
+    image: "img/cursos/orquideas.jpeg",
     category: "cultivos",
     tag: "Producción ornamental",
     description:
@@ -415,7 +415,7 @@ const coursesData = [
   },
   {
     title: "Papaya",
-    image: "assets/cursos/curso-papaya.jpeg",
+    image: "img/cursos/papaya.jpeg",
     category: "cultivos",
     tag: "Frutales",
     description:
@@ -433,7 +433,7 @@ const coursesData = [
   },
   {
     title: "Polinizadores",
-    image: "assets/cursos/curso-polinizadores.jpeg",
+    image: "img/cursos/polinizadores.jpeg",
     category: "produccion",
     tag: "Sustentabilidad",
     description:
@@ -451,7 +451,7 @@ const coursesData = [
   },
   {
     title: "Producción de plántulas",
-    image: "assets/cursos/curso-produccion-de-plantulas.jpeg",
+    image: "img/cursos/plantulas.jpeg",
     category: "produccion",
     tag: "Propagación",
     description:
@@ -469,7 +469,7 @@ const coursesData = [
   },
   {
     title: "Producción y aprovechamiento del nopal",
-    image: "assets/cursos/curso-produccion-y-aprovechamiento-del-nopal.jpeg",
+    image: "img/cursos/nopal.jpeg",
     category: "cultivos",
     tag: "Cultivo específico",
     description:
@@ -487,7 +487,7 @@ const coursesData = [
   },
   {
     title: "Producción y manejo de chiles verdes",
-    image: "assets/cursos/curso-produccion-y-manejo-de-chiles-verdes.jpeg",
+    image: "img/cursos/chiles.jpeg",
     category: "cultivos",
     tag: "Hortalizas",
     description:
@@ -505,7 +505,7 @@ const coursesData = [
   },
   {
     title: "Tomatillo",
-    image: "assets/cursos/curso-tomatillo.jpeg",
+    image: "img/cursos/tomatillo.jpeg",
     category: "cultivos",
     tag: "Hortalizas",
     description:

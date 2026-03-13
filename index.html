@@ -354,6 +354,69 @@
       font-weight: 500;
     }
 
+
+
+    /* ===== MARCAS ===== */
+    .brands-section {
+      padding: 46px 0 28px;
+      background: linear-gradient(180deg, #ffffff 0%, #f7f8f2 100%);
+      overflow: hidden;
+    }
+    .brands-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .brands-header .section-desc {
+      margin: 0 auto;
+      max-width: 760px;
+    }
+    .brands-carousel {
+      position: relative;
+      width: 100%;
+      overflow: hidden;
+      mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
+      -webkit-mask-image: linear-gradient(to right, transparent 0, black 8%, black 92%, transparent 100%);
+    }
+    .brands-track {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: max-content;
+      animation: brandsScroll 38s linear infinite;
+      will-change: transform;
+    }
+    .brands-carousel:hover .brands-track {
+      animation-play-state: paused;
+    }
+    .brand-card {
+      flex: 0 0 auto;
+      width: 180px;
+      height: 100px;
+      padding: 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.96);
+      border: 1px solid rgba(37, 80, 0, 0.08);
+      box-shadow: 0 12px 30px rgba(37, 80, 0, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--transicion);
+    }
+    .brand-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 18px 36px rgba(37, 80, 0, 0.14);
+    }
+    .brand-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: saturate(1.02) contrast(1.01);
+    }
+    @keyframes brandsScroll {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
     /* ===== CURSOS ===== */
     .cursos {
       padding: 100px 0 80px;
@@ -905,6 +968,16 @@
       .galeria-grid { grid-template-columns: repeat(3, 1fr); grid-auto-rows: 200px; }
     }
     @media (max-width: 768px) {
+
+      .brands-section { padding: 40px 0 22px; }
+      .brand-card {
+        width: 150px;
+        height: 88px;
+        padding: 14px;
+        border-radius: 18px;
+      }
+      .brands-track { gap: 14px; animation-duration: 28s; }
+
       .navbar-links { 
         display: none;
         position: fixed;
@@ -1122,6 +1195,88 @@
       </div>
     </div>
   </div>
+
+
+  <!-- ===== MARCAS ===== -->
+  <section class="brands-section animate" id="marcas">
+    <div class="container">
+      <div class="brands-header animate">
+        <span class="section-tag">Marcas aliadas</span>
+        <h2 class="section-title">Empresas y organizaciones que confían en nosotros</h2>
+        <p class="section-desc">Trabajamos junto a marcas, instituciones y organizaciones del sector agrícola, académico e industrial.</p>
+      </div>
+      <div class="brands-carousel" aria-label="Carrusel de marcas aliadas">
+        <div class="brands-track">
+          <div class="brand-card"><img src="img/marcas/01c459_6eed0bca1f504ebcab5a6f2e7d0219a2~mv2.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/1693676190511.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/1696530489668.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/5 Identidad UTPaquim#U00e9_Mesa de trabajo 1.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/80178070480.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/client-3.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/cropped-OZblu-Logo-Med.webp" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/D_NQ_NP_785018-MLA77221850712_072024-F.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/FOTO-PERFIL-GF-1.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Frucam-1024x337.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (10).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (11).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (12).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (5).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (6).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (7).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (7).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (8).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (8).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (9).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (9).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/la-maestra_logo-grupo.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logo (1).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo Vivaseed-1-.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo-grupo.lucava.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logo-seo-vertex.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logosys21a.webp" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo_de_la_UAM.svg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logo_nitromex.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo_simple_de_la_Chapingo.svg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/selva-negra.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/sinecta_logotipo-2-03_(10).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Takii-Seed-612x262.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/01c459_6eed0bca1f504ebcab5a6f2e7d0219a2~mv2.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/1693676190511.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/1696530489668.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/5 Identidad UTPaquim#U00e9_Mesa de trabajo 1.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/80178070480.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/client-3.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/cropped-OZblu-Logo-Med.webp" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/D_NQ_NP_785018-MLA77221850712_072024-F.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/FOTO-PERFIL-GF-1.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Frucam-1024x337.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (10).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (11).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (12).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (5).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (6).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (7).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (7).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (8).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (8).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (9).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/images (9).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/la-maestra_logo-grupo.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logo (1).jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo Vivaseed-1-.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo-grupo.lucava.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logo-seo-vertex.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logosys21a.webp" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo_de_la_UAM.svg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/logo_nitromex.jpg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Logo_simple_de_la_Chapingo.svg" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/selva-negra.png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/sinecta_logotipo-2-03_(10).png" alt="Marca aliada"></div>
+          <div class="brand-card"><img src="img/marcas/Takii-Seed-612x262.png" alt="Marca aliada"></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- ===== CURSOS ===== -->
   <section class="cursos" id="cursos">
