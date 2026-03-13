@@ -561,7 +561,7 @@ function renderCourses(filter = "all") {
       (course) => `
       <article class="course-card reveal visible">
         <div class="course-image-wrap">
-          <img src="${course.image}" alt="${course.title}" />
+          <img src="${course.image}" alt="${course.title}" loading="lazy" decoding="async" />
           <span class="course-tag">${course.tag}</span>
         </div>
 
@@ -680,3 +680,24 @@ document.addEventListener("keydown", (e) => {
 
 // Inicial
 renderCourses("all");
+
+
+// Marcas: duplicado automático para carrusel continuo y limpieza de logos rotos
+(function initBrandsCarousel() {
+  const track = document.querySelector('.brands-track');
+  if (!track || track.dataset.enhanced === 'true') return;
+  track.dataset.enhanced = 'true';
+
+  const cards = Array.from(track.children);
+  cards.forEach((card) => {
+    const img = card.querySelector('img');
+    if (!img) return;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('error', () => {
+      card.remove();
+    }, { once: true });
+  });
+
+  track.innerHTML += track.innerHTML;
+})();
