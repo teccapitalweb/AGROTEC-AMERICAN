@@ -1343,7 +1343,7 @@
         <!-- MENSUAL -->
         <div style="border:2px solid #e2e8dc;border-radius:18px;padding:28px;">
           <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6b2f;margin-bottom:8px;">Mensual</div>
-          <div style="font-size:2.5rem;font-weight:800;color:#1a1f18;line-height:1;">$299 <span style="font-size:1rem;color:#6b7a65;font-weight:400">MXN/mes</span></div>
+          <div style="font-size:2.5rem;font-weight:800;color:#1a1f18;line-height:1;">$200 <span style="font-size:1rem;color:#6b7a65;font-weight:400">MXN/mes</span></div>
           <hr style="border:none;border-top:1px solid #e2e8dc;margin:18px 0;">
           <ul style="list-style:none;margin-bottom:24px;">
             <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Videos exclusivos ilimitados</li>
@@ -1353,15 +1353,18 @@
             <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Certificado mensual</li>
             <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ 20% descuento en cursos</li>
           </ul>
-          <div id='product-component-1775859221268'></div>
+          <button onclick="triggerShopifyMensual()" style="width:100%;padding:14px;background:#255000;color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-bottom:10px;transition:background .2s;" onmouseover="this.style.background='#588100'" onmouseout="this.style.background='#255000'">
+            💳 Pagar ahora →
+          </button>
+          <div id='product-component-1775859221268' style="display:none"></div>
         </div>
 
         <!-- ANUAL -->
         <div style="border:2px solid #1a6b2f;border-radius:18px;padding:28px;position:relative;">
           <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#1a6b2f;color:#fff;font-size:.72rem;font-weight:700;padding:4px 14px;border-radius:100px;white-space:nowrap;">⭐ Más popular — Ahorra 30%</div>
           <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6b2f;margin-bottom:8px;">Anual</div>
-          <div style="font-size:2.5rem;font-weight:800;color:#1a1f18;line-height:1;">$2,499 <span style="font-size:1rem;color:#6b7a65;font-weight:400">MXN/año</span></div>
-          <div style="display:inline-block;background:rgba(163,230,53,.2);color:#2d6b0a;font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:100px;margin-top:4px;">Equivale a $208/mes</div>
+          <div style="font-size:2.5rem;font-weight:800;color:#1a1f18;line-height:1;">$1,920 <span style="font-size:1rem;color:#6b7a65;font-weight:400">MXN/año</span></div>
+          <div style="display:inline-block;background:rgba(163,230,53,.2);color:#2d6b0a;font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:100px;margin-top:4px;">Equivale a $160/mes</div>
           <hr style="border:none;border-top:1px solid #e2e8dc;margin:18px 0;">
           <ul style="list-style:none;margin-bottom:24px;">
             <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Todo lo del plan mensual</li>
@@ -1371,7 +1374,10 @@
             <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Certificado anual especial</li>
             <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ 30% descuento en cursos</li>
           </ul>
-          <div id='product-component-1775859189262'></div>
+          <button onclick="triggerShopifyAnual()" style="width:100%;padding:14px;background:#255000;color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-bottom:10px;transition:background .2s;" onmouseover="this.style.background='#588100'" onmouseout="this.style.background='#255000'">
+            💳 Pagar ahora →
+          </button>
+          <div id='product-component-1775859189262' style="display:none"></div>
         </div>
 
       </div>
@@ -1911,6 +1917,34 @@
   </script>
 
 
+
+
+<script>
+function triggerShopifyMensual() {
+  // Show the shopify button and click it
+  var el = document.getElementById('product-component-1775859221268');
+  el.style.display = 'block';
+  setTimeout(function() {
+    var btn = el.querySelector('button, .shopify-buy__btn');
+    if (btn) { btn.click(); el.style.display = 'none'; }
+    else {
+      // Fallback: redirect to checkout
+      window.location.href = 'https://pfueck-wm.myshopify.com/cart/8462089257014:1';
+    }
+  }, 800);
+}
+function triggerShopifyAnual() {
+  var el = document.getElementById('product-component-1775859189262');
+  el.style.display = 'block';
+  setTimeout(function() {
+    var btn = el.querySelector('button, .shopify-buy__btn');
+    if (btn) { btn.click(); el.style.display = 'none'; }
+    else {
+      window.location.href = 'https://pfueck-wm.myshopify.com/cart/8462204141622:1';
+    }
+  }, 800);
+}
+</script>
 
 </body>
 </html>
