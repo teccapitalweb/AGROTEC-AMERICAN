@@ -1921,28 +1921,10 @@
 
 <script>
 function triggerShopifyMensual() {
-  // Show the shopify button and click it
-  var el = document.getElementById('product-component-1775859221268');
-  el.style.display = 'block';
-  setTimeout(function() {
-    var btn = el.querySelector('button, .shopify-buy__btn');
-    if (btn) { btn.click(); el.style.display = 'none'; }
-    else {
-      // Fallback: redirect to checkout
-      window.location.href = 'https://pfueck-wm.myshopify.com/cart/8462089257014:1';
-    }
-  }, 800);
+  window.location.href = 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agro-club-mx';
 }
 function triggerShopifyAnual() {
-  var el = document.getElementById('product-component-1775859189262');
-  el.style.display = 'block';
-  setTimeout(function() {
-    var btn = el.querySelector('button, .shopify-buy__btn');
-    if (btn) { btn.click(); el.style.display = 'none'; }
-    else {
-      window.location.href = 'https://pfueck-wm.myshopify.com/cart/8462204141622:1';
-    }
-  }, 800);
+  window.location.href = 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx';
 }
 </script>
 
