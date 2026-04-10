@@ -1151,6 +1151,7 @@
         <a href="#nosotros">Nosotros</a>
         <a href="#opiniones">Opiniones</a>
         <a href="#galeria">Galería</a>
+        <a href="#" onclick="document.getElementById('modalVIP').style.display='flex';return false;" style="background:linear-gradient(135deg,#a3e635,#52c97a);color:#0d2b09;padding:8px 18px;border-radius:50px;font-weight:800;font-size:.85rem;letter-spacing:.02em;">⭐ Club VIP</a>
         <a href="#contacto" class="navbar-cta">Contáctanos</a>
       </div>
       <div class="hamburger" id="hamburger">
@@ -1306,6 +1307,125 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== SECCIÓN VIP ===== -->
+  <section style="padding:80px 24px;background:linear-gradient(135deg,#0d2b09 0%,#1a6b2f 60%,#2d9e4f 100%);position:relative;overflow:hidden;text-align:center;">
+    <div style="position:absolute;top:-30%;right:-10%;width:400px;height:400px;border-radius:50%;background:rgba(163,230,53,.06)"></div>
+    <div style="position:absolute;bottom:-40%;left:-5%;width:300px;height:300px;border-radius:50%;background:rgba(163,230,53,.04)"></div>
+    <div style="position:relative;z-index:1;max-width:700px;margin:0 auto;">
+      <div style="display:inline-flex;align-items:center;gap:8px;background:rgba(163,230,53,.15);border:1px solid rgba(163,230,53,.3);color:#a3e635;font-size:.8rem;font-weight:700;padding:6px 16px;border-radius:100px;margin-bottom:24px;">⭐ Membresía exclusiva</div>
+      <h2 style="font-family:'Playfair Display',Georgia,serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:800;color:#fff;line-height:1.15;margin-bottom:16px;">Únete a <span style="color:#a3e635">AgroClub MX</span><br>— El Club VIP de AgroTec</h2>
+      <p style="font-size:1.05rem;color:rgba(255,255,255,.75);max-width:520px;margin:0 auto 36px;line-height:1.7;">Videos exclusivos, PDFs técnicos, sesiones en vivo con expertos y comunidad privada de productores. Todo por menos de lo que imaginas.</p>
+      <div style="display:flex;justify-content:center;gap:20px;flex-wrap:wrap;margin-bottom:36px;">
+        <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.9rem;"><span>🎬</span> Videos exclusivos</div>
+        <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.9rem;"><span>📄</span> PDFs descargables</div>
+        <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.9rem;"><span>🔴</span> Sesiones en vivo</div>
+        <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.9rem;"><span>💬</span> Grupo WhatsApp VIP</div>
+      </div>
+      <button onclick="document.getElementById('modalVIP').style.display='flex'" style="background:#a3e635;color:#0d2b09;border:none;padding:16px 40px;border-radius:100px;font-size:1.05rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;box-shadow:0 8px 24px rgba(163,230,53,.3);" onmouseover="this.style.background='#bef264'" onmouseout="this.style.background='#a3e635'">
+        🌱 Quiero unirme al VIP →
+      </button>
+    </div>
+  </section>
+
+  <!-- MODAL VIP -->
+  <div id="modalVIP" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:9999;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
+    <div style="background:#fff;border-radius:24px;max-width:780px;width:100%;max-height:90vh;overflow-y:auto;padding:40px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;">
+        <div>
+          <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.6rem;font-weight:700;color:#1a2010;">Elige tu membresía VIP 🌱</h3>
+          <p style="color:#6b7a65;font-size:.9rem;margin-top:4px;">Acceso completo a todo el contenido de AgroClub MX</p>
+        </div>
+        <button onclick="document.getElementById('modalVIP').style.display='none'" style="width:36px;height:36px;border-radius:50%;border:1px solid #e2e8dc;background:#f4f6f3;cursor:pointer;font-size:1.1rem;">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+
+        <!-- MENSUAL -->
+        <div style="border:2px solid #e2e8dc;border-radius:18px;padding:28px;">
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6b2f;margin-bottom:8px;">Mensual</div>
+          <div style="font-size:2.5rem;font-weight:800;color:#1a1f18;line-height:1;">$299 <span style="font-size:1rem;color:#6b7a65;font-weight:400">MXN/mes</span></div>
+          <hr style="border:none;border-top:1px solid #e2e8dc;margin:18px 0;">
+          <ul style="list-style:none;margin-bottom:24px;">
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Videos exclusivos ilimitados</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ PDFs descargables</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Sesiones en vivo</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Grupo WhatsApp VIP</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Certificado mensual</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ 20% descuento en cursos</li>
+          </ul>
+          <div id='product-component-1775859221268'></div>
+        </div>
+
+        <!-- ANUAL -->
+        <div style="border:2px solid #1a6b2f;border-radius:18px;padding:28px;position:relative;">
+          <div style="position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:#1a6b2f;color:#fff;font-size:.72rem;font-weight:700;padding:4px 14px;border-radius:100px;white-space:nowrap;">⭐ Más popular — Ahorra 30%</div>
+          <div style="font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#1a6b2f;margin-bottom:8px;">Anual</div>
+          <div style="font-size:2.5rem;font-weight:800;color:#1a1f18;line-height:1;">$2,499 <span style="font-size:1rem;color:#6b7a65;font-weight:400">MXN/año</span></div>
+          <div style="display:inline-block;background:rgba(163,230,53,.2);color:#2d6b0a;font-size:.72rem;font-weight:700;padding:2px 10px;border-radius:100px;margin-top:4px;">Equivale a $208/mes</div>
+          <hr style="border:none;border-top:1px solid #e2e8dc;margin:18px 0;">
+          <ul style="list-style:none;margin-bottom:24px;">
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Todo lo del plan mensual</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ 2 meses GRATIS</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Acceso prioritario</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Sesión 1 a 1 con instructor</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ Certificado anual especial</li>
+            <li style="font-size:.85rem;color:#3d4d38;padding:4px 0;">✓ 30% descuento en cursos</li>
+          </ul>
+          <div id='product-component-1775859189262'></div>
+        </div>
+
+      </div>
+      <p style="text-align:center;margin-top:20px;font-size:.8rem;color:#6b7a65;">¿Ya eres miembro? <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" style="color:#1a6b2f;font-weight:700;">Inicia sesión aquí →</a></p>
+    </div>
+  </div>
+
+  <!-- SHOPIFY MENSUAL -->
+  <script type="text/javascript">
+  (function () {
+    var scriptURL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+    if (window.ShopifyBuy) { if (window.ShopifyBuy.UI) { ShopifyBuyInitMensual(); } else { loadScriptMensual(); } } else { loadScriptMensual(); }
+    function loadScriptMensual() { var s = document.createElement('script'); s.async = true; s.src = scriptURL; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s); s.onload = ShopifyBuyInitMensual; }
+    function ShopifyBuyInitMensual() {
+      var client = ShopifyBuy.buildClient({ domain: 'pfueck-wm.myshopify.com', storefrontAccessToken: '4c5d8f6909eccf2964cbb97e0ee2187e' });
+      ShopifyBuy.UI.onReady(client).then(function (ui) {
+        ui.createComponent('product', {
+          id: '8462089257014',
+          node: document.getElementById('product-component-1775859221268'),
+          moneyFormat: '%24%20%7B%7Bamount%7D%7D',
+          options: {
+            "product": { "styles": { "product": { "@media (min-width: 601px)": { "max-width": "100%", "margin-left": "0px" } }, "button": { "font-family": "Source Sans 3, sans-serif", "font-weight": "bold", "font-size": "15px", "padding-top": "13px", "padding-bottom": "13px", "background-color": "#255000", ":hover": { "background-color": "#588100" }, "border-radius": "50px", "width": "100%" } }, "buttonDestination": "checkout", "text": { "button": "Suscribirme mensual →" } },
+            "cart": { "styles": { "button": { "background-color": "#255000", "border-radius": "50px" } }, "text": { "total": "Subtotal", "button": "Pagar" } },
+            "toggle": { "styles": { "toggle": { "background-color": "#255000" } } }
+          }
+        });
+      });
+    }
+  })();
+  </script>
+
+  <!-- SHOPIFY ANUAL -->
+  <script type="text/javascript">
+  (function () {
+    var scriptURL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
+    if (window.ShopifyBuy) { if (window.ShopifyBuy.UI) { ShopifyBuyInitAnual(); } else { loadScriptAnual(); } } else { loadScriptAnual(); }
+    function loadScriptAnual() { var s = document.createElement('script'); s.async = true; s.src = scriptURL; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s); s.onload = ShopifyBuyInitAnual; }
+    function ShopifyBuyInitAnual() {
+      var client = ShopifyBuy.buildClient({ domain: 'pfueck-wm.myshopify.com', storefrontAccessToken: '4c5d8f6909eccf2964cbb97e0ee2187e' });
+      ShopifyBuy.UI.onReady(client).then(function (ui) {
+        ui.createComponent('product', {
+          id: '8462204141622',
+          node: document.getElementById('product-component-1775859189262'),
+          moneyFormat: '%24%20%7B%7Bamount%7D%7D',
+          options: {
+            "product": { "styles": { "product": { "@media (min-width: 601px)": { "max-width": "100%", "margin-left": "0px" } }, "button": { "font-family": "Source Sans 3, sans-serif", "font-weight": "bold", "font-size": "15px", "padding-top": "13px", "padding-bottom": "13px", "background-color": "#255000", ":hover": { "background-color": "#588100" }, "border-radius": "50px", "width": "100%" } }, "buttonDestination": "checkout", "text": { "button": "Suscribirme anual →" } },
+            "cart": { "styles": { "button": { "background-color": "#255000", "border-radius": "50px" } }, "text": { "total": "Subtotal", "button": "Pagar" } },
+            "toggle": { "styles": { "toggle": { "background-color": "#255000" } } }
+          }
+        });
+      });
+    }
+  })();
+  </script>
 
   <!-- ===== SOBRE NOSOTROS ===== -->
   <section class="about" id="nosotros">
@@ -1789,5 +1909,8 @@
     renderGaleria();
     populateSelect();
   </script>
+
+
+
 </body>
 </html>
