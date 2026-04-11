@@ -1921,11 +1921,144 @@
 
 <script>
 function triggerShopifyMensual() {
-  window.location.href = 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america';
+  window._shopifyTarget = 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america';
+  showAuthModal();
 }
 function triggerShopifyAnual() {
-  window.location.href = 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx';
+  window._shopifyTarget = 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx';
+  showAuthModal();
 }
+</script>
+
+
+<!-- MODAL AUTH -->
+<div id="modalAuth" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:99999;align-items:center;justify-content:center;padding:20px;" onclick="if(event.target===this)this.style.display='none'">
+  <div style="background:#fff;border-radius:20px;max-width:420px;width:100%;padding:36px;position:relative;">
+    <button onclick="document.getElementById('modalAuth').style.display='none'" style="position:absolute;top:14px;right:14px;width:32px;height:32px;border-radius:50%;border:1px solid #e2e8dc;background:#f4f6f3;cursor:pointer;font-size:1rem;">✕</button>
+
+    <!-- TABS -->
+    <div style="display:flex;gap:0;margin-bottom:24px;border-bottom:2px solid #e2e8dc;">
+      <button id="tabLogin" onclick="switchTab('login')" style="flex:1;padding:10px;border:none;background:none;font-weight:700;font-size:.9rem;color:#1a6b2f;border-bottom:2px solid #1a6b2f;margin-bottom:-2px;cursor:pointer;font-family:'Source Sans 3',sans-serif;">Iniciar sesión</button>
+      <button id="tabRegister" onclick="switchTab('register')" style="flex:1;padding:10px;border:none;background:none;font-weight:600;font-size:.9rem;color:#6b7a65;cursor:pointer;font-family:'Source Sans 3',sans-serif;">Registrarme</button>
+    </div>
+
+    <div id="authError" style="display:none;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#dc2626;font-size:.82rem;padding:10px 14px;border-radius:10px;margin-bottom:14px;"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="formLogin">
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Correo electrónico</label>
+        <input type="email" id="loginEmail" placeholder="tu@correo.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Contraseña</label>
+        <input type="password" id="loginPass" placeholder="••••••••" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <button onclick="doLogin()" style="width:100%;padding:13px;background:#255000;color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-bottom:12px;">Continuar al pago →</button>
+      <p style="text-align:center;font-size:.8rem;color:#6b7a65;">¿No tienes cuenta? <a onclick="switchTab('register')" style="color:#1a6b2f;font-weight:700;cursor:pointer;">Regístrate aquí</a></p>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="formRegister" style="display:none;">
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Nombre completo</label>
+        <input type="text" id="regNombre" placeholder="Tu nombre" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Correo electrónico</label>
+        <input type="email" id="regEmail" placeholder="tu@correo.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <div style="margin-bottom:20px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Contraseña</label>
+        <input type="password" id="regPass" placeholder="Mínimo 6 caracteres" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <button onclick="doRegister()" style="width:100%;padding:13px;background:#255000;color:#fff;border:none;border-radius:50px;font-size:1rem;font-weight:700;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-bottom:12px;">Crear cuenta y continuar →</button>
+      <p style="text-align:center;font-size:.8rem;color:#6b7a65;">¿Ya tienes cuenta? <a onclick="switchTab('login')" style="color:#1a6b2f;font-weight:700;cursor:pointer;">Inicia sesión</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE AUTH -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey: "AIzaSyCa6zt7YD3QUzGxyPky0zPPfjQwhtYMeTw",
+  authDomain: "agroclub-mx.firebaseapp.com",
+  projectId: "agroclub-mx",
+  storageBucket: "agroclub-mx.firebasestorage.app",
+  messagingSenderId: "231737548143",
+  appId: "1:231737548143:web:6651621c2cbad8a31a9c9a"
+});
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+window.showAuthModal = function() {
+  document.getElementById('modalAuth').style.display = 'flex';
+  document.getElementById('authError').style.display = 'none';
+};
+
+window.switchTab = function(tab) {
+  document.getElementById('authError').style.display = 'none';
+  if (tab === 'login') {
+    document.getElementById('formLogin').style.display = 'block';
+    document.getElementById('formRegister').style.display = 'none';
+    document.getElementById('tabLogin').style.color = '#1a6b2f';
+    document.getElementById('tabLogin').style.borderBottom = '2px solid #1a6b2f';
+    document.getElementById('tabRegister').style.color = '#6b7a65';
+    document.getElementById('tabRegister').style.borderBottom = 'none';
+  } else {
+    document.getElementById('formLogin').style.display = 'none';
+    document.getElementById('formRegister').style.display = 'block';
+    document.getElementById('tabRegister').style.color = '#1a6b2f';
+    document.getElementById('tabRegister').style.borderBottom = '2px solid #1a6b2f';
+    document.getElementById('tabLogin').style.color = '#6b7a65';
+    document.getElementById('tabLogin').style.borderBottom = 'none';
+  }
+};
+
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const err = document.getElementById('authError');
+  if (!email || !pass) { err.textContent = 'Llena todos los campos.'; err.style.display = 'block'; return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    document.getElementById('modalAuth').style.display = 'none';
+    window.location.href = window._shopifyTarget;
+  } catch(e) {
+    err.textContent = 'Correo o contraseña incorrectos.';
+    err.style.display = 'block';
+  }
+};
+
+window.doRegister = async function() {
+  const nombre = document.getElementById('regNombre').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  const err = document.getElementById('authError');
+  if (!nombre || !email || !pass) { err.textContent = 'Llena todos los campos.'; err.style.display = 'block'; return; }
+  if (pass.length < 6) { err.textContent = 'La contraseña debe tener mínimo 6 caracteres.'; err.style.display = 'block'; return; }
+  try {
+    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+    await updateProfile(cred.user, { displayName: nombre });
+    await setDoc(doc(db, 'miembros', cred.user.uid), {
+      nombre, email, estado: 'pendiente',
+      plan: '', fechaRegistro: new Date().toISOString()
+    });
+    document.getElementById('modalAuth').style.display = 'none';
+    window.location.href = window._shopifyTarget;
+  } catch(e) {
+    if (e.code === 'auth/email-already-in-use') {
+      err.textContent = 'Este correo ya está registrado. Inicia sesión.';
+    } else {
+      err.textContent = 'Error al registrarse. Intenta de nuevo.';
+    }
+    err.style.display = 'block';
+  }
+};
 </script>
 
 </body>
