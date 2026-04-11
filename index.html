@@ -1151,7 +1151,8 @@
         <a href="#nosotros">Nosotros</a>
         <a href="#opiniones">Opiniones</a>
         <a href="#galeria">Galería</a>
-        <a href="#" onclick="document.getElementById('modalVIP').style.display='flex';return false;" style="background:linear-gradient(135deg,#a3e635,#52c97a);color:#0d2b09;padding:8px 18px;border-radius:50px;font-weight:800;font-size:.85rem;letter-spacing:.02em;">⭐ Club VIP</a>
+        <a href="#" onclick="document.getElementById('modalVIP').style.display='flex';return false;" style="background:linear-gradient(135deg,#a3e635,#52c97a);color:#0d2b09;padding:8px 18px;border-radius:50px;font-weight:800;font-size:.85rem;letter-spacing:.02em;">⭐ Unirme al VIP</a>
+        <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" style="background:transparent;color:#fff;padding:8px 18px;border-radius:50px;font-weight:700;font-size:.85rem;border:2px solid rgba(255,255,255,.4);letter-spacing:.02em;transition:all .2s;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='transparent'">🔑 Ingresar</a>
         <a href="#contacto" class="navbar-cta">Contáctanos</a>
       </div>
       <div class="hamburger" id="hamburger">
@@ -1322,9 +1323,14 @@
         <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.9rem;"><span>🔴</span> Sesiones en vivo</div>
         <div style="display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.85);font-size:.9rem;"><span>💬</span> Grupo WhatsApp VIP</div>
       </div>
-      <button onclick="document.getElementById('modalVIP').style.display='flex'" style="background:#a3e635;color:#0d2b09;border:none;padding:16px 40px;border-radius:100px;font-size:1.05rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;box-shadow:0 8px 24px rgba(163,230,53,.3);" onmouseover="this.style.background='#bef264'" onmouseout="this.style.background='#a3e635'">
-        🌱 Quiero unirme al VIP →
-      </button>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="document.getElementById('modalVIP').style.display='flex'" style="background:#a3e635;color:#0d2b09;border:none;padding:16px 36px;border-radius:100px;font-size:1.05rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:all .2s;box-shadow:0 8px 24px rgba(163,230,53,.3);" onmouseover="this.style.background='#bef264'" onmouseout="this.style.background='#a3e635'">
+          🌱 Quiero unirme al VIP →
+        </button>
+        <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" style="background:transparent;color:#fff;border:2px solid rgba(255,255,255,.5);padding:16px 36px;border-radius:100px;font-size:1.05rem;font-weight:700;font-family:'Source Sans 3',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px;" onmouseover="this.style.background='rgba(255,255,255,.1)'" onmouseout="this.style.background='transparent'">
+          🔑 Ya soy miembro — Ingresar
+        </a>
+      </div>
     </div>
   </section>
 
@@ -2025,12 +2031,64 @@ window.doLogin = async function() {
   const err = document.getElementById('authError');
   if (!email || !pass) { err.textContent = 'Llena todos los campos.'; err.style.display = 'block'; return; }
   try {
-    await signInWithEmailAndPassword(auth, email, pass);
+    const cred = await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('modalAuth').style.display = 'none';
-    window.location.href = window._shopifyTarget;
+    if (window._vipRedirect) {
+      // Check if active member
+      const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+      const db = getFirestore(app);
+      const snap = await getDoc(doc(db, 'miembros', cred.user.uid));
+      if (snap.exists() && snap.data().estado === 'activo') {
+        window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      } else {
+        window._vipRedirect = false;
+        document.getElementById('modalVIP').style.display = 'flex';
+      }
+    } else {
+      window.location.href = window._shopifyTarget;
+    }
   } catch(e) {
     err.textContent = 'Correo o contraseña incorrectos.';
     err.style.display = 'block';
+  }
+};
+
+
+window.abrirAccesoVIP = async function() {
+  // Import auth
+  const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js");
+  const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+  const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js");
+
+  const apps = getApps();
+  const app = apps.length ? apps[0] : initializeApp({
+    apiKey: "AIzaSyCa6zt7YD3QUzGxyPky0zPPfjQwhtYMeTw",
+    authDomain: "agroclub-mx.firebaseapp.com",
+    projectId: "agroclub-mx",
+    storageBucket: "agroclub-mx.firebasestorage.app",
+    messagingSenderId: "231737548143",
+    appId: "1:231737548143:web:6651621c2cbad8a31a9c9a"
+  });
+
+  const auth = getAuth(app);
+  const user = auth.currentUser;
+
+  if (user) {
+    // Already logged in - check if active
+    const db = getFirestore(app);
+    const snap = await getDoc(doc(db, 'miembros', user.uid));
+    if (snap.exists() && snap.data().estado === 'activo') {
+      // Active member - go to VIP portal
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+    } else {
+      // Not active - show pricing modal
+      document.getElementById('modalVIP').style.display = 'flex';
+    }
+  } else {
+    // Not logged in - show login modal with VIP redirect
+    window._shopifyTarget = null;
+    window._vipRedirect = true;
+    document.getElementById('modalAuth').style.display = 'flex';
   }
 };
 
