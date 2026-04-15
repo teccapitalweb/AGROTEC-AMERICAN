@@ -1927,12 +1927,34 @@
 
 
 <script>
+async function crearCheckoutShopify(productId, userEmail) {
+  try {
+    const client = ShopifyBuy.buildClient({
+      domain: 'pfueck-wm.myshopify.com',
+      storefrontAccessToken: '4c5d8f6909eccf2964cbb97e0ee2187e'
+    });
+    const product   = await client.product.fetch(productId);
+    const variantId = product.variants[0].id;
+    const checkout  = await client.checkout.create({
+      lineItems: [{ variantId, quantity: 1 }],
+      email: userEmail
+    });
+    window.location.href = checkout.webUrl;
+  } catch(e) {
+    console.error('Error creando checkout:', e);
+    const url = productId === '8462089257014'
+      ? 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america'
+      : 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx';
+    window.location.href = url;
+  }
+}
+
 function triggerShopifyMensual() {
-  window._shopifyTarget = 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america';
+  window._shopifyProductId = '8462089257014';
   showAuthModal();
 }
 function triggerShopifyAnual() {
-  window._shopifyTarget = 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx';
+  window._shopifyProductId = '8462204141622';
   showAuthModal();
 }
 </script>
@@ -1974,6 +1996,10 @@ function triggerShopifyAnual() {
       <div style="margin-bottom:14px;">
         <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Correo electrónico</label>
         <input type="email" id="regEmail" placeholder="tu@correo.com" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
+      </div>
+      <div style="margin-bottom:14px;">
+        <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">WhatsApp <span style="color:#6b7a65;font-weight:400;">(con código de país, ej. 522381234567)</span></label>
+        <input type="tel" id="regWhatsapp" placeholder="522381234567" style="width:100%;padding:11px 14px;border:1.5px solid #e2e8dc;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;">
       </div>
       <div style="margin-bottom:20px;">
         <label style="display:block;font-size:.78rem;font-weight:600;color:#6b7a65;margin-bottom:5px;">Contraseña</label>
@@ -2035,7 +2061,6 @@ window.doLogin = async function() {
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('modalAuth').style.display = 'none';
     if (window._vipRedirect) {
-      // Check if active member
       const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
       const db = getFirestore(app);
       const snap = await getDoc(doc(db, 'miembros', cred.user.uid));
@@ -2045,8 +2070,10 @@ window.doLogin = async function() {
         window._vipRedirect = false;
         document.getElementById('modalVIP').style.display = 'flex';
       }
+    } else if (window._shopifyProductId) {
+      await crearCheckoutShopify(window._shopifyProductId, cred.user.email);
     } else {
-      window.location.href = window._shopifyTarget;
+      window.location.href = window._shopifyTarget || 'https://pfueck-wm.myshopify.com';
     }
   } catch(e) {
     err.textContent = 'Correo o contraseña incorrectos.';
@@ -2094,21 +2121,26 @@ window.abrirAccesoVIP = async function() {
 };
 
 window.doRegister = async function() {
-  const nombre = document.getElementById('regNombre').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const pass = document.getElementById('regPass').value;
-  const err = document.getElementById('authError');
+  const nombre   = document.getElementById('regNombre').value.trim();
+  const email    = document.getElementById('regEmail').value.trim();
+  const whatsapp = document.getElementById('regWhatsapp').value.trim();
+  const pass     = document.getElementById('regPass').value;
+  const err      = document.getElementById('authError');
   if (!nombre || !email || !pass) { err.textContent = 'Llena todos los campos.'; err.style.display = 'block'; return; }
   if (pass.length < 6) { err.textContent = 'La contraseña debe tener mínimo 6 caracteres.'; err.style.display = 'block'; return; }
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: nombre });
     await setDoc(doc(db, 'miembros', cred.user.uid), {
-      nombre, email, estado: 'pendiente',
+      nombre, email, whatsapp, estado: 'pendiente',
       plan: '', fechaRegistro: new Date().toISOString()
     });
     document.getElementById('modalAuth').style.display = 'none';
-    window.location.href = window._shopifyTarget;
+    if (window._shopifyProductId) {
+      await crearCheckoutShopify(window._shopifyProductId, email);
+    } else {
+      window.location.href = window._shopifyTarget || 'https://pfueck-wm.myshopify.com';
+    }
   } catch(e) {
     if (e.code === 'auth/email-already-in-use') {
       err.textContent = 'Este correo ya está registrado. Inicia sesión.';
