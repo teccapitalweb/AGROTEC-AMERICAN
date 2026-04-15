@@ -1928,25 +1928,53 @@
 
 <script>
 async function crearCheckoutShopify(productId, userEmail) {
-  try {
-    const client = ShopifyBuy.buildClient({
-      domain: 'pfueck-wm.myshopify.com',
-      storefrontAccessToken: '4c5d8f6909eccf2964cbb97e0ee2187e'
-    });
-    const product   = await client.product.fetch(productId);
-    const variantId = product.variants[0].id;
-    const checkout  = await client.checkout.create({
-      lineItems: [{ variantId, quantity: 1 }],
-      email: userEmail
-    });
-    window.location.href = checkout.webUrl;
-  } catch(e) {
-    console.error('Error creando checkout:', e);
-    const url = productId === '8462089257014'
-      ? 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america'
-      : 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx';
-    window.location.href = url;
-  }
+  const DOMAIN = 'pfueck-wm.myshopify.com';
+  const TOKEN  = '4c5d8f6909eccf2964cbb97e0ee2187e';
+
+  // Paso 1: obtener variantId via Storefront API (sin SDK)
+  const variantQuery = `
+    { product(id: "gid://shopify/Product/${productId}") {
+        variants(first:1){ edges{ node{ id } } }
+    }}`;
+
+  const variantRes = await fetch(`https://${DOMAIN}/api/2024-01/graphql.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': TOKEN
+    },
+    body: JSON.stringify({ query: variantQuery })
+  });
+  const variantData = await variantRes.json();
+  const variantId = variantData?.data?.product?.variants?.edges?.[0]?.node?.id;
+
+  if (!variantId) throw new Error('No se encontró el producto');
+
+  // Paso 2: crear checkout con email pre-llenado
+  const checkoutMutation = `
+    mutation {
+      checkoutCreate(input: {
+        email: "${userEmail}",
+        lineItems: [{ variantId: "${variantId}", quantity: 1 }]
+      }) {
+        checkout { webUrl }
+        checkoutUserErrors { message }
+      }
+    }`;
+
+  const checkoutRes = await fetch(`https://${DOMAIN}/api/2024-01/graphql.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': TOKEN
+    },
+    body: JSON.stringify({ query: checkoutMutation })
+  });
+  const checkoutData = await checkoutRes.json();
+  const webUrl = checkoutData?.data?.checkoutCreate?.checkout?.webUrl;
+
+  if (!webUrl) throw new Error('No se pudo crear el checkout');
+  window.location.href = webUrl;
 }
 
 function triggerShopifyMensual() {
@@ -2071,7 +2099,16 @@ window.doLogin = async function() {
         document.getElementById('modalVIP').style.display = 'flex';
       }
     } else if (window._shopifyProductId) {
-      await crearCheckoutShopify(window._shopifyProductId, cred.user.email);
+      const btn = document.querySelector('#formLogin button[onclick]') || document.querySelector('#formLogin button');
+      if (btn) { btn.textContent = 'Redirigiendo al pago...'; btn.disabled = true; }
+      try {
+        await crearCheckoutShopify(window._shopifyProductId, cred.user.email);
+      } catch(ce) {
+        console.error('Checkout error:', ce);
+        if (btn) { btn.textContent = 'Continuar al pago →'; btn.disabled = false; }
+        err.textContent = 'Error al conectar con el pago. Intenta de nuevo.';
+        err.style.display = 'block';
+      }
     } else {
       window.location.href = window._shopifyTarget || 'https://pfueck-wm.myshopify.com';
     }
@@ -2137,7 +2174,21 @@ window.doRegister = async function() {
     });
     document.getElementById('modalAuth').style.display = 'none';
     if (window._shopifyProductId) {
-      await crearCheckoutShopify(window._shopifyProductId, email);
+      // Mostrar pantalla de carga mientras redirige
+      document.body.insertAdjacentHTML('beforeend', `
+        <div id="_redirect-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+          <div style="width:48px;height:48px;border:4px solid #a3e635;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+          <div style="color:#fff;font-size:1rem;font-weight:700;font-family:'Source Sans 3',sans-serif;">Preparando tu pago...</div>
+        </div>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+      `);
+      try {
+        await crearCheckoutShopify(window._shopifyProductId, email);
+      } catch(ce) {
+        document.getElementById('_redirect-overlay')?.remove();
+        console.error('Checkout error:', ce);
+        alert('Cuenta creada ✅\nError al conectar con el pago. Recarga e intenta de nuevo.');
+      }
     } else {
       window.location.href = window._shopifyTarget || 'https://pfueck-wm.myshopify.com';
     }
