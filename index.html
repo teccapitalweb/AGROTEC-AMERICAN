@@ -1930,24 +1930,22 @@
 async function crearCheckoutShopify(productId, userEmail) {
   const DOMAIN = 'pfueck-wm.myshopify.com';
   const TOKEN  = '4c5d8f6909eccf2964cbb97e0ee2187e';
-  const API    = 'https://' + DOMAIN + '/api/2023-10/graphql.json';
-  const HEADERS = {
-    'Content-Type': 'application/json',
-    'X-Shopify-Storefront-Access-Token': TOKEN
-  };
 
-  // Paso 1: obtener variantId
-  const variantRes = await fetch(API, {
-    method: 'POST', headers: HEADERS,
-    body: JSON.stringify({ query: `{ product(id: "gid://shopify/Product/${productId}") { variants(first:1){ edges{ node{ id } } } } }` })
-  });
-  const variantData = await variantRes.json();
-  const variantGid  = variantData?.data?.product?.variants?.edges?.[0]?.node?.id;
+  // Variant IDs hardcodeados — más rápido y confiable
+  const VARIANTS = {
+    '8462089257014': 'gid://shopify/ProductVariant/45322441687094', // Mensual
+    '8462204141622': 'gid://shopify/ProductVariant/45322590224438'  // Anual
+  };
+  const variantGid = VARIANTS[productId];
   if (!variantGid) throw new Error('Producto no encontrado');
 
-  // Paso 2: crear cart con email pre-llenado (Cart API — no deprecated)
-  const cartRes = await fetch(API, {
-    method: 'POST', headers: HEADERS,
+  // Crear cart con email pre-llenado
+  const res = await fetch(`https://${DOMAIN}/api/2023-10/graphql.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': TOKEN
+    },
     body: JSON.stringify({ query: `
       mutation {
         cartCreate(input: {
@@ -1957,12 +1955,12 @@ async function crearCheckoutShopify(productId, userEmail) {
           cart { checkoutUrl }
           userErrors { message }
         }
-      }` })
+      }`
+    })
   });
-  const cartData    = await cartRes.json();
-  const checkoutUrl = cartData?.data?.cartCreate?.cart?.checkoutUrl;
+  const data = await res.json();
+  const checkoutUrl = data?.data?.cartCreate?.cart?.checkoutUrl;
   if (!checkoutUrl) throw new Error('No se pudo crear el carrito');
-
   window.location.href = checkoutUrl;
 }
 
