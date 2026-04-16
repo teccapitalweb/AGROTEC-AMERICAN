@@ -1928,14 +1928,12 @@
 
 <script>
 async function crearCheckoutShopify(productId, userEmail) {
-  const VARIANTS = {
-    '8462089257014': { variantId: '45322441687094', sellingPlanId: '2071691318' }, // Mensual
-    '8462204141622': { variantId: '45322590224438', sellingPlanId: '2071724086' }  // Anual
+  const PRODUCTOS = {
+    '8462089257014': 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america',
+    '8462204141622': 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx'
   };
-  const plan = VARIANTS[productId];
-  if (!plan) throw new Error('Producto no encontrado');
-
-  const url = `https://pfueck-wm.myshopify.com/cart/${plan.variantId}:1?selling_plan=${plan.sellingPlanId}&checkout[email]=${encodeURIComponent(userEmail)}`;
+  const url = PRODUCTOS[productId];
+  if (!url) throw new Error('Producto no encontrado');
   window.location.href = url;
 }
 
