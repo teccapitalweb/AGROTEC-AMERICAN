@@ -1928,13 +1928,46 @@
 
 <script>
 async function crearCheckoutShopify(productId, userEmail) {
-  const PRODUCTOS = {
-    '8462089257014': 'https://pfueck-wm.myshopify.com/products/membresia-mensual-agrotec-america',
-    '8462204141622': 'https://pfueck-wm.myshopify.com/products/membresia-anual-agro-club-mx'
+  const DOMAIN = 'pfueck-wm.myshopify.com';
+  const TOKEN  = '4c5d8f6909eccf2964cbb97e0ee2187e';
+
+  const VARIANTS = {
+    '8462089257014': { variantGid: 'gid://shopify/ProductVariant/45322441687094', sellingPlanGid: 'gid://shopify/SellingPlan/2071691318' },
+    '8462204141622': { variantGid: 'gid://shopify/ProductVariant/45322590224438', sellingPlanGid: 'gid://shopify/SellingPlan/2071724086' }
   };
-  const url = PRODUCTOS[productId];
-  if (!url) throw new Error('Producto no encontrado');
-  window.location.href = url;
+  const plan = VARIANTS[productId];
+  if (!plan) throw new Error('Producto no encontrado');
+
+  const res = await fetch(`https://${DOMAIN}/api/2023-10/graphql.json`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Shopify-Storefront-Access-Token': TOKEN
+    },
+    body: JSON.stringify({ query: `
+      mutation {
+        cartCreate(input: {
+          lines: [{
+            merchandiseId: "${plan.variantGid}",
+            quantity: 1,
+            sellingPlanId: "${plan.sellingPlanGid}"
+          }],
+          buyerIdentity: { email: "${userEmail}" }
+        }) {
+          cart { checkoutUrl }
+          userErrors { message field }
+        }
+      }`
+    })
+  });
+
+  const data = await res.json();
+  const errors = data?.data?.cartCreate?.userErrors;
+  if (errors?.length) throw new Error(errors[0].message);
+
+  const checkoutUrl = data?.data?.cartCreate?.cart?.checkoutUrl;
+  if (!checkoutUrl) throw new Error('No se pudo crear el carrito');
+  window.location.href = checkoutUrl;
 }
 
 function triggerShopifyMensual() {
