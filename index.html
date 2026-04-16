@@ -1929,14 +1929,13 @@
 <script>
 async function crearCheckoutShopify(productId, userEmail) {
   const VARIANTS = {
-    '8462089257014': '45322441687094', // Mensual
-    '8462204141622': '45322590224438'  // Anual
+    '8462089257014': { variantId: '45322441687094', sellingPlanId: '1260159030' }, // Mensual
+    '8462204141622': { variantId: '45322590224438', sellingPlanId: '1260191798' }  // Anual
   };
-  const variantId = VARIANTS[productId];
-  if (!variantId) throw new Error('Producto no encontrado');
+  const plan = VARIANTS[productId];
+  if (!plan) throw new Error('Producto no encontrado');
 
-  // URL directa — sin API, sin permisos, siempre funciona
-  const url = `https://pfueck-wm.myshopify.com/cart/${variantId}:1?checkout[email]=${encodeURIComponent(userEmail)}&attributes[source]=agroclub`;
+  const url = `https://pfueck-wm.myshopify.com/cart/${plan.variantId}:1?selling_plan=${plan.sellingPlanId}&checkout[email]=${encodeURIComponent(userEmail)}`;
   window.location.href = url;
 }
 
