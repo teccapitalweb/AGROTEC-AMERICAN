@@ -1936,33 +1936,277 @@ async function crearCheckoutShopify(productId, userEmail) {
   const data = await res.json();
   if (!data.checkoutUrl) throw new Error(data.error || 'No se pudo crear el checkout');
 
-  // Abrir checkout de Shopify en ventana POPUP (estilo OdonTeck)
+  // Guardar la URL para poder reabrir el popup si el usuario lo cierra
+  window._shopifyCheckoutUrl = data.checkoutUrl;
+
+  // Cerrar modales previos (auth, vip)
+  const modalAuth = document.getElementById('modalAuth');
+  const modalVIP  = document.getElementById('modalVIP');
+  if (modalAuth) modalAuth.style.display = 'none';
+  if (modalVIP)  modalVIP.style.display  = 'none';
+
+  // Abrir el popup de Shopify
+  abrirPopupShopify();
+
+  // Mostrar modal guía ("¡Ya casi estás dentro!")
+  const planNombre = window._shopifyPlanNombre || 'Membresía';
+  const guiaPlanEl = document.getElementById('guiaPlanNombre');
+  if (guiaPlanEl) guiaPlanEl.textContent = 'AgroClub MX · ' + planNombre;
+  const fbEl = document.getElementById('guiaFeedback');
+  if (fbEl) fbEl.style.display = 'none';
+  const modalGuia = document.getElementById('modalGuiaPago');
+  if (modalGuia) modalGuia.style.display = 'flex';
+
+  // Iniciar listener real-time: detecta el pago automáticamente y redirige
+  iniciarEscuchaPago();
+}
+
+// Abre (o reabre) la ventana popup de Shopify
+function abrirPopupShopify() {
+  if (!window._shopifyCheckoutUrl) return null;
   const w = 540;
   const h = 780;
   const left = (window.screen.width / 2) - (w / 2);
-  const top = (window.screen.height / 2) - (h / 2);
+  const top  = (window.screen.height / 2) - (h / 2);
   const features = `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=yes`;
-  const popup = window.open(data.checkoutUrl, 'pago_shopify_agroclub', features);
+  const popup = window.open(window._shopifyCheckoutUrl, 'pago_shopify_agroclub', features);
 
-  // Fallback: si el navegador bloquea el popup, cae al redirect normal
+  // Fallback si el navegador bloquea popups
   if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-    window.location.href = data.checkoutUrl;
-    return;
+    window.location.href = window._shopifyCheckoutUrl;
+    return null;
   }
 
-  // Llevar el popup al frente (por si el navegador lo manda atrás)
+  window._shopifyPopupRef = popup;
   try { popup.focus(); } catch (e) {}
+  return popup;
+}
+
+// Reabre el popup si el usuario lo cerró (o le da foco si sigue abierto)
+function reabrirPopupShopify() {
+  if (window._shopifyPopupRef && !window._shopifyPopupRef.closed) {
+    try { window._shopifyPopupRef.focus(); return; } catch (e) {}
+  }
+  abrirPopupShopify();
+}
+
+function cerrarModalGuiaPago() {
+  const m = document.getElementById('modalGuiaPago');
+  if (m) m.style.display = 'none';
+  detenerEscuchaPago();
+}
+
+// Verifica en Firestore si la membresía ya está activa y redirige al panel VIP
+async function verificarPagoYEntrar(btn) {
+  const feedback = document.getElementById('guiaFeedback');
+  const textoOriginal = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '⏳ Verificando...';
+  if (feedback) feedback.style.display = 'none';
+
+  try {
+    const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js");
+    const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js");
+
+    const apps = getApps();
+    const app = apps.length ? apps[0] : initializeApp({
+      apiKey: "AIzaSyCa6zt7YD3QUzGxyPky0zPPfjQwhtYMeTw",
+      authDomain: "agroclub-mx.firebaseapp.com",
+      projectId: "agroclub-mx",
+      storageBucket: "agroclub-mx.firebasestorage.app",
+      messagingSenderId: "231737548143",
+      appId: "1:231737548143:web:6651621c2cbad8a31a9c9a"
+    });
+
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+
+    if (!user) {
+      mostrarFeedbackGuia('error', 'No se detectó tu sesión. Cierra este mensaje e inicia sesión de nuevo.');
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal;
+      return;
+    }
+
+    const db = getFirestore(app);
+    const snap = await getDoc(doc(db, 'miembros', user.uid));
+
+    if (snap.exists() && snap.data().estado === 'activo') {
+      mostrarFeedbackGuia('ok', '✅ ¡Pago confirmado! Entrando a tu Club...');
+      setTimeout(() => {
+        window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      }, 1500);
+    } else {
+      mostrarFeedbackGuia('wait', '⏳ Tu pago aún se está procesando. Espera 10-20 segundos y vuelve a intentar.');
+      btn.disabled = false;
+      btn.innerHTML = textoOriginal;
+    }
+  } catch (e) {
+    console.error('Error verificando pago:', e);
+    mostrarFeedbackGuia('error', 'Error al verificar. Intenta de nuevo en unos segundos.');
+    btn.disabled = false;
+    btn.innerHTML = textoOriginal;
+  }
+}
+
+function mostrarFeedbackGuia(tipo, texto) {
+  const f = document.getElementById('guiaFeedback');
+  if (!f) return;
+  const estilos = {
+    ok:    { bg:'#e3f5e7', color:'#1f4d2e' },
+    wait:  { bg:'#fff7e6', color:'#8a5a1a' },
+    error: { bg:'#fde7e7', color:'#8a1a1a' }
+  };
+  const s = estilos[tipo] || estilos.wait;
+  f.style.display = 'block';
+  f.style.background = s.bg;
+  f.style.color = s.color;
+  f.innerHTML = texto;
+}
+
+// ====== AUTO-DETECCIÓN DEL PAGO (onSnapshot real-time) ======
+// Escucha el doc miembros/{uid} en Firestore; cuando el webhook de Railway
+// pone estado:'activo', cierra el popup de Shopify y redirige al Club.
+window._pagoUnsubscribe = null;
+window._pagoTimeoutSafety = null;
+
+async function iniciarEscuchaPago() {
+  detenerEscuchaPago();
+  try {
+    const { getAuth } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js");
+    const { getFirestore, doc, onSnapshot } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
+    const { initializeApp, getApps } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js");
+
+    const apps = getApps();
+    const app = apps.length ? apps[0] : initializeApp({
+      apiKey: "AIzaSyCa6zt7YD3QUzGxyPky0zPPfjQwhtYMeTw",
+      authDomain: "agroclub-mx.firebaseapp.com",
+      projectId: "agroclub-mx",
+      storageBucket: "agroclub-mx.firebasestorage.app",
+      messagingSenderId: "231737548143",
+      appId: "1:231737548143:web:6651621c2cbad8a31a9c9a"
+    });
+
+    const auth = getAuth(app);
+    const user = auth.currentUser;
+    if (!user) return;
+
+    const db = getFirestore(app);
+
+    window._pagoUnsubscribe = onSnapshot(doc(db, 'miembros', user.uid), (snap) => {
+      if (snap.exists() && snap.data().estado === 'activo') {
+        detenerEscuchaPago();
+
+        // Cerrar popup de Shopify si sigue abierto
+        if (window._shopifyPopupRef && !window._shopifyPopupRef.closed) {
+          try { window._shopifyPopupRef.close(); } catch (e) {}
+        }
+
+        // Cambiar el estado visual del modal a "pago confirmado"
+        const dotWrap = document.querySelector('#modalGuiaPago .agro-estado-dot');
+        const dotTxt  = document.querySelector('#modalGuiaPago .agro-estado-txt');
+        if (dotWrap) dotWrap.style.background = '#16a34a';
+        if (dotTxt)  dotTxt.textContent = '¡Pago recibido!';
+
+        mostrarFeedbackGuia('ok', '✅ ¡Pago confirmado! Entrando a tu Club...');
+
+        // Redirigir al panel VIP
+        setTimeout(() => {
+          window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+        }, 1800);
+      }
+    }, (err) => { console.warn('Listener pago error:', err); });
+
+    // Safety: auto-detener el listener a los 25 min (evita oyentes huérfanos)
+    window._pagoTimeoutSafety = setTimeout(() => {
+      detenerEscuchaPago();
+    }, 25 * 60 * 1000);
+
+  } catch (e) {
+    console.warn('No se pudo iniciar escucha de pago:', e);
+  }
+}
+
+function detenerEscuchaPago() {
+  if (window._pagoUnsubscribe) {
+    try { window._pagoUnsubscribe(); } catch (e) {}
+    window._pagoUnsubscribe = null;
+  }
+  if (window._pagoTimeoutSafety) {
+    clearTimeout(window._pagoTimeoutSafety);
+    window._pagoTimeoutSafety = null;
+  }
 }
 
 function triggerShopifyMensual() {
   window._shopifyProductId = '8462089257014';
+  window._shopifyPlanNombre = 'Plan Mensual';
   showAuthModal();
 }
 function triggerShopifyAnual() {
   window._shopifyProductId = '8462204141622';
+  window._shopifyPlanNombre = 'Plan Anual';
   showAuthModal();
 }
 </script>
+
+
+<!-- MODAL GUÍA POST-CHECKOUT (estilo OdonTeck) -->
+<div id="modalGuiaPago" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100000;align-items:center;justify-content:center;padding:20px;font-family:'Source Sans 3',sans-serif;">
+  <div style="background:#fff;border-radius:20px;max-width:460px;width:100%;position:relative;overflow:hidden;box-shadow:0 24px 60px -18px rgba(0,0,0,.4);">
+
+    <!-- Close -->
+    <button onclick="cerrarModalGuiaPago()" aria-label="Cerrar" style="position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:1px solid #e2e8dc;background:#f4f6f3;cursor:pointer;font-size:1rem;z-index:2;color:#6b7867;">✕</button>
+
+    <!-- Header con logo + estado esperando pago -->
+    <div style="padding:20px 60px 20px 22px;border-bottom:1px solid #eef2ea;display:flex;align-items:center;gap:12px;">
+      <img src="img/logo.jpg" alt="AgroTec" style="width:40px;height:40px;border-radius:8px;object-fit:cover;flex-shrink:0;">
+      <div style="min-width:0;">
+        <div style="font-weight:800;color:#1a2010;font-size:1rem;line-height:1.2;" id="guiaPlanNombre">AgroClub MX · Plan Mensual</div>
+        <div style="display:flex;align-items:center;gap:7px;color:#6b7867;font-size:.85rem;margin-top:4px;">
+          <span class="agro-estado-dot" style="width:8px;height:8px;border-radius:50%;background:#52c97a;display:inline-block;animation:agroPulseDot 1.5s infinite;box-shadow:0 0 0 0 rgba(82,201,122,.6);"></span>
+          <span class="agro-estado-txt">Esperando tu pago...</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Body -->
+    <div style="padding:28px 24px 24px;text-align:center;">
+      <div style="width:72px;height:72px;border-radius:50%;background:#eaf3ec;display:grid;place-items:center;margin:0 auto 16px;font-size:2.2rem;line-height:1;">🎉</div>
+      <h3 style="font-family:'Playfair Display',Georgia,serif;font-size:1.45rem;font-weight:700;color:#1a2010;margin-bottom:10px;line-height:1.2;">¡Ya casi estás dentro!</h3>
+      <p style="color:#6b7867;font-size:.93rem;line-height:1.5;margin-bottom:20px;max-width:360px;margin-left:auto;margin-right:auto;">
+        Completa tu pago en la ventana de Shopify y luego regresa aquí para entrar a tu Club.
+      </p>
+
+      <!-- Lista de pasos -->
+      <div style="background:#f4f6f3;border-radius:14px;padding:14px 18px;margin-bottom:20px;text-align:left;">
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;color:#2d3f34;font-size:.88rem;"><span style="color:#52c97a;font-weight:900;font-size:1.1rem;line-height:1.2;">•</span><span>Ingresa tus datos de pago en la ventana de Shopify</span></div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;color:#2d3f34;font-size:.88rem;"><span style="color:#52c97a;font-weight:900;font-size:1.1rem;line-height:1.2;">•</span><span>Haz clic en <strong>"Pagar suscripción"</strong></span></div>
+        <div style="display:flex;align-items:flex-start;gap:10px;padding:6px 0;color:#2d3f34;font-size:.88rem;"><span style="color:#52c97a;font-weight:900;font-size:1.1rem;line-height:1.2;">•</span><span>Vuelve aquí y haz clic en <strong>"Ya pagué"</strong></span></div>
+      </div>
+
+      <!-- Botones -->
+      <button onclick="reabrirPopupShopify()" style="display:block;width:100%;padding:14px;background:linear-gradient(135deg,#2d6a3e,#1f4d2e);color:#fff;border:none;border-radius:50px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;margin-bottom:10px;box-shadow:0 6px 18px rgba(45,106,62,.3);transition:transform .15s ease,box-shadow .15s ease;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 10px 22px rgba(45,106,62,.4)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 6px 18px rgba(45,106,62,.3)'">
+        🔗 Abrir ventana de Shopify
+      </button>
+      <button onclick="verificarPagoYEntrar(this)" style="display:block;width:100%;padding:13px;background:#eaf3ec;color:#1f4d2e;border:1.5px solid #52c97a;border-radius:50px;font-size:.95rem;font-weight:800;cursor:pointer;font-family:'Source Sans 3',sans-serif;transition:background .15s ease;" onmouseover="this.style.background='#d5e8d9'" onmouseout="this.style.background='#eaf3ec'">
+        ✓ Ya pagué — Verificar y entrar
+      </button>
+
+      <!-- Feedback zone -->
+      <div id="guiaFeedback" style="display:none;margin-top:14px;padding:10px 14px;border-radius:10px;font-size:.85rem;font-weight:600;"></div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes agroPulseDot {
+  0%   { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(82,201,122,.6); }
+  70%  { opacity: 0.6; transform: scale(1.15); box-shadow: 0 0 0 8px rgba(82,201,122,0); }
+  100% { opacity: 1; transform: scale(1); box-shadow: 0 0 0 0 rgba(82,201,122,0); }
+}
+</style>
 
 
 <!-- MODAL AUTH -->
