@@ -1935,7 +1935,23 @@ async function crearCheckoutShopify(productId, userEmail) {
   });
   const data = await res.json();
   if (!data.checkoutUrl) throw new Error(data.error || 'No se pudo crear el checkout');
-  window.location.href = data.checkoutUrl;
+
+  // Abrir checkout de Shopify en ventana POPUP (estilo OdonTeck)
+  const w = 540;
+  const h = 780;
+  const left = (window.screen.width / 2) - (w / 2);
+  const top = (window.screen.height / 2) - (h / 2);
+  const features = `width=${w},height=${h},left=${left},top=${top},resizable=yes,scrollbars=yes,status=yes,toolbar=no,menubar=no,location=yes`;
+  const popup = window.open(data.checkoutUrl, 'pago_shopify_agroclub', features);
+
+  // Fallback: si el navegador bloquea el popup, cae al redirect normal
+  if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+    window.location.href = data.checkoutUrl;
+    return;
+  }
+
+  // Llevar el popup al frente (por si el navegador lo manda atrás)
+  try { popup.focus(); } catch (e) {}
 }
 
 function triggerShopifyMensual() {
