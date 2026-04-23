@@ -1921,6 +1921,21 @@
     renderOpiniones();
     renderGaleria();
     populateSelect();
+
+    // Auto-abrir modal VIP si viene del portal (con ?suscribirme=1)
+    (function() {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('suscribirme') === '1') {
+        setTimeout(() => {
+          const modal = document.getElementById('modalVIP');
+          if (modal) {
+            modal.style.display = 'flex';
+            // Scroll suave hacia el modal
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        }, 600);
+      }
+    })();
   </script>
 
 
