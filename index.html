@@ -2305,7 +2305,7 @@ function triggerShopifyAnual() {
 <!-- FIREBASE AUTH -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-auth.js";
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
 
 const app = initializeApp({
@@ -2349,6 +2349,9 @@ window.doLogin = async function() {
   const err = document.getElementById('authError');
   if (!email || !pass) { err.textContent = 'Llena todos los campos.'; err.style.display = 'block'; return; }
   try {
+    // Cerrar sesión previa para evitar conflictos
+    try { await signOut(auth); } catch(e) {}
+
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('modalAuth').style.display = 'none';
     if (window._vipRedirect) {
@@ -2418,7 +2421,12 @@ window.abrirAccesoVIP = async function() {
 window.doGoogleLogin = async function() {
   const err = document.getElementById('authError');
   try {
+    // Cerrar sesión previa para evitar conflictos
+    try { await signOut(auth); } catch(e) {}
+
     const provider = new GoogleAuthProvider();
+    // Forzar que Google muestre selector de cuenta cada vez
+    provider.setCustomParameters({ prompt: 'select_account' });
     const cred = await signInWithPopup(auth, provider);
     const user = cred.user;
     const email = user.email;
@@ -2463,6 +2471,9 @@ window.doRegister = async function() {
   if (!nombre || !email || !pass) { err.textContent = 'Llena todos los campos.'; err.style.display = 'block'; return; }
   if (pass.length < 6) { err.textContent = 'La contraseña debe tener mínimo 6 caracteres.'; err.style.display = 'block'; return; }
   try {
+    // Cerrar cualquier sesión previa para evitar conflictos
+    try { await signOut(auth); } catch(e) {}
+
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: nombre });
     // NO crear en 'miembros' — solo se crea ahí cuando pagan (webhook de Shopify).
