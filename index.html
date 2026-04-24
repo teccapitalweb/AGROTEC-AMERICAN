@@ -1942,38 +1942,78 @@
 
 
 <script>
-async function crearCheckoutShopify(productId, userEmail) {
+async function crearCheckoutStripe(planKey, userEmail, userUid, userNombre) {
   const res = await fetch('https://agroclub-webhook-production.up.railway.app/crear-checkout', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ productId, email: userEmail })
+    body: JSON.stringify({
+      plan: planKey,
+      email: userEmail,
+      uid: userUid || '',
+      nombre: userNombre || ''
+    })
   });
   const data = await res.json();
-  if (!data.checkoutUrl) throw new Error(data.error || 'No se pudo crear el checkout');
+  if (!data.clientSecret) throw new Error(data.error || 'No se pudo crear el checkout');
 
-  // Guardar la URL para poder reabrir el popup si el usuario lo cierra
-  window._shopifyCheckoutUrl = data.checkoutUrl;
-
-  // Cerrar modales previos (auth, vip)
+  // Cerrar modales previos
   const modalAuth = document.getElementById('modalAuth');
   const modalVIP  = document.getElementById('modalVIP');
   if (modalAuth) modalAuth.style.display = 'none';
   if (modalVIP)  modalVIP.style.display  = 'none';
 
-  // Abrir el popup de Shopify
-  abrirPopupShopify();
+  // Abrir modal de Stripe Embedded
+  abrirModalStripe(data.clientSecret);
+}
 
-  // Mostrar modal guía ("¡Ya casi estás dentro!")
-  const planNombre = window._shopifyPlanNombre || 'Membresía';
-  const guiaPlanEl = document.getElementById('guiaPlanNombre');
-  if (guiaPlanEl) guiaPlanEl.textContent = 'AgroClub MX · ' + planNombre;
-  const fbEl = document.getElementById('guiaFeedback');
-  if (fbEl) fbEl.style.display = 'none';
-  const modalGuia = document.getElementById('modalGuiaPago');
-  if (modalGuia) modalGuia.style.display = 'flex';
+// Versión legacy por si algo viejo aún llama a crearCheckoutShopify
+async function crearCheckoutShopify(_productId, userEmail) {
+  const planKey = (window._planKey || 'mensual');
+  return crearCheckoutStripe(planKey, userEmail);
+}
 
-  // Iniciar listener real-time: detecta el pago automáticamente y redirige
-  iniciarEscuchaPago();
+// Abrir modal con Stripe Embedded Checkout
+let _stripeInstance = null;
+let _stripeCheckout = null;
+async function abrirModalStripe(clientSecret) {
+  const modal = document.getElementById('modalStripe');
+  if (!modal) return alert('Error: modal de pago no encontrado');
+  modal.style.display = 'flex';
+
+  // Cargar Stripe.js si no está cargado
+  if (!window.Stripe) {
+    await new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://js.stripe.com/v3/';
+      s.onload = resolve;
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+
+  // Inicializar Stripe con la publishable key
+  if (!_stripeInstance) {
+    _stripeInstance = Stripe('pk_test_51TMAchPBgqsOPfUYtBbalhoOLnnGz6LymFleli7OxTDbiK4FNYX0K82ispYDb39zKJQXevyMtIPetxVAvq9hhb5P005VGgxu99');
+  }
+
+  // Destruir sesión anterior si existe
+  if (_stripeCheckout) {
+    try { _stripeCheckout.destroy(); } catch(e) {}
+    _stripeCheckout = null;
+  }
+
+  // Montar checkout embebido
+  _stripeCheckout = await _stripeInstance.initEmbeddedCheckout({ clientSecret });
+  _stripeCheckout.mount('#stripe-checkout-container');
+}
+
+function cerrarModalStripe() {
+  const modal = document.getElementById('modalStripe');
+  if (modal) modal.style.display = 'none';
+  if (_stripeCheckout) {
+    try { _stripeCheckout.destroy(); } catch(e) {}
+    _stripeCheckout = null;
+  }
 }
 
 // Abre (o reabre) la ventana popup de Shopify
@@ -2155,17 +2195,34 @@ function detenerEscuchaPago() {
 }
 
 function triggerShopifyMensual() {
-  window._shopifyProductId = '8462089257014';
+  window._planKey = 'mensual';
   window._shopifyPlanNombre = 'Plan Mensual';
   showAuthModal();
 }
 function triggerShopifyAnual() {
-  window._shopifyProductId = '8462204141622';
+  window._planKey = 'anual';
   window._shopifyPlanNombre = 'Plan Anual';
   showAuthModal();
 }
 </script>
 
+
+<!-- MODAL STRIPE EMBEDDED CHECKOUT -->
+<div id="modalStripe" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100001;align-items:center;justify-content:center;padding:20px;font-family:'Source Sans 3',sans-serif;overflow-y:auto;">
+  <div style="background:#fff;border-radius:20px;max-width:560px;width:100%;max-height:92vh;overflow:hidden;position:relative;box-shadow:0 24px 60px -18px rgba(0,0,0,.5);display:flex;flex-direction:column;">
+    <div style="padding:18px 22px;background:linear-gradient(135deg,#255000,#1a3600);color:#fff;display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:.72rem;font-weight:700;letter-spacing:.15em;opacity:.8;">PAGO SEGURO</div>
+        <div style="font-size:1.1rem;font-weight:800;margin-top:2px;">AgroClub MX · Suscripción</div>
+      </div>
+      <button onclick="cerrarModalStripe()" style="background:rgba(255,255,255,.18);border:none;width:34px;height:34px;border-radius:50%;color:#fff;font-size:1rem;cursor:pointer;">✕</button>
+    </div>
+    <div id="stripe-checkout-container" style="flex:1;overflow-y:auto;min-height:500px;"></div>
+    <div style="padding:10px 22px;background:#f4f6f3;text-align:center;font-size:.72rem;color:#6b7867;border-top:1px solid #e2e8dc;">
+      🔒 Procesado por Stripe · Puedes cancelar tu suscripción en cualquier momento
+    </div>
+  </div>
+</div>
 
 <!-- MODAL GUÍA POST-CHECKOUT (estilo OdonTeck) -->
 <div id="modalGuiaPago" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100000;align-items:center;justify-content:center;padding:20px;font-family:'Source Sans 3',sans-serif;">
@@ -2345,12 +2402,12 @@ window.doLogin = async function() {
     if (window._vipRedirect) {
       // Siempre al portal — el portal decide según 'miembros' si es FREE o VIP
       window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
-    } else if (window._shopifyProductId) {
+    } else if (window._planKey) {
       // Flujo de pago directo (cuando le dio click a "Pagar ahora" con cuenta existente)
       const btn = document.querySelector('#formLogin button[onclick]') || document.querySelector('#formLogin button');
-      if (btn) { btn.textContent = 'Redirigiendo al pago...'; btn.disabled = true; }
+      if (btn) { btn.textContent = 'Preparando pago...'; btn.disabled = true; }
       try {
-        await crearCheckoutShopify(window._shopifyProductId, cred.user.email);
+        await crearCheckoutStripe(window._planKey, cred.user.email, cred.user.uid, cred.user.displayName);
       } catch(ce) {
         console.error('Checkout error:', ce);
         if (btn) { btn.textContent = 'Continuar al pago →'; btn.disabled = false; }
