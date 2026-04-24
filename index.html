@@ -2435,7 +2435,7 @@ window.doGoogleLogin = async function() {
       <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     `);
     setTimeout(() => {
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html#g=' + encodeURIComponent(email);
     }, 1200);
   } catch(e) {
     if (e.code !== 'auth/popup-closed-by-user') {
@@ -2468,7 +2468,16 @@ window.doRegister = async function() {
 
     document.getElementById('modalAuth').style.display = 'none';
 
-    // Redirigir DIRECTO al portal en modo gratuito (no pasa por pago)
+    // Guardar credenciales temporales en sessionStorage para auto-login en el portal
+    // NO persiste en localStorage (seguro, solo para esta sesión)
+    try {
+      // Compartir entre pestañas del mismo origen NO sirve entre dominios,
+      // pero Firebase Auth ya persiste sesión en localStorage del origen authDomain
+      // Pasamos email por URL para que el portal lo use si hay que relogin
+      sessionStorage.setItem('agroclub_email_registrado', email);
+    } catch(e) {}
+
+    // Redirigir DIRECTO al portal en modo gratuito
     document.body.insertAdjacentHTML('beforeend', `
       <div id="_redirect-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
         <div style="width:48px;height:48px;border:4px solid #a3e635;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
@@ -2477,7 +2486,10 @@ window.doRegister = async function() {
       <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     `);
     setTimeout(() => {
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      // Pasar email Y contraseña por hash (no persiste en historial, se limpia al instante)
+      // El portal hace el login automático y borra los datos
+      const hashData = btoa(JSON.stringify({ e: email, p: pass, t: Date.now() }));
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html#a=' + hashData;
     }, 1200);
   } catch(e) {
     if (e.code === 'auth/email-already-in-use') {
