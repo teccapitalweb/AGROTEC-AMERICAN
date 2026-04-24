@@ -2343,16 +2343,10 @@ window.doLogin = async function() {
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('modalAuth').style.display = 'none';
     if (window._vipRedirect) {
-      const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js");
-      const db = getFirestore(app);
-      const snap = await getDoc(doc(db, 'miembros', cred.user.uid));
-      if (snap.exists() && snap.data().estado === 'activo') {
-        window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
-      } else {
-        window._vipRedirect = false;
-        document.getElementById('modalVIP').style.display = 'flex';
-      }
+      // Siempre al portal — el portal decide según 'miembros' si es FREE o VIP
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
     } else if (window._shopifyProductId) {
+      // Flujo de pago directo (cuando le dio click a "Pagar ahora" con cuenta existente)
       const btn = document.querySelector('#formLogin button[onclick]') || document.querySelector('#formLogin button');
       if (btn) { btn.textContent = 'Redirigiendo al pago...'; btn.disabled = true; }
       try {
@@ -2364,7 +2358,8 @@ window.doLogin = async function() {
         err.style.display = 'block';
       }
     } else {
-      window.location.href = window._shopifyTarget || 'https://pfueck-wm.myshopify.com';
+      // Default: al portal
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
     }
   } catch(e) {
     err.textContent = 'Correo o contraseña incorrectos.';
@@ -2420,29 +2415,28 @@ window.doGoogleLogin = async function() {
     const email = user.email;
     const nombre = user.displayName || email.split('@')[0];
 
-    // Guardar/actualizar en Firestore
-    await setDoc(doc(db, 'miembros', user.uid), {
-      nombre, email, whatsapp: '', estado: 'pendiente',
-      plan: '', fechaRegistro: new Date().toISOString()
-    }, { merge: true });
+    // Guardar en usuarios_free (NO en miembros — ahí solo entra cuando paga)
+    try {
+      await setDoc(doc(db, 'usuarios_free', user.uid), {
+        nombre, email, whatsapp: '',
+        fechaRegistro: new Date().toISOString(),
+        origen: 'google_agrotecamerican'
+      }, { merge: true });
+    } catch(e) { console.warn('usuarios_free:', e); }
 
     document.getElementById('modalAuth').style.display = 'none';
 
-    if (window._shopifyProductId) {
-      document.body.insertAdjacentHTML('beforeend', `
-        <div id="_redirect-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-          <div style="width:48px;height:48px;border:4px solid #a3e635;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-          <div style="color:#fff;font-size:1rem;font-weight:700;font-family:'Source Sans 3',sans-serif;">Preparando tu pago...</div>
-        </div>
-        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-      `);
-      try {
-        await crearCheckoutShopify(window._shopifyProductId, email);
-      } catch(ce) {
-        document.getElementById('_redirect-overlay')?.remove();
-        alert('Error al conectar con el pago. Intenta de nuevo.');
-      }
-    }
+    // Redirigir al portal (el portal ya sabe distinguir entre FREE y VIP según colección 'miembros')
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="_redirect-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+        <div style="width:48px;height:48px;border:4px solid #a3e635;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <div style="color:#fff;font-size:1.1rem;font-weight:700;font-family:'Source Sans 3',sans-serif;text-align:center;padding:0 20px;">✅ ¡Bienvenido!<br><span style="font-size:.9rem;font-weight:400;opacity:.85;">Llevándote al portal...</span></div>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `);
+    setTimeout(() => {
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+    }, 1200);
   } catch(e) {
     if (e.code !== 'auth/popup-closed-by-user') {
       err.textContent = 'Error con Google. Intenta de nuevo.';
@@ -2462,30 +2456,29 @@ window.doRegister = async function() {
   try {
     const cred = await createUserWithEmailAndPassword(auth, email, pass);
     await updateProfile(cred.user, { displayName: nombre });
-    await setDoc(doc(db, 'miembros', cred.user.uid), {
-      nombre, email, whatsapp, estado: 'pendiente',
-      plan: '', fechaRegistro: new Date().toISOString()
-    });
+    // NO crear en 'miembros' — solo se crea ahí cuando pagan (webhook de Shopify).
+    // Guardamos datos en 'usuarios_free' para registro interno
+    try {
+      await setDoc(doc(db, 'usuarios_free', cred.user.uid), {
+        nombre, email, whatsapp,
+        fechaRegistro: new Date().toISOString(),
+        origen: 'registro_agrotecamerican'
+      });
+    } catch(e) { console.warn('No se pudo guardar en usuarios_free:', e); }
+
     document.getElementById('modalAuth').style.display = 'none';
-    if (window._shopifyProductId) {
-      // Mostrar pantalla de carga mientras redirige
-      document.body.insertAdjacentHTML('beforeend', `
-        <div id="_redirect-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
-          <div style="width:48px;height:48px;border:4px solid #a3e635;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-          <div style="color:#fff;font-size:1rem;font-weight:700;font-family:'Source Sans 3',sans-serif;">Preparando tu pago...</div>
-        </div>
-        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-      `);
-      try {
-        await crearCheckoutShopify(window._shopifyProductId, email);
-      } catch(ce) {
-        document.getElementById('_redirect-overlay')?.remove();
-        console.error('Checkout error:', ce);
-        alert('Cuenta creada ✅\nError al conectar con el pago. Recarga e intenta de nuevo.');
-      }
-    } else {
-      window.location.href = window._shopifyTarget || 'https://pfueck-wm.myshopify.com';
-    }
+
+    // Redirigir DIRECTO al portal en modo gratuito (no pasa por pago)
+    document.body.insertAdjacentHTML('beforeend', `
+      <div id="_redirect-overlay" style="position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+        <div style="width:48px;height:48px;border:4px solid #a3e635;border-top-color:transparent;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <div style="color:#fff;font-size:1.1rem;font-weight:700;font-family:'Source Sans 3',sans-serif;text-align:center;padding:0 20px;">✅ ¡Cuenta creada!<br><span style="font-size:.9rem;font-weight:400;opacity:.85;">Llevándote al portal...</span></div>
+      </div>
+      <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `);
+    setTimeout(() => {
+      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+    }, 1200);
   } catch(e) {
     if (e.code === 'auth/email-already-in-use') {
       err.textContent = 'Este correo ya está registrado. Inicia sesión.';
