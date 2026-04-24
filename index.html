@@ -1391,54 +1391,6 @@
     </div>
   </div>
 
-  <!-- SHOPIFY MENSUAL -->
-  <script type="text/javascript">
-  (function () {
-    var scriptURL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
-    if (window.ShopifyBuy) { if (window.ShopifyBuy.UI) { ShopifyBuyInitMensual(); } else { loadScriptMensual(); } } else { loadScriptMensual(); }
-    function loadScriptMensual() { var s = document.createElement('script'); s.async = true; s.src = scriptURL; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s); s.onload = ShopifyBuyInitMensual; }
-    function ShopifyBuyInitMensual() {
-      var client = ShopifyBuy.buildClient({ domain: 'pfueck-wm.myshopify.com', storefrontAccessToken: '4c5d8f6909eccf2964cbb97e0ee2187e' });
-      ShopifyBuy.UI.onReady(client).then(function (ui) {
-        ui.createComponent('product', {
-          id: '8462089257014',
-          node: document.getElementById('product-component-1775859221268'),
-          moneyFormat: '%24%20%7B%7Bamount%7D%7D',
-          options: {
-            "product": { "styles": { "product": { "@media (min-width: 601px)": { "max-width": "100%", "margin-left": "0px" } }, "button": { "font-family": "Source Sans 3, sans-serif", "font-weight": "bold", "font-size": "15px", "padding-top": "13px", "padding-bottom": "13px", "background-color": "#255000", ":hover": { "background-color": "#588100" }, "border-radius": "50px", "width": "100%" } }, "buttonDestination": "checkout", "text": { "button": "Suscribirme mensual →" } },
-            "cart": { "styles": { "button": { "background-color": "#255000", "border-radius": "50px" } }, "text": { "total": "Subtotal", "button": "Pagar" } },
-            "toggle": { "styles": { "toggle": { "background-color": "#255000" } } }
-          }
-        });
-      });
-    }
-  })();
-  </script>
-
-  <!-- SHOPIFY ANUAL -->
-  <script type="text/javascript">
-  (function () {
-    var scriptURL = 'https://sdks.shopifycdn.com/buy-button/latest/buy-button-storefront.min.js';
-    if (window.ShopifyBuy) { if (window.ShopifyBuy.UI) { ShopifyBuyInitAnual(); } else { loadScriptAnual(); } } else { loadScriptAnual(); }
-    function loadScriptAnual() { var s = document.createElement('script'); s.async = true; s.src = scriptURL; (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(s); s.onload = ShopifyBuyInitAnual; }
-    function ShopifyBuyInitAnual() {
-      var client = ShopifyBuy.buildClient({ domain: 'pfueck-wm.myshopify.com', storefrontAccessToken: '4c5d8f6909eccf2964cbb97e0ee2187e' });
-      ShopifyBuy.UI.onReady(client).then(function (ui) {
-        ui.createComponent('product', {
-          id: '8462204141622',
-          node: document.getElementById('product-component-1775859189262'),
-          moneyFormat: '%24%20%7B%7Bamount%7D%7D',
-          options: {
-            "product": { "styles": { "product": { "@media (min-width: 601px)": { "max-width": "100%", "margin-left": "0px" } }, "button": { "font-family": "Source Sans 3, sans-serif", "font-weight": "bold", "font-size": "15px", "padding-top": "13px", "padding-bottom": "13px", "background-color": "#255000", ":hover": { "background-color": "#588100" }, "border-radius": "50px", "width": "100%" } }, "buttonDestination": "checkout", "text": { "button": "Suscribirme anual →" } },
-            "cart": { "styles": { "button": { "background-color": "#255000", "border-radius": "50px" } }, "text": { "total": "Subtotal", "button": "Pagar" } },
-            "toggle": { "styles": { "toggle": { "background-color": "#255000" } } }
-          }
-        });
-      });
-    }
-  })();
-  </script>
-
   <!-- ===== SOBRE NOSOTROS ===== -->
   <section class="about" id="nosotros">
     <div class="container">
