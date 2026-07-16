@@ -222,24 +222,38 @@ button{font-family:inherit;cursor:pointer;}
 }
 .filtro:hover{border-color:var(--verde-campo);color:var(--verde-campo);}
 .filtro[aria-pressed="true"]{background:var(--verde-profundo);border-color:var(--verde-profundo);color:#fff;}
-.cursos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:18px;}
+/* MODIFICADO: sección cursos rediseñada — fuera los flyers de img/cursos/*.jpeg
+   (traían texto y fechas viejas incrustadas y repetían el título). Ahora: cabecera
+   de color por categoría con icono grande. Tokens del repo, no de otro sistema. */
+.cursos-grid{display:grid;grid-template-columns:1fr;gap:22px;}
+@media(min-width:600px){ .cursos-grid{grid-template-columns:repeat(2,1fr);} }
+@media(min-width:940px){ .cursos-grid{grid-template-columns:repeat(3,1fr);} }
+
 .curso{
-  background:#fff;border:1px solid var(--linea);border-radius:var(--r);overflow:hidden;
-  display:flex;flex-direction:column;transition:transform .22s ease,box-shadow .22s ease,border-color .22s;
+  background:#fff;border:1px solid var(--linea);border-radius:18px;overflow:hidden;
+  display:flex;flex-direction:column;transition:transform .2s ease,box-shadow .2s ease;
 }
-.curso:hover{transform:translateY(-4px);box-shadow:0 20px 44px -20px rgba(42,42,34,.4);border-color:rgba(92,140,58,.4);}
-.curso-cover{aspect-ratio:4/3;overflow:hidden;background:var(--tint-verde);position:relative;}
-.curso-cover img{width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
-.curso:hover .curso-cover img{transform:scale(1.05);}
-.curso-cat{
-  position:absolute;top:10px;left:10px;padding:4px 10px;border-radius:999px;
-  background:rgba(255,255,255,.94);font-size:.66rem;font-weight:700;
-  letter-spacing:.07em;text-transform:uppercase;color:var(--verde-profundo);
+.curso:hover{transform:translateY(-5px);box-shadow:0 22px 46px rgba(35,64,43,.15);}
+.curso:hover .curso__ic{transform:scale(1.08) rotate(-4deg);}
+
+.curso__top{position:relative;height:132px;padding:15px;display:flex;align-items:flex-start;overflow:hidden;}
+.curso__ic{position:absolute;right:-16px;bottom:-22px;width:118px;height:118px;color:#fff;opacity:.24;transition:transform .3s ease;}
+.curso__ic svg{width:100%;height:100%;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.curso__chip{
+  background:rgba(255,255,255,.92);color:var(--verde-profundo);
+  font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  padding:5px 11px;border-radius:999px;position:relative;z-index:1;
 }
-.curso-body{padding:15px 16px 17px;display:flex;flex-direction:column;gap:6px;flex:1;}
-.curso-body h3{font-size:1rem;line-height:1.22;}
-.curso-body p{font-size:.82rem;color:var(--tinta-60);line-height:1.45;}
-.cursos-more{text-align:center;margin-top:32px;}
+.curso__body{padding:17px;flex:1;display:flex;flex-direction:column;gap:7px;}
+.curso__body h3{font-size:1.14rem;line-height:1.15;}
+.curso__desc{color:var(--tinta-60);font-size:.9rem;line-height:1.5;}
+
+/* Un degradado por cada UNA de las 3 categorías reales del catálogo */
+.g-cultivos{background:linear-gradient(135deg,#4A7C2E,#6BA043);}
+.g-tecnicas{background:linear-gradient(135deg,#3E7A8C,#5BA0B0);}
+.g-gestion {background:linear-gradient(135deg,#C4701F,#E5852F);}
+
+.cursos-more{text-align:center;margin-top:42px;}
 .cursos-vacio{grid-column:1/-1;text-align:center;padding:40px;color:var(--tinta-60);}
 
 /* ═══════════════════ PANEL VIP ═══════════════════ */
@@ -385,6 +399,11 @@ button{font-family:inherit;cursor:pointer;}
   <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
   <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></symbol>
   <symbol id="i-bug" viewBox="0 0 24 24"><rect x="8" y="6" width="8" height="14" rx="4"/><path d="M8 12H3M21 12h-5M8 8 4.5 5M16 8l3.5-3M8 16l-3.5 3M16 16l3.5 3M9.5 6a2.5 2.5 0 0 1 5 0"/></symbol>
+  <!-- MODIFICADO: iconos de las cabeceras de curso. Solo los 2 que se usan
+       (sprout = Cultivos, drop = Técnicas). Gestión reusa #i-chart, que ya existía.
+       No agrego plant/flower/cactus: sin uso, serían peso muerto. -->
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3c3.5 4.5 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 2.5-6.5 6-11z"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 24 24"><path d="M12 21v-9"/><path d="M12 12C8 12 5 10 5 5c5 0 7 2 7 7z"/><path d="M12 13c4 0 7-2 7-6-5 0-7 2-7 6z"/></symbol>
 </defs></svg>
 
 <!-- ═══════════════════ NAV ═══════════════════ -->
@@ -438,13 +457,18 @@ button{font-family:inherit;cursor:pointer;}
     </div>
     <div class="hero-media reveal">
       <div class="hero-photo">
-        <!-- MODIFICADO: hueco de foto 3:4. img/hero.png lo sube Jorge.
-             ▼▼ PLACEHOLDER MARCADO — se ve mientras img/hero.png no exista ▼▼ -->
+        <!-- MODIFICADO: foto del hero ya colocada (896x1200, 3:4).
+             Jorge la entregó como img/hero.jpeg (801 KB). Se conserva como maestra
+             y se sirven derivadas optimizadas: WebP 114 KB + JPEG 136 KB de respaldo.
+             NO se usa PNG: es una foto, y en PNG pesaría 2,322 KB (3x más que el original). -->
         <div class="hero-ph" id="heroPh">
-          <b>PLACEHOLDER · img/hero.png</b>
+          <b>PLACEHOLDER · img/hero</b>
           <span>Foto vertical 3:4 — pendiente de subir</span>
         </div>
-        <img src="img/hero.png" alt="Equipo de AgroTec America en campo" width="600" height="800" id="heroImg" style="display:none">
+        <picture>
+          <source srcset="img/hero.webp" type="image/webp">
+          <img src="img/hero.jpg" alt="Agrónomo de AgroTec America revisando un cultivo de jitomate en invernadero" width="896" height="1200" id="heroImg" style="display:none">
+        </picture>
       </div>
       <div class="hero-badge">
         <svg class="ico"><use href="#i-award"/></svg>
@@ -490,204 +514,292 @@ button{font-family:inherit;cursor:pointer;}
       <button class="filtro" data-f="tecnicas" aria-pressed="false">Técnicas</button>
       <button class="filtro" data-f="gestion" aria-pressed="false">Gestión</button>
     </div>
-    <!-- MODIFICADO: los 28 cursos son HTML ESTATICO. Sin JS se ven igual;
-         el JS solo filtra (oculta/muestra). Antes se pintaban por JS. -->
+    <!-- MODIFICADO: sección cursos rediseñada — 28 cursos REALES del catálogo, en
+         HTML estático (sin JS se ven los 28; el JS solo filtra). Cabecera de color +
+         icono por categoría real (cultivos/tecnicas/gestion). Sin imágenes: los flyers
+         de img/cursos/*.jpeg repetían el título y traían fechas viejas — los archivos
+         NO se borran, pueden usarse en otro lado. Sin lecciones ni niveles: ese dato
+         no existe fuera de Firestore y no se inventa en un producto de pago. -->
     <div class="cursos-grid" id="cursosGrid">
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/agronomia.jpeg" alt="Agronomía para No Agrónomos" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Agronomía para No Agrónomos</h3><p>Fundamentos de agronomía accesibles para todos los perfiles.</p></div>
+        <div class="curso__body">
+          <h3>Agronomía para No Agrónomos</h3>
+          <p class="curso__desc">Fundamentos de agronomía accesibles para todos los perfiles.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/hidroponia.jpeg" alt="Hidroponía para Todos" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Hidroponía para Todos</h3><p>Aprende cultivo sin suelo de forma práctica y eficiente.</p></div>
+        <div class="curso__body">
+          <h3>Hidroponía para Todos</h3>
+          <p class="curso__desc">Aprende cultivo sin suelo de forma práctica y eficiente.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/bioinsumos.jpeg" alt="Bioinsumos" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Bioinsumos</h3><p>Producción y uso de insumos biológicos para agricultura sustentable.</p></div>
+        <div class="curso__body">
+          <h3>Bioinsumos</h3>
+          <p class="curso__desc">Producción y uso de insumos biológicos para agricultura sustentable.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/fertirrigacion.jpeg" alt="Fertirrigación" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Fertirrigación</h3><p>Técnicas avanzadas de riego y nutrición de cultivos.</p></div>
+        <div class="curso__body">
+          <h3>Fertirrigación</h3>
+          <p class="curso__desc">Técnicas avanzadas de riego y nutrición de cultivos.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/cacao.jpeg" alt="Producción de Cacao" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Producción de Cacao</h3><p>Manejo integral del cultivo de cacao de alta calidad.</p></div>
+        <div class="curso__body">
+          <h3>Producción de Cacao</h3>
+          <p class="curso__desc">Manejo integral del cultivo de cacao de alta calidad.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/papaya.jpeg" alt="Producción de Papaya" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Producción de Papaya</h3><p>Del vivero a la cosecha: todo sobre el cultivo de papaya.</p></div>
+        <div class="curso__body">
+          <h3>Producción de Papaya</h3>
+          <p class="curso__desc">Del vivero a la cosecha: todo sobre el cultivo de papaya.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/melon.jpeg" alt="Cultivo de Melón" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Cultivo de Melón</h3><p>Manejo técnico y comercial del cultivo de melón.</p></div>
+        <div class="curso__body">
+          <h3>Cultivo de Melón</h3>
+          <p class="curso__desc">Manejo técnico y comercial del cultivo de melón.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/girasol.jpeg" alt="Producción de Girasol" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Producción de Girasol</h3><p>Siembra, manejo y cosecha del girasol productivo.</p></div>
+        <div class="curso__body">
+          <h3>Producción de Girasol</h3>
+          <p class="curso__desc">Siembra, manejo y cosecha del girasol productivo.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/biofabricas.jpeg" alt="Biofábricas" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Biofábricas</h3><p>Diseño y operación de biofábricas para insumos agrícolas.</p></div>
+        <div class="curso__body">
+          <h3>Biofábricas</h3>
+          <p class="curso__desc">Diseño y operación de biofábricas para insumos agrícolas.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/polinizadores.jpeg" alt="Polinizadores" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Polinizadores</h3><p>Importancia y manejo de polinizadores en la agricultura.</p></div>
+        <div class="curso__body">
+          <h3>Polinizadores</h3>
+          <p class="curso__desc">Importancia y manejo de polinizadores en la agricultura.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/hongos.jpeg" alt="Producción de Hongos" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Producción de Hongos</h3><p>Cultivo y comercialización de hongos comestibles.</p></div>
+        <div class="curso__body">
+          <h3>Producción de Hongos</h3>
+          <p class="curso__desc">Cultivo y comercialización de hongos comestibles.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/lombricomposta.jpeg" alt="Lombricomposta" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Lombricomposta</h3><p>Producción de fertilizante orgánico mediante lombricultura.</p></div>
+        <div class="curso__body">
+          <h3>Lombricomposta</h3>
+          <p class="curso__desc">Producción de fertilizante orgánico mediante lombricultura.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/viveros.jpeg" alt="Manejo de Viveros" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>Manejo de Viveros</h3><p>Gestión profesional de viveros agrícolas y forestales.</p></div>
+        <div class="curso__body">
+          <h3>Manejo de Viveros</h3>
+          <p class="curso__desc">Gestión profesional de viveros agrícolas y forestales.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/plantulas.jpeg" alt="Producción de Plántulas" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Producción de Plántulas</h3><p>Técnicas para producción de plántulas de alta calidad.</p></div>
+        <div class="curso__body">
+          <h3>Producción de Plántulas</h3>
+          <p class="curso__desc">Técnicas para producción de plántulas de alta calidad.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/chiles.jpeg" alt="Manejo de Chiles Verdes" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Manejo de Chiles Verdes</h3><p>Producción y manejo integral de chiles verdes.</p></div>
+        <div class="curso__body">
+          <h3>Manejo de Chiles Verdes</h3>
+          <p class="curso__desc">Producción y manejo integral de chiles verdes.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/nopal.jpeg" alt="Aprovechamiento del Nopal" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Aprovechamiento del Nopal</h3><p>Producción y aprovechamiento sustentable del nopal.</p></div>
+        <div class="curso__body">
+          <h3>Aprovechamiento del Nopal</h3>
+          <p class="curso__desc">Producción y aprovechamiento sustentable del nopal.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/tomatillo.jpeg" alt="Cultivo de Tomatillo" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Cultivo de Tomatillo</h3><p>Manejo agronómico del tomatillo de cáscara.</p></div>
+        <div class="curso__body">
+          <h3>Cultivo de Tomatillo</h3>
+          <p class="curso__desc">Manejo agronómico del tomatillo de cáscara.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/arboles.jpeg" alt="Árboles Frutales" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Árboles Frutales</h3><p>Manejo y producción de diversas especies frutales.</p></div>
+        <div class="curso__body">
+          <h3>Árboles Frutales</h3>
+          <p class="curso__desc">Manejo y producción de diversas especies frutales.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/hierbas.jpeg" alt="Hierbas Aromáticas" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Hierbas Aromáticas</h3><p>Producción de hierbas aromáticas y medicinales.</p></div>
+        <div class="curso__body">
+          <h3>Hierbas Aromáticas</h3>
+          <p class="curso__desc">Producción de hierbas aromáticas y medicinales.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/orquideas.jpeg" alt="Orquídeas" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Orquídeas</h3><p>Cultivo y cuidado profesional de orquídeas.</p></div>
+        <div class="curso__body">
+          <h3>Orquídeas</h3>
+          <p class="curso__desc">Cultivo y cuidado profesional de orquídeas.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/pitahaya.jpeg" alt="Manejo de Pitahaya" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Manejo de Pitahaya</h3><p>Producción del fruto del dragón de forma rentable.</p></div>
+        <div class="curso__body">
+          <h3>Manejo de Pitahaya</h3>
+          <p class="curso__desc">Producción del fruto del dragón de forma rentable.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/cana.jpg" alt="Producción de Caña" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Producción de Caña</h3><p>Manejo integral del cultivo de caña de azúcar.</p></div>
+        <div class="curso__body">
+          <h3>Producción de Caña</h3>
+          <p class="curso__desc">Manejo integral del cultivo de caña de azúcar.</p>
+        </div>
       </article>
       <article class="curso" data-cat="cultivos">
-        <div class="curso-cover">
-          <img src="img/cursos/maiz.jpeg" alt="Maíz" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Cultivos</span>
+        <div class="curso__top g-cultivos">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <span class="curso__chip">Cultivos</span>
         </div>
-        <div class="curso-body"><h3>Maíz</h3><p>Producción tecnificada de maíz de alto rendimiento.</p></div>
+        <div class="curso__body">
+          <h3>Maíz</h3>
+          <p class="curso__desc">Producción tecnificada de maíz de alto rendimiento.</p>
+        </div>
       </article>
       <article class="curso" data-cat="gestion">
-        <div class="curso-cover">
-          <img src="img/cursos/contabilidad.jpeg" alt="Contabilidad Agrícola" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Gestión</span>
+        <div class="curso__top g-gestion">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <span class="curso__chip">Gestión</span>
         </div>
-        <div class="curso-body"><h3>Contabilidad Agrícola</h3><p>Finanzas y contabilidad para empresas agropecuarias.</p></div>
+        <div class="curso__body">
+          <h3>Contabilidad Agrícola</h3>
+          <p class="curso__desc">Finanzas y contabilidad para empresas agropecuarias.</p>
+        </div>
       </article>
       <article class="curso" data-cat="gestion">
-        <div class="curso-cover">
-          <img src="img/cursos/exportacion.jpeg" alt="Exportación Agrícola" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Gestión</span>
+        <div class="curso__top g-gestion">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <span class="curso__chip">Gestión</span>
         </div>
-        <div class="curso-body"><h3>Exportación Agrícola</h3><p>Procesos de exportación de productos agrícolas frescos.</p></div>
+        <div class="curso__body">
+          <h3>Exportación Agrícola</h3>
+          <p class="curso__desc">Procesos de exportación de productos agrícolas frescos.</p>
+        </div>
       </article>
       <article class="curso" data-cat="gestion">
-        <div class="curso-cover">
-          <img src="img/cursos/inocuidad.jpeg" alt="Inocuidad Alimentaria" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Gestión</span>
+        <div class="curso__top g-gestion">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <span class="curso__chip">Gestión</span>
         </div>
-        <div class="curso-body"><h3>Inocuidad Alimentaria</h3><p>Buenas prácticas agroalimentarias y seguridad alimentaria.</p></div>
+        <div class="curso__body">
+          <h3>Inocuidad Alimentaria</h3>
+          <p class="curso__desc">Buenas prácticas agroalimentarias y seguridad alimentaria.</p>
+        </div>
       </article>
       <article class="curso" data-cat="tecnicas">
-        <div class="curso-cover">
-          <img src="img/cursos/ia.jpeg" alt="IA en Agricultura" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Técnicas</span>
+        <div class="curso__top g-tecnicas">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <span class="curso__chip">Técnicas</span>
         </div>
-        <div class="curso-body"><h3>IA en Agricultura</h3><p>Inteligencia artificial aplicada al sector agropecuario.</p></div>
+        <div class="curso__body">
+          <h3>IA en Agricultura</h3>
+          <p class="curso__desc">Inteligencia artificial aplicada al sector agropecuario.</p>
+        </div>
       </article>
       <article class="curso" data-cat="gestion">
-        <div class="curso-cover">
-          <img src="img/cursos/alimentos.jpeg" alt="Alimentos Funcionales" loading="lazy" decoding="async" width="400" height="300">
-          <span class="curso-cat">Gestión</span>
+        <div class="curso__top g-gestion">
+          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <span class="curso__chip">Gestión</span>
         </div>
-        <div class="curso-body"><h3>Alimentos Funcionales</h3><p>Desarrollo y producción de alimentos con valor agregado.</p></div>
+        <div class="curso__body">
+          <h3>Alimentos Funcionales</h3>
+          <p class="curso__desc">Desarrollo y producción de alimentos con valor agregado.</p>
+        </div>
       </article>
     </div>
     <div class="cursos-more reveal">
