@@ -199,8 +199,7 @@ button{font-family:inherit;cursor:pointer;}
 .avales-row{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:20px 40px;}
 .aval{display:flex;align-items:center;gap:10px;}
 .aval img{height:42px;width:auto;object-fit:contain;opacity:.82;}
-.aval-txt{font-family:var(--serif);font-weight:800;font-size:1.05rem;color:var(--verde-profundo);letter-spacing:-.01em;}
-.aval-sub{font-size:.7rem;color:var(--tinta-60);font-weight:600;display:block;letter-spacing:0;font-family:var(--sans);}
+/* MODIFICADO: .aval-txt/.aval-sub (wordmark tipográfico de IPCI) eliminadas — sin uso tras quitar ese aval */
 
 /* ═══════════════════ SECCIONES ═══════════════════ */
 .sec{padding:72px 0;}
@@ -494,8 +493,7 @@ button{font-family:inherit;cursor:pointer;}
         </picture>
       </div>
       <div class="aval"><img src="img/marcas/Logo_de_la_UAM.svg" alt="Universidad Autónoma Metropolitana" loading="lazy" height="42"></div>
-      <!-- IPCI no tiene archivo de logo en el repo → wordmark tipográfico. Ver reporte. -->
-      <div class="aval"><span class="aval-txt">IPCI<span class="aval-sub">Instituto de Capacitación</span></span></div>
+      <!-- MODIFICADO: se quitó el aval "IPCI" — el nombre "Instituto de Capacitación" fue una inferencia sin verificar, no un dato real. Quedan Chapingo y UAM (logos reales verificados). -->
     </div>
   </div>
 </section>
