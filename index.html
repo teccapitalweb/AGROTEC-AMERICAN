@@ -232,6 +232,9 @@ button{font-family:inherit;cursor:pointer;}
   background:#fff;border:1px solid var(--linea);border-radius:18px;overflow:hidden;
   display:flex;flex-direction:column;transition:transform .2s ease,box-shadow .2s ease;
 }
+/* El filtro pone hidden=true en las tarjetas. Sin esta regla el display:flex
+   de arriba le gana al [hidden]{display:none} del navegador y no se ocultaba. */
+.curso[hidden]{display:none;}
 .curso:hover{transform:translateY(-5px);box-shadow:0 22px 46px rgba(35,64,43,.15);}
 .curso:hover .curso__ic{transform:scale(1.08) rotate(-4deg);}
 
