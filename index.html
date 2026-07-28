@@ -221,9 +221,10 @@ button{font-family:inherit;cursor:pointer;}
 }
 .filtro:hover{border-color:var(--verde-campo);color:var(--verde-campo);}
 .filtro[aria-pressed="true"]{background:var(--verde-profundo);border-color:var(--verde-profundo);color:#fff;}
-/* MODIFICADO: sección cursos rediseñada — fuera los flyers de img/cursos/*.jpeg
-   (traían texto y fechas viejas incrustadas y repetían el título). Ahora: cabecera
-   de color por categoría con icono grande. Tokens del repo, no de otro sistema. */
+/* MODIFICADO: vuelven las FOTOS reales por curso (img/cursos/*.jpeg). La cabecera
+   de color+icono repetía la misma gota en casi todas las tarjetas. El degradado
+   .g-* se conserva DEBAJO de la foto: es el color de fondo mientras carga la
+   imagen lazy, así no se ve un hueco blanco. */
 .cursos-grid{display:grid;grid-template-columns:1fr;gap:22px;}
 @media(min-width:600px){ .cursos-grid{grid-template-columns:repeat(2,1fr);} }
 @media(min-width:940px){ .cursos-grid{grid-template-columns:repeat(3,1fr);} }
@@ -236,21 +237,34 @@ button{font-family:inherit;cursor:pointer;}
    de arriba le gana al [hidden]{display:none} del navegador y no se ocultaba. */
 .curso[hidden]{display:none;}
 .curso:hover{transform:translateY(-5px);box-shadow:0 22px 46px rgba(35,64,43,.15);}
-.curso:hover .curso__ic{transform:scale(1.08) rotate(-4deg);}
+.curso:hover .curso__foto{transform:scale(1.06);}
 
-.curso__top{position:relative;height:132px;padding:15px;display:flex;align-items:flex-start;overflow:hidden;}
-.curso__ic{position:absolute;right:-16px;bottom:-22px;width:118px;height:118px;color:#fff;opacity:.24;transition:transform .3s ease;}
-.curso__ic svg{width:100%;height:100%;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+/* aspect-ratio (no height fija) para que la foto no cambie de alto entre breakpoints.
+   4:3 y no 16:9: los 28 archivos son CUADRADOS (900x900) y llevan texto impreso;
+   a 16:9 se recortaba el 44% del alto y decapitaba el título del flyer. */
+.curso__top{position:relative;aspect-ratio:4/3;overflow:hidden;border-radius:17px 17px 0 0;}
+.curso__foto{
+  width:100%;height:100%;display:block;object-fit:cover;
+  transition:transform .5s ease;
+}
+/* Velo oscuro sutil abajo: el chip y cualquier texto sobre la foto se leen
+   aunque la imagen sea clara. No tapa el motivo de la foto. */
+.curso__top::after{
+  content:"";position:absolute;inset:0;z-index:1;pointer-events:none;
+  background:linear-gradient(to top,rgba(18,30,20,.5) 0%,rgba(18,30,20,.14) 38%,transparent 66%);
+}
 .curso__chip{
+  position:absolute;top:12px;left:12px;z-index:2;
   background:rgba(255,255,255,.92);color:var(--verde-profundo);
   font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-  padding:5px 11px;border-radius:999px;position:relative;z-index:1;
+  padding:5px 11px;border-radius:999px;
+  backdrop-filter:blur(2px);
 }
 .curso__body{padding:17px;flex:1;display:flex;flex-direction:column;gap:7px;}
 .curso__body h3{font-size:1.14rem;line-height:1.15;}
 .curso__desc{color:var(--tinta-60);font-size:.9rem;line-height:1.5;}
 
-/* Un degradado por cada UNA de las 3 categorías reales del catálogo */
+/* Color de fondo por categoría: ahora vive DEBAJO de la foto (placeholder de carga) */
 .g-cultivos{background:linear-gradient(135deg,#4A7C2E,#6BA043);}
 .g-tecnicas{background:linear-gradient(135deg,#3E7A8C,#5BA0B0);}
 .g-gestion {background:linear-gradient(135deg,#C4701F,#E5852F);}
@@ -515,16 +529,16 @@ button{font-family:inherit;cursor:pointer;}
       <button class="filtro" data-f="tecnicas" aria-pressed="false">Técnicas</button>
       <button class="filtro" data-f="gestion" aria-pressed="false">Gestión</button>
     </div>
-    <!-- MODIFICADO: sección cursos rediseñada — 28 cursos REALES del catálogo, en
-         HTML estático (sin JS se ven los 28; el JS solo filtra). Cabecera de color +
-         icono por categoría real (cultivos/tecnicas/gestion). Sin imágenes: los flyers
-         de img/cursos/*.jpeg repetían el título y traían fechas viejas — los archivos
-         NO se borran, pueden usarse en otro lado. Sin lecciones ni niveles: ese dato
-         no existe fuera de Firestore y no se inventa en un producto de pago. -->
+    <!-- MODIFICADO: 28 cursos REALES del catálogo, en HTML estático (sin JS se ven
+         los 28; el JS solo filtra). Cada tarjeta lleva su FOTO real de img/cursos/,
+         con el mapeo curso→archivo tomado tal cual del cursosData del landing
+         anterior (index_OLD_backup.html) — ninguno adivinado. Todas lazy y con alt
+         real. El chip de categoría va encima de la foto. Sin lecciones ni niveles:
+         ese dato no existe fuera de Firestore y no se inventa en un producto de pago. -->
     <div class="cursos-grid" id="cursosGrid">
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/agronomia.jpeg" alt="Agronomía para No Agrónomos" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -534,7 +548,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/hidroponia.jpeg" alt="Hidroponía para Todos" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -544,7 +558,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/bioinsumos.jpeg" alt="Bioinsumos" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -554,7 +568,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/fertirrigacion.jpeg" alt="Fertirrigación" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -564,7 +578,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/cacao.jpeg" alt="Producción de Cacao" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -574,7 +588,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/papaya.jpeg" alt="Producción de Papaya" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -584,7 +598,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/melon.jpeg" alt="Cultivo de Melón" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -594,7 +608,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/girasol.jpeg" alt="Producción de Girasol" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -604,7 +618,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/biofabricas.jpeg" alt="Biofábricas" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -614,7 +628,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/polinizadores.jpeg" alt="Polinizadores" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -624,7 +638,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/hongos.jpeg" alt="Producción de Hongos" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -634,7 +648,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/lombricomposta.jpeg" alt="Lombricomposta" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -644,7 +658,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/viveros.jpeg" alt="Manejo de Viveros" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -654,7 +668,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/plantulas.jpeg" alt="Producción de Plántulas" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -664,7 +678,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/chiles.jpeg" alt="Manejo de Chiles Verdes" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -674,7 +688,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/nopal.jpeg" alt="Aprovechamiento del Nopal" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -684,7 +698,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/tomatillo.jpeg" alt="Cultivo de Tomatillo" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -694,7 +708,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/arboles.jpeg" alt="Árboles Frutales" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -704,7 +718,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/hierbas.jpeg" alt="Hierbas Aromáticas" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -714,7 +728,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/orquideas.jpeg" alt="Orquídeas" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -724,7 +738,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/pitahaya.jpeg" alt="Manejo de Pitahaya" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -734,7 +748,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/cana.jpg" alt="Producción de Caña" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -744,7 +758,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-sprout"/></svg></div>
+          <img class="curso__foto" src="img/cursos/maiz.jpeg" alt="Maíz" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Cultivos</span>
         </div>
         <div class="curso__body">
@@ -754,7 +768,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="gestion">
         <div class="curso__top g-gestion">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <img class="curso__foto" src="img/cursos/contabilidad.jpeg" alt="Contabilidad Agrícola" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Gestión</span>
         </div>
         <div class="curso__body">
@@ -764,7 +778,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="gestion">
         <div class="curso__top g-gestion">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <img class="curso__foto" src="img/cursos/exportacion.jpeg" alt="Exportación Agrícola" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Gestión</span>
         </div>
         <div class="curso__body">
@@ -774,7 +788,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="gestion">
         <div class="curso__top g-gestion">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <img class="curso__foto" src="img/cursos/inocuidad.jpeg" alt="Inocuidad Alimentaria" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Gestión</span>
         </div>
         <div class="curso__body">
@@ -784,7 +798,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="tecnicas">
         <div class="curso__top g-tecnicas">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-drop"/></svg></div>
+          <img class="curso__foto" src="img/cursos/ia.jpeg" alt="IA en Agricultura" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Técnicas</span>
         </div>
         <div class="curso__body">
@@ -794,7 +808,7 @@ button{font-family:inherit;cursor:pointer;}
       </article>
       <article class="curso" data-cat="gestion">
         <div class="curso__top g-gestion">
-          <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-chart"/></svg></div>
+          <img class="curso__foto" src="img/cursos/alimentos.jpeg" alt="Alimentos Funcionales" loading="lazy" decoding="async" width="900" height="900">
           <span class="curso__chip">Gestión</span>
         </div>
         <div class="curso__body">
