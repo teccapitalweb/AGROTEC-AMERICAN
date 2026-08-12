@@ -222,9 +222,8 @@ button{font-family:inherit;cursor:pointer;}
 }
 .filtro:hover{border-color:var(--verde-campo);color:var(--verde-campo);}
 .filtro[aria-pressed="true"]{background:var(--verde-profundo);border-color:var(--verde-profundo);color:#fff;}
-/* MODIFICADO: sección cursos rediseñada — fuera los flyers de img/cursos/*.jpeg
-   (traían texto y fechas viejas incrustadas y repetían el título). Ahora: cabecera
-   de color por categoría con icono grande. Tokens del repo, no de otro sistema. */
+/* Portadas editoriales limpias. Los flyers anteriores no se usan porque traían
+   fechas, precios y textos caducados incrustados en la imagen. */
 .cursos-grid{display:grid;grid-template-columns:1fr;gap:22px;}
 @media(min-width:600px){ .cursos-grid{grid-template-columns:repeat(2,1fr);} }
 @media(min-width:940px){ .cursos-grid{grid-template-columns:repeat(3,1fr);} }
@@ -237,24 +236,38 @@ button{font-family:inherit;cursor:pointer;}
    de arriba le gana al [hidden]{display:none} del navegador y no se ocultaba. */
 .curso[hidden]{display:none;}
 .curso:hover{transform:translateY(-5px);box-shadow:0 22px 46px rgba(35,64,43,.15);}
-.curso:hover .curso__ic{transform:scale(1.08) rotate(-4deg);}
+.curso:hover .curso__top{background-size:auto 110%;}
 
-.curso__top{position:relative;height:132px;padding:15px;display:flex;align-items:flex-start;overflow:hidden;}
-.curso__ic{position:absolute;right:-16px;bottom:-22px;width:118px;height:118px;color:#fff;opacity:.24;transition:transform .3s ease;}
-.curso__ic svg{width:100%;height:100%;stroke:currentColor;stroke-width:1.6;fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.curso__top{
+  position:relative;aspect-ratio:16/9;padding:15px;display:flex;align-items:flex-start;
+  overflow:hidden;background-size:auto 102%;background-position:center;background-repeat:no-repeat;
+  transition:background-size .45s ease;
+}
+.curso__top::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,34,21,.34),transparent 54%,rgba(16,34,21,.14));}
+.curso__ic{display:none;}
 .curso__chip{
   background:rgba(255,255,255,.92);color:var(--verde-profundo);
   font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;
-  padding:5px 11px;border-radius:999px;position:relative;z-index:1;
+  padding:5px 11px;border-radius:999px;position:relative;z-index:2;box-shadow:0 4px 14px rgba(16,34,21,.12);
 }
 .curso__body{padding:17px;flex:1;display:flex;flex-direction:column;gap:7px;}
 .curso__body h3{font-size:1.14rem;line-height:1.15;}
 .curso__desc{color:var(--tinta-60);font-size:.9rem;line-height:1.5;}
 
-/* Un degradado por cada UNA de las 3 categorías reales del catálogo */
-.g-cultivos{background:linear-gradient(135deg,#4A7C2E,#6BA043);}
-.g-tecnicas{background:linear-gradient(135deg,#3E7A8C,#5BA0B0);}
-.g-gestion {background:linear-gradient(135deg,#C4701F,#E5852F);}
+/* Fondo de reserva si una portada tarda en cargar. */
+.g-cultivos{background-color:#4A7C2E;}
+.g-tecnicas{background-color:#3E7A8C;}
+.g-gestion {background-color:#C4701F;}
+
+/* Una familia visual por tema; se reutiliza solo entre cursos relacionados. */
+.curso:nth-child(1) .curso__top{background-image:url('img/editorial/curso-cacao.webp');}
+.curso:nth-child(2) .curso__top{background-image:url('img/editorial/curso-agrotecnologia.webp');}
+.curso:nth-child(3) .curso__top,.curso:nth-child(5) .curso__top,.curso:nth-child(7) .curso__top,.curso:nth-child(13) .curso__top,.curso:nth-child(15) .curso__top,.curso:nth-child(17) .curso__top,.curso:nth-child(19) .curso__top,.curso:nth-child(21) .curso__top,.curso:nth-child(25) .curso__top,.curso:nth-child(27) .curso__top,.curso:nth-child(28) .curso__top{background-image:url('img/editorial/curso-frutales.webp');}
+.curso:nth-child(4) .curso__top,.curso:nth-child(8) .curso__top{background-image:url('img/editorial/curso-hidroponia.webp');}
+.curso:nth-child(6) .curso__top,.curso:nth-child(10) .curso__top,.curso:nth-child(16) .curso__top{background-image:url('img/editorial/curso-bioinsumos.webp');}
+.curso:nth-child(9) .curso__top,.curso:nth-child(14) .curso__top,.curso:nth-child(22) .curso__top,.curso:nth-child(23) .curso__top{background-image:url('img/editorial/curso-viveros.webp');}
+.curso:nth-child(11) .curso__top,.curso:nth-child(18) .curso__top,.curso:nth-child(26) .curso__top{background-image:url('img/editorial/curso-agrotecnologia.webp');}
+.curso:nth-child(12) .curso__top,.curso:nth-child(20) .curso__top,.curso:nth-child(24) .curso__top{background-image:url('img/editorial/curso-gestion.webp');}
 
 .cursos-more{text-align:center;margin-top:42px;}
 .cursos-vacio{grid-column:1/-1;text-align:center;padding:40px;color:var(--tinta-60);}
@@ -293,28 +306,25 @@ button{font-family:inherit;cursor:pointer;}
 .tool h3{font-size:1.02rem;margin-bottom:6px;}
 .tool p{font-size:.85rem;color:var(--tinta-60);line-height:1.5;}
 
-/* ═══════════════════ PRECIOS ═══════════════════ */
-.planes{display:grid;gap:18px;max-width:880px;margin:0 auto;}
-.plan{
-  background:#fff;border:1.5px solid var(--linea);border-radius:22px;padding:30px 26px;
-  display:flex;flex-direction:column;position:relative;
-}
-.plan-pop{border-color:var(--verde-campo);border-width:2px;box-shadow:0 24px 60px -28px rgba(92,140,58,.6);}
-.plan-flag{
-  position:absolute;top:-13px;left:50%;transform:translateX(-50%);
-  background:var(--verde-campo);color:#fff;padding:5px 16px;border-radius:999px;
-  font-size:.7rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
-}
-.plan-name{font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--verde-campo);margin-bottom:9px;}
-.plan-price{font-family:var(--serif);font-size:2.9rem;font-weight:800;line-height:1;color:var(--tinta);}
-.plan-price small{font-family:var(--sans);font-size:.92rem;font-weight:400;color:var(--tinta-60);}
-.plan-eq{display:inline-block;margin-top:9px;padding:3px 11px;border-radius:999px;background:var(--tint-verde);color:#43682a;font-size:.74rem;font-weight:700;}
-.plan-list{list-style:none;margin:20px 0 24px;display:flex;flex-direction:column;gap:9px;flex:1;}
-.plan-list li{display:flex;gap:9px;align-items:flex-start;font-size:.88rem;color:#4a4a3e;}
-.plan-list .ico{color:var(--verde-campo);margin-top:2px;}
-.plan-nota{text-align:center;font-size:.75rem;color:var(--tinta-60);margin-top:11px;}
-.precios-foot{text-align:center;margin-top:26px;font-size:.86rem;color:var(--tinta-60);}
-@media(min-width:800px){.planes{grid-template-columns:1fr 1fr;align-items:stretch;}}
+/* ═══════════════════ EXPERIENCIA AGROCLUB ═══════════════════ */
+.club-story{display:grid;gap:32px;align-items:center;}
+.club-story__media{position:relative;min-height:320px;border-radius:26px;overflow:hidden;box-shadow:0 24px 60px -30px rgba(35,64,43,.55);}
+.club-story__media img{width:100%;height:100%;object-fit:cover;position:absolute;inset:0;}
+.club-story__badge{position:absolute;left:18px;bottom:18px;background:rgba(255,255,255,.94);padding:12px 15px;border-radius:14px;display:flex;gap:10px;align-items:center;max-width:260px;box-shadow:0 12px 30px rgba(20,38,24,.18);}
+.club-story__badge .ico{color:var(--verde-campo);flex:0 0 auto;}
+.club-story__badge b{display:block;font-size:.9rem;}
+.club-story__badge span{display:block;color:var(--tinta-60);font-size:.75rem;line-height:1.35;}
+.club-story__copy h2{margin:12px 0 14px;}
+.club-story__copy>p{color:var(--tinta-60);font-size:1rem;line-height:1.7;}
+.club-steps{display:grid;gap:12px;margin:24px 0;}
+.club-step{display:grid;grid-template-columns:38px 1fr;gap:12px;align-items:start;padding:13px 0;border-bottom:1px solid var(--linea);}
+.club-step:last-child{border-bottom:0;}
+.club-step>span{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--tint-verde);color:var(--verde-campo);font-weight:800;}
+.club-step b{display:block;margin-bottom:3px;}
+.club-step p{font-size:.84rem;color:var(--tinta-60);line-height:1.45;}
+.club-story__actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;}
+.club-story__note{font-size:.78rem;color:var(--tinta-60);}
+@media(min-width:820px){.club-story{grid-template-columns:.95fr 1.05fr;gap:56px;}.club-story__media{min-height:520px;}}
 
 /* ═══════════════════ TESTIMONIOS ═══════════════════ */
 .testi-track{
@@ -448,7 +458,7 @@ button{font-family:inherit;cursor:pointer;}
       <a href="#cursos">Cursos</a>
       <a href="#club">El Club</a>
       <a href="#herramientas">Herramientas</a>
-      <a href="#precios">Precios</a>
+      <a href="#precios">Cómo funciona</a>
       <a href="#contacto">Contacto</a>
     </nav>
     <div class="nav-cta">
@@ -461,7 +471,7 @@ button{font-family:inherit;cursor:pointer;}
     <a href="#cursos">Cursos</a>
     <a href="#club">El Club</a>
     <a href="#herramientas">Herramientas</a>
-    <a href="#precios">Precios</a>
+    <a href="#precios">Cómo funciona</a>
     <a href="#contacto">Contacto</a>
     <!-- MODIFICADO: en pantallas chicas "Ya soy miembro" vive aquí, no en la barra -->
     <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" class="btn btn-ghost">Ya soy miembro</a>
@@ -546,16 +556,10 @@ button{font-family:inherit;cursor:pointer;}
       <button class="filtro" data-f="tecnicas" aria-pressed="false">Técnicas</button>
       <button class="filtro" data-f="gestion" aria-pressed="false">Gestión</button>
     </div>
-    <!-- MODIFICADO: sección cursos rediseñada — 28 cursos REALES del catálogo, en
-         HTML estático (sin JS se ven los 28; el JS solo filtra). Cabecera de color +
-         icono por categoría real (cultivos/tecnicas/gestion). Sin imágenes: los flyers
-         de img/cursos/*.jpeg repetían el título y traían fechas viejas — los archivos
-         NO se borran, pueden usarse en otro lado. Sin lecciones ni niveles: ese dato
-         no existe fuera de Firestore y no se inventa en un producto de pago. -->
+    <!-- 28 cursos reales del catálogo en HTML estático. Las portadas editoriales
+         son limpias, sin fechas ni precios incrustados; el JS solo filtra. -->
     <div class="cursos-grid" id="cursosGrid">
-      <!-- MODIFICADO: icono propio por curso y orden intercalado (nunca 3
-           tarjetas del mismo color seguidas). Categorias, gradientes y chips
-           intactos; los filtros siguen leyendo data-cat. -->
+      <!-- El orden intercala categorías y los filtros siguen leyendo data-cat. -->
       <article class="curso" data-cat="cultivos">
         <div class="curso__top g-cultivos">
           <div class="curso__ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#c-cacao"/></svg></div>
@@ -848,8 +852,8 @@ button{font-family:inherit;cursor:pointer;}
   <div class="container">
     <div class="sec-head reveal" style="max-width:38rem;">
       <span class="tag">Membresía exclusiva</span>
-      <h2>AgroClub MX — el Club VIP de AgroTec</h2>
-      <p class="vip-lead">Todo el catálogo, sesiones en vivo y las herramientas del portal. Una sola membresía, sin comprar curso por curso.</p>
+      <h2>AgroClub MX — aprende, aplica y crece en comunidad</h2>
+      <p class="vip-lead">Un espacio de formación continua para productores, técnicos, estudiantes y emprendedores del campo. Avanza a tu ritmo, participa en vivo y lleva herramientas prácticas a tu operación.</p>
     </div>
     <!-- Los 6 beneficios REALES del plan (tomados del landing actual, líneas 1395-1400) -->
     <div class="vip-grid">
@@ -861,7 +865,7 @@ button{font-family:inherit;cursor:pointer;}
       <div class="vip-item reveal"><svg class="ico"><use href="#i-tag"/></svg><div><b>Descuento en cursos</b><span>20% con el plan mensual · 30% con el anual.</span></div></div>
     </div>
     <div class="vip-btns reveal">
-      <a href="#precios" class="btn btn-primary">Ver planes y precios <svg class="ico ico-sm"><use href="#i-arrow"/></svg></a>
+      <a href="#precios" class="btn btn-primary">Conoce cómo funciona <svg class="ico ico-sm"><use href="#i-arrow"/></svg></a>
       <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" class="btn btn-outline-light">Ya soy miembro</a>
     </div>
   </div>
@@ -887,53 +891,29 @@ button{font-family:inherit;cursor:pointer;}
   </div>
 </section>
 
-<!-- ═══════════════════ PRECIOS ═══════════════════ -->
+<!-- ═══════════════════ EXPERIENCIA AGROCLUB ═══════════════════ -->
 <section class="sec" id="precios">
   <div class="container">
-    <div class="sec-head center reveal">
-      <span class="tag">Planes</span>
-      <h2>Elige cómo quieres entrar</h2>
-      <p>Ambos planes te dan acceso completo al Club. Cancela cuando quieras.</p>
-    </div>
-    <div class="planes">
-      <!-- ───── MENSUAL ───── -->
-      <div class="plan reveal">
-        <div class="plan-name">Mensual</div>
-        <div class="plan-price">$200 <small>MXN/mes</small></div>
-        <ul class="plan-list">
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Videos exclusivos ilimitados</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> PDFs descargables</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Sesiones en vivo</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Grupo WhatsApp VIP</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Certificado mensual</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> 20% descuento en cursos</li>
-        </ul>
-        <!-- MODIFICADO: onclick renombrado triggerShopifyMensual → iniciarCheckoutMensual.
-             La LÓGICA de pago NO cambió: sigue yendo a /crear-checkout con plan:'mensual'. -->
-        <button class="btn btn-ghost" style="width:100%" onclick="iniciarCheckoutMensual()">Empezar mensual</button>
-        <p class="plan-nota">Pago mes a mes. Sin compromiso.</p>
+    <div class="club-story">
+      <div class="club-story__media reveal">
+        <img src="img/editorial/agroclub-comunidad.webp" alt="Productores y estudiantes aprendiendo juntos dentro de AgroClub MX" loading="lazy" decoding="async" width="1400" height="788">
+        <div class="club-story__badge"><svg class="ico"><use href="#i-users"/></svg><div><b>No estudias solo</b><span>Comunidad, sesiones en vivo y acompañamiento para avanzar.</span></div></div>
       </div>
-      <!-- ───── ANUAL ───── -->
-      <div class="plan plan-pop reveal">
-        <!-- MODIFICADO: "Ahorra 30%" era FALSO ($200×12=$2,400 vs $1,920 = 20%).
-             Corregido a "Ahorra 20% · 2 meses gratis" como pidió Jorge. -->
-        <span class="plan-flag">Más popular · Ahorra 20% · 2 meses gratis</span>
-        <div class="plan-name">Anual</div>
-        <div class="plan-price">$1,920 <small>MXN/año</small></div>
-        <span class="plan-eq">Equivale a $160/mes</span>
-        <ul class="plan-list">
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Todo lo del plan mensual</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> 2 meses gratis</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Acceso prioritario</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Sesión 1 a 1 con instructor</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> Certificado anual especial</li>
-          <li><svg class="ico ico-sm"><use href="#i-check"/></svg> 30% descuento en cursos</li>
-        </ul>
-        <button class="btn btn-primary" style="width:100%" onclick="iniciarCheckoutAnual()">Empezar anual</button>
-        <p class="plan-nota">Un solo pago al año.</p>
+      <div class="club-story__copy reveal">
+        <span class="tag">La experiencia AgroClub</span>
+        <h2>Del conocimiento a decisiones mejores en el campo</h2>
+        <p>AgroClub reúne capacitación, consulta y comunidad en un solo portal. Entras con una cuenta, eliges lo que necesitas aprender y conservas acceso a tus materiales para volver a ellos cuando estés trabajando.</p>
+        <div class="club-steps">
+          <div class="club-step"><span>1</span><div><b>Elige tu ruta</b><p>Explora 28 cursos por cultivo, técnica o gestión y empieza por el tema que hoy necesitas resolver.</p></div></div>
+          <div class="club-step"><span>2</span><div><b>Aprende a tu ritmo</b><p>Combina videos, guías descargables y sesiones en vivo desde celular o computadora.</p></div></div>
+          <div class="club-step"><span>3</span><div><b>Aplica y valida</b><p>Usa las herramientas del portal, participa en la comunidad y acredita tus avances con evaluaciones y certificados.</p></div></div>
+        </div>
+        <div class="club-story__actions">
+          <button class="btn btn-primary" onclick="document.getElementById('modalVIP').style.display='flex'">Ver opciones de acceso <svg class="ico ico-sm"><use href="#i-arrow"/></svg></button>
+          <span class="club-story__note">Acceso desde $200 MXN al mes · Cancela cuando quieras</span>
+        </div>
       </div>
     </div>
-    <p class="precios-foot"><svg class="ico ico-sm" style="vertical-align:-4px;color:var(--verde-campo)"><use href="#i-shield"/></svg> Pago seguro procesado por Stripe · Cancela tu suscripción cuando quieras</p>
   </div>
 </section>
 
@@ -979,7 +959,7 @@ button{font-family:inherit;cursor:pointer;}
       <p>28 cursos, sesiones en vivo y las herramientas del portal por $200 MXN al mes.</p>
       <div class="cta-btns">
         <button class="btn btn-primary" onclick="iniciarCheckoutMensual()">Únete ahora <svg class="ico ico-sm"><use href="#i-arrow"/></svg></button>
-        <a href="#precios" class="btn btn-outline-light">Comparar planes</a>
+        <a href="#precios" class="btn btn-outline-light">Cómo funciona</a>
       </div>
     </div>
   </div>
@@ -1000,7 +980,7 @@ button{font-family:inherit;cursor:pointer;}
       </div>
       <div><h4>Explora</h4><ul>
         <li><a href="#cursos">Cursos</a></li><li><a href="#club">El Club</a></li>
-        <li><a href="#herramientas">Herramientas</a></li><li><a href="#precios">Precios</a></li>
+        <li><a href="#herramientas">Herramientas</a></li><li><a href="#precios">Cómo funciona</a></li>
       </ul></div>
       <div><h4>Club</h4><ul>
         <li><a href="https://teccapitalweb.github.io/AgroClub---mx/login.html">Iniciar sesión</a></li>
