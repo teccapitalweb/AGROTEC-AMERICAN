@@ -483,7 +483,7 @@ button{font-family:inherit;cursor:pointer;}
     </nav>
     <div class="nav-cta">
       <!-- MODIFICADO: "Ya soy miembro" → mismo destino que hoy (abrirAccesoVIP) -->
-      <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" class="btn btn-ghost" style="padding:9px 17px;font-size:.85rem;">Ya soy miembro</a>
+      <a href="https://club.agrotecamerican.com/#/login" class="btn btn-ghost" style="padding:9px 17px;font-size:.85rem;">Ya soy miembro</a>
       <button class="nav-burger" id="burger" aria-label="Abrir menú" aria-expanded="false" aria-controls="drawer"><svg class="ico"><use href="#i-menu"/></svg></button>
     </div>
   </div>
@@ -494,7 +494,7 @@ button{font-family:inherit;cursor:pointer;}
     <a href="#precios">Cómo funciona</a>
     <a href="#contacto">Contacto</a>
     <!-- MODIFICADO: en pantallas chicas "Ya soy miembro" vive aquí, no en la barra -->
-    <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" class="btn btn-ghost">Ya soy miembro</a>
+    <a href="https://club.agrotecamerican.com/#/login" class="btn btn-ghost">Ya soy miembro</a>
   </div>
 </header>
 
@@ -886,7 +886,7 @@ button{font-family:inherit;cursor:pointer;}
     </div>
     <div class="vip-btns reveal">
       <a href="#precios" class="btn btn-primary">Conoce cómo funciona <svg class="ico ico-sm"><use href="#i-arrow"/></svg></a>
-      <a href="https://teccapitalweb.github.io/AgroClub---mx/login.html" class="btn btn-outline-light">Ya soy miembro</a>
+      <a href="https://club.agrotecamerican.com/#/login" class="btn btn-outline-light">Ya soy miembro</a>
     </div>
   </div>
 </section>
@@ -1003,8 +1003,8 @@ button{font-family:inherit;cursor:pointer;}
         <li><a href="#herramientas">Herramientas</a></li><li><a href="#precios">Cómo funciona</a></li>
       </ul></div>
       <div><h4>Club</h4><ul>
-        <li><a href="https://teccapitalweb.github.io/AgroClub---mx/login.html">Iniciar sesión</a></li>
-        <li><a href="https://teccapitalweb.github.io/AgroClub---mx/index.html">Ir al portal</a></li>
+        <li><a href="https://club.agrotecamerican.com/#/login">Iniciar sesión</a></li>
+        <li><a href="https://club.agrotecamerican.com/#/cursos">Ir al portal</a></li>
         <li><a href="#precios">Suscribirme</a></li>
       </ul></div>
       <div><h4>Contacto</h4><ul>
@@ -1196,7 +1196,7 @@ async function verificarPagoYEntrar(btn) {
     const snap = await getDoc(doc(db, 'miembros', user.uid));
     if (snap.exists() && snap.data().estado === 'activo') {
       mostrarFeedbackGuia('ok', '¡Pago confirmado! Entrando a tu Club...');
-      setTimeout(() => { window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html'; }, 1500);
+      setTimeout(() => { window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(user.email || ''); }, 1500);
     } else {
       mostrarFeedbackGuia('wait', 'Tu pago aún se está procesando. Espera 10-20 segundos y vuelve a intentar.');
       btn.disabled = false; btn.innerHTML = textoOriginal;
@@ -1252,7 +1252,7 @@ async function iniciarEscuchaPago() {
         if (dotWrap) dotWrap.style.background = '#5C8C3A';
         if (dotTxt)  dotTxt.textContent = '¡Pago recibido!';
         mostrarFeedbackGuia('ok', '¡Pago confirmado! Entrando a tu Club...');
-        setTimeout(() => { window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html'; }, 1800);
+        setTimeout(() => { window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(user.email || ''); }, 1800);
       }
     }, (err) => { console.warn('Listener pago error:', err); });
     window._pagoTimeoutSafety = setTimeout(() => { detenerEscuchaPago(); }, 25 * 60 * 1000);
@@ -1533,7 +1533,7 @@ window.doLogin = async function() {
     const cred = await signInWithEmailAndPassword(auth, email, pass);
     document.getElementById('modalAuth').style.display = 'none';
     if (window._vipRedirect) {
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(cred.user.email || email);
     } else if (window._planKey) {
       const btn = document.querySelector('#formLogin button[onclick]') || document.querySelector('#formLogin button');
       if (btn) { btn.textContent = 'Preparando pago...'; btn.disabled = true; }
@@ -1546,7 +1546,7 @@ window.doLogin = async function() {
         err.style.display = 'block';
       }
     } else {
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(cred.user.email || email);
     }
   } catch(e) {
     err.textContent = 'Correo o contraseña incorrectos.';
@@ -1576,7 +1576,7 @@ window.abrirAccesoVIP = async function() {
     const db = getFirestore(app);
     const snap = await getDoc(doc(db, 'miembros', user.uid));
     if (snap.exists() && snap.data().estado === 'activo') {
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html';
+      window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(user.email || '');
     } else {
       document.getElementById('modalVIP').style.display = 'flex';
     }
@@ -1617,7 +1617,7 @@ window.doGoogleLogin = async function() {
       <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     `);
     setTimeout(() => {
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html#g=' + encodeURIComponent(email);
+      window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(email);
     }, 1200);
   } catch(e) {
     if (e.code !== 'auth/popup-closed-by-user') {
@@ -1661,8 +1661,7 @@ window.doRegister = async function() {
       <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
     `);
     setTimeout(() => {
-      const hashData = btoa(JSON.stringify({ e: email, p: pass, t: Date.now() }));
-      window.location.href = 'https://teccapitalweb.github.io/AgroClub---mx/index.html#a=' + hashData;
+      window.location.href = 'https://club.agrotecamerican.com/#/login?email=' + encodeURIComponent(email);
     }, 1200);
   } catch(e) {
     if (e.code === 'auth/email-already-in-use') {
