@@ -1,6 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
   const button = document.querySelector('[data-ag3-menu]');
   const menu = document.querySelector('[data-ag3-mobile]');
+  const nav = document.querySelector('.ag3-nav');
+  const whatsapp = document.querySelector('.ag3-wa');
+
+  const syncNav = () => {
+    nav?.classList.toggle('is-compact', window.scrollY > 36);
+    whatsapp?.classList.toggle('is-visible', window.scrollY > 240);
+  };
+  syncNav();
+  window.addEventListener('scroll', syncNav, { passive: true });
 
   button?.addEventListener('click', () => {
     const open = menu?.classList.toggle('is-open') ?? false;
