@@ -160,20 +160,29 @@ body { background: var(--ag3-cream); }
   position: absolute;
   z-index: 3;
   right: max(28px, calc((100vw - 1180px) / 2));
-  bottom: 126px;
-  width: 154px;
+  bottom: 118px;
+  width: 176px;
   aspect-ratio: 1;
-  border: 1px solid rgba(255,255,255,.35);
   border-radius: 50%;
-  background: rgba(17, 56, 42, .78);
-  backdrop-filter: blur(12px);
   display: grid;
   place-items: center;
   text-align: center;
-  box-shadow: 0 18px 50px rgba(0,0,0,.2);
+  color: #fff;
+  filter: drop-shadow(0 22px 46px rgba(0,0,0,.3));
 }
-.ag3-hero__seal img { width: 42px; height: 42px; object-fit: contain; filter: brightness(0) invert(1); }
-.ag3-hero__seal strong { display: block; margin-top: 4px; font-size: .7rem; line-height: 1.25; letter-spacing: .12em; text-transform: uppercase; }
+.ag3-hero__seal::before, .ag3-hero__seal::after { content: ''; position: absolute; border-radius: 50%; }
+.ag3-hero__seal::before { inset: 0; border: 1px solid rgba(255,255,255,.46); background: rgba(13,54,41,.25); backdrop-filter: blur(9px); }
+.ag3-hero__seal::after { inset: 15px; border: 1px dashed rgba(230,196,94,.76); }
+.ag3-hero__seal-core { position: relative; z-index: 2; width: 124px; aspect-ratio: 1; padding: 17px 12px; border: 1px solid rgba(255,255,255,.34); border-radius: 50%; background: linear-gradient(145deg, rgba(25,86,61,.94), rgba(10,48,37,.95)); box-shadow: 0 16px 34px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.18); display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.ag3-hero__seal-core svg { width: 55px; height: 47px; margin-bottom: 3px; fill: none; stroke: #e6c45e; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.ag3-hero__seal-core strong { display: block; font: 800 .72rem/1 var(--ag3-display); letter-spacing: .15em; }
+.ag3-hero__seal-core small { display: block; max-width: 88px; margin-top: 5px; color: rgba(255,255,255,.7); font-size: .5rem; line-height: 1.15; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; }
+.ag3-hero__seal-orbit { position: absolute; z-index: 3; inset: 0; animation: ag3-seal-orbit 20s linear infinite; }
+.ag3-hero__seal-orbit i { position: absolute; width: 8px; height: 8px; border: 2px solid #fff; border-radius: 50%; background: #e6c45e; box-shadow: 0 0 0 4px rgba(230,196,94,.14); }
+.ag3-hero__seal-orbit i:nth-child(1) { top: 8px; left: 50%; translate: -50% 0; }
+.ag3-hero__seal-orbit i:nth-child(2) { right: 14px; bottom: 34px; }
+.ag3-hero__seal-orbit i:nth-child(3) { left: 14px; bottom: 34px; }
+@keyframes ag3-seal-orbit { to { rotate: 360deg; } }
 
 .ag3-trust { position: relative; z-index: 4; margin-top: -56px; }
 .ag3-trust__grid {
@@ -449,4 +458,5 @@ body { background: var(--ag3-cream); }
   .js .ag3-reveal { opacity: 1; transform: none; transition: none; }
   .ag3-course, .ag3-btn, .ag3-collage__image img { transition: none; }
   .ag3-wa__icon::before { animation: none; }
+  .ag3-hero__seal-orbit { animation: none; }
 }
