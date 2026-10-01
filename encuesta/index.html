@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Encuesta AgroTec | Tu ruta de aprendizaje</title>
+  <meta name="description" content="Cuéntanos qué quieres lograr y descubre una ruta de aprendizaje pensada para ti.">
+  <link rel="canonical" href="https://agrotecamerican.com/encuesta">
+  <link rel="icon" href="../img/logo.jpg">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#pregunta">Ir a la pregunta</a>
+
+  <main class="survey" aria-labelledby="survey-title">
+    <header class="survey__header">
+      <a class="brand" href="../" aria-label="Volver a AgroTec América">
+        <img src="../img/brand/logo-horizontal.png" alt="AgroTec América" width="304" height="84">
+      </a>
+      <div class="survey__name">
+        <span class="survey__name-dot" aria-hidden="true"></span>
+        Diagnóstico de aprendizaje
+      </div>
+      <div class="survey__time" aria-label="Duración aproximada: dos minutos">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg>
+        2 min
+      </div>
+    </header>
+
+    <section class="survey__layout" aria-live="polite">
+      <div class="question-card" id="pregunta">
+        <div class="progress" aria-label="Pregunta 1 de 7">
+          <div class="progress__meta">
+            <span>Paso <strong>01</strong></span>
+            <span>Tu punto de partida</span>
+          </div>
+          <div class="progress__track"><span style="width:14%"></span></div>
+        </div>
+
+        <div class="question-card__content">
+          <p class="eyebrow">Empecemos por conocerte</p>
+          <h1 id="survey-title">¿Cuál de estas frases se parece más a ti?</h1>
+          <p class="question-card__hint">Elige la que mejor describa tu momento actual.</p>
+
+          <div class="answers" role="radiogroup" aria-label="Tu relación con el campo">
+            <button class="answer" type="button" role="radio" aria-checked="false">
+              <span class="answer__icon" aria-hidden="true">🌱</span>
+              <span><strong>Produzco en el campo</strong><small>Quiero tomar mejores decisiones en mi cultivo.</small></span>
+              <span class="answer__key" aria-hidden="true">1</span>
+            </button>
+            <button class="answer" type="button" role="radio" aria-checked="false">
+              <span class="answer__icon" aria-hidden="true">🧭</span>
+              <span><strong>Asesoro a productores</strong><small>Busco herramientas para acompañar mejor.</small></span>
+              <span class="answer__key" aria-hidden="true">2</span>
+            </button>
+            <button class="answer" type="button" role="radio" aria-checked="false">
+              <span class="answer__icon" aria-hidden="true">🎓</span>
+              <span><strong>Estoy estudiando</strong><small>Quiero convertir lo que aprendo en experiencia.</small></span>
+              <span class="answer__key" aria-hidden="true">3</span>
+            </button>
+            <button class="answer" type="button" role="radio" aria-checked="false">
+              <span class="answer__icon" aria-hidden="true">📦</span>
+              <span><strong>Tengo un negocio agro</strong><small>Busco hacerlo crecer o profesionalizarlo.</small></span>
+              <span class="answer__key" aria-hidden="true">4</span>
+            </button>
+            <button class="answer" type="button" role="radio" aria-checked="false">
+              <span class="answer__icon" aria-hidden="true">✨</span>
+              <span><strong>Apenas estoy explorando</strong><small>Me interesa el campo y quiero encontrar mi camino.</small></span>
+              <span class="answer__key" aria-hidden="true">5</span>
+            </button>
+          </div>
+        </div>
+
+        <footer class="question-card__footer">
+          <button class="back-button" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+            Atrás
+          </button>
+          <span>Selecciona una respuesta para continuar</span>
+        </footer>
+      </div>
+
+      <aside class="guide" aria-label="Agro, tu guía de la encuesta">
+        <div class="guide__sun" aria-hidden="true"></div>
+        <div class="guide__bubble">
+          <span>AGRO TE ACOMPAÑA</span>
+          <strong>Aquí no hay respuestas correctas.</strong>
+          <p>Solo queremos recomendarte algo que sí te sirva.</p>
+        </div>
+        <img class="guide__character" src="../assistant/assets/agro-mascot-orange-clean-v5.png" alt="Agro, guía agricultora de AgroTec América" width="1024" height="1536">
+        <div class="guide__ground" aria-hidden="true"></div>
+      </aside>
+    </section>
+
+    <footer class="survey__trust">
+      <span><b aria-hidden="true">✓</b> Sin datos personales</span>
+      <span><b aria-hidden="true">✓</b> Solo preguntas útiles</span>
+      <span><b aria-hidden="true">✓</b> Puedes cambiar tus respuestas</span>
+    </footer>
+  </main>
+  <script src="app.js" defer></script>
+</body>
+</html>
