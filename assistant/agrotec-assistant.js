@@ -6,6 +6,7 @@
 
   const stateKey = config.storage?.sessionKey || `${config.id}-assistant`;
   const positionKey = `${config.id}-assistant-position`;
+  const panelPositionKey = `${config.id}-assistant-panel-position`;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const stopwords = new Set(['quiero','curso','cursos','sobre','para','como','algo','una','uno','unos','unas','del','las','los','que','con','por','me','interesa','busco','aprender','capacitacion']);
 
@@ -13,9 +14,9 @@
     try { return JSON.parse(sessionStorage.getItem(stateKey) || '{}'); } catch { return {}; }
   };
   const saved = safeRead();
-  const readLauncherPosition = () => {
+  const readPosition = (key) => {
     try {
-      const position = JSON.parse(localStorage.getItem(positionKey) || '{}');
+      const position = JSON.parse(localStorage.getItem(key) || '{}');
       return Number.isFinite(position.x) && Number.isFinite(position.y) ? position : { x: 0, y: 0 };
     } catch { return { x: 0, y: 0 }; }
   };
@@ -25,7 +26,8 @@
     messages: Array.isArray(saved.messages) ? saved.messages : [],
     flow: saved.flow || 'home'
   };
-  let launcherPosition = readLauncherPosition();
+  let launcherPosition = readPosition(positionKey);
+  let panelPosition = readPosition(panelPositionKey);
 
   const escapeHtml = (value) => String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', "'":'&#39;', '"':'&quot;' }[char]));
   const normalize = (value) => String(value ?? '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -116,8 +118,10 @@
   const typingEl = root.querySelector('[data-agx-typing]');
   const input = root.querySelector('[data-agx-input]');
   const pauseButton = root.querySelector('[data-agx-pause]');
+  const panelDragHandle = root.querySelector('[data-agx-panel-drag]');
   let suppressLauncherClick = false;
   let keepLauncherOnScreen = () => {};
+  let keepPanelOnScreen = () => {};
 
   if (!state.messages.length) {
     state.messages.push({ role: 'assistant', text: config.welcome, time: timeNow() });
@@ -127,6 +131,7 @@
   showHomeActions();
 
   initLauncherDrag();
+  initPanelDrag();
   launcher.addEventListener('click', (event) => {
     if (suppressLauncherClick) {
       event.preventDefault();
@@ -157,8 +162,12 @@
     const blinkImage = config.character.blinkSrc
       ? `<img class="agx-avatar__blink" src="${escapeHtml(config.character.blinkSrc)}" alt="" aria-hidden="true" onerror="this.remove()">`
       : '';
-    return `<span class="agx-avatar ${extraClass}">
-      <span class="agx-avatar__art"><span class="agx-avatar__fallback" aria-hidden="true">${escapeHtml(config.character.placeholder || 'A')}</span>${image}${blinkImage}</span>
+    const fallback = config.character.src ? '' : `<span class="agx-avatar__fallback" aria-hidden="true">${escapeHtml(config.character.placeholder || 'A')}</span>`;
+    const dragAttributes = extraClass === 'agx-avatar--header'
+      ? ' role="button" tabindex="0" data-agx-panel-drag aria-label="Mover el chatbot. Arrastra a Agro, usa las flechas para mover el panel o presiona Inicio para restaurarlo." title="Arrastra a Agro para mover el chat"'
+      : '';
+    return `<span class="agx-avatar ${extraClass}"${dragAttributes}>
+      <span class="agx-avatar__art">${fallback}${image}${blinkImage}</span>
     </span>`;
   }
 
@@ -180,7 +189,10 @@
     launcher.hidden = true;
     launcher.setAttribute('aria-expanded', 'true');
     wave();
-    requestAnimationFrame(() => input.focus({ preventScroll: true }));
+    requestAnimationFrame(() => {
+      keepPanelOnScreen();
+      input.focus({ preventScroll: true });
+    });
   }
 
   function close() {
@@ -305,6 +317,94 @@
     requestAnimationFrame(() => {
       moveWithinViewport(0, 0);
       savePosition();
+    });
+  }
+
+  function initPanelDrag() {
+    if (!panelDragHandle) return;
+    const applyPosition = () => {
+      panel.style.setProperty('--agx-panel-drag-x', `${Math.round(panelPosition.x)}px`);
+      panel.style.setProperty('--agx-panel-drag-y', `${Math.round(panelPosition.y)}px`);
+    };
+    const savePosition = () => {
+      try { localStorage.setItem(panelPositionKey, JSON.stringify(panelPosition)); } catch {}
+    };
+    const getVisibleBounds = () => {
+      const panelRect = panel.getBoundingClientRect();
+      const mascotRect = panelDragHandle.getBoundingClientRect();
+      return {
+        left: Math.min(panelRect.left, mascotRect.left),
+        top: Math.min(panelRect.top, mascotRect.top),
+        right: Math.max(panelRect.right, mascotRect.right),
+        bottom: Math.max(panelRect.bottom, mascotRect.bottom)
+      };
+    };
+    const moveWithinViewport = (deltaX, deltaY, rect = getVisibleBounds()) => {
+      const margin = 8;
+      const safeX = Math.min(Math.max(deltaX, margin - rect.left), window.innerWidth - margin - rect.right);
+      const safeY = Math.min(Math.max(deltaY, margin - rect.top), window.innerHeight - margin - rect.bottom);
+      panelPosition = { x: panelPosition.x + safeX, y: panelPosition.y + safeY };
+      applyPosition();
+    };
+    const resetPosition = () => {
+      panelPosition = { x: 0, y: 0 };
+      applyPosition();
+      savePosition();
+    };
+    keepPanelOnScreen = () => {
+      if (!state.open) return;
+      moveWithinViewport(0, 0);
+      savePosition();
+    };
+
+    applyPosition();
+    let drag = null;
+    panelDragHandle.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 || !state.open) return;
+      event.preventDefault();
+      drag = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        startPosition: { ...panelPosition },
+        rect: getVisibleBounds()
+      };
+      panel.classList.add('is-dragging');
+      panelDragHandle.setPointerCapture(event.pointerId);
+    });
+    panelDragHandle.addEventListener('pointermove', (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      const margin = 8;
+      const deltaX = Math.min(Math.max(event.clientX - drag.startX, margin - drag.rect.left), window.innerWidth - margin - drag.rect.right);
+      const deltaY = Math.min(Math.max(event.clientY - drag.startY, margin - drag.rect.top), window.innerHeight - margin - drag.rect.bottom);
+      panelPosition = { x: drag.startPosition.x + deltaX, y: drag.startPosition.y + deltaY };
+      applyPosition();
+    });
+    const finishPanelDrag = (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      drag = null;
+      panel.classList.remove('is-dragging');
+      savePosition();
+    };
+    panelDragHandle.addEventListener('pointerup', finishPanelDrag);
+    panelDragHandle.addEventListener('pointercancel', finishPanelDrag);
+    panelDragHandle.addEventListener('keydown', (event) => {
+      if (event.key === 'Home') {
+        event.preventDefault();
+        resetPosition();
+        return;
+      }
+      const directions = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+      const direction = directions[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      const distance = event.shiftKey ? 48 : 16;
+      moveWithinViewport(direction[0] * distance, direction[1] * distance);
+      savePosition();
+    });
+    window.addEventListener('resize', () => {
+      if (!state.open) return;
+      keepPanelOnScreen();
     });
   }
 

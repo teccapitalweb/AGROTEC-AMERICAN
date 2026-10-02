@@ -22,6 +22,8 @@ Componente frontend aislado y reutilizable. No modifica autenticación, pagos, m
 - El estado cerrado muestra al personaje en grande y tres mensajes escalonados; no usa una cápsula compacta.
 - El chat se abre al tocar directamente la escena del personaje.
 - La escena cerrada puede arrastrarse a cualquier zona visible; su posición se guarda localmente en el dispositivo.
+- En el panel abierto, Agro aparece en gran formato y sobresale por encima del encabezado, sin círculo de fondo.
+- La mascota del panel abierto sirve como agarradera para mover todo el chatbot y conserva esa posición por separado.
 - Las flechas del teclado también mueven la escena y la tecla `Inicio` restaura su posición original.
 - El personaje tiene parpadeo doble, respiración, saludo, espera y respuesta.
 - La ropa naranja mejora el contraste sobre la fotografía verde del campo.
