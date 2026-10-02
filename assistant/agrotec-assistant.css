@@ -54,7 +54,7 @@
 
 .agx-avatar { position: relative; display: block; flex: 0 0 auto; }
 .agx-avatar__art { position: absolute; inset: 0; display: grid; place-items: center; transform-origin: 52% 90%; }
-.agx-avatar__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; clip-path: inset(0 12% 0 12%); }
+.agx-avatar__art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; object-position: center bottom; clip-path: inset(0 12% 0 12%); pointer-events: none; user-select: none; -webkit-user-drag: none; }
 .agx-avatar__blink { opacity: 0; }
 .agx-avatar__fallback { display: grid; place-items: center; width: 52px; height: 52px; border-radius: 50%; color: #fff; background: var(--agx-primary); font-size: 1.25rem; font-weight: 900; }
 .agx-avatar--launcher { position: absolute; left: 0; bottom: 1px; z-index: 2; width: 178px; height: 258px; }
@@ -85,6 +85,8 @@
 .agx-prompt--three { width: 232px; border-color: rgba(255,255,255,.62); color: var(--agx-primary-dark); background: #f1c75b; box-shadow: 0 13px 30px rgba(24,53,43,.2), inset 5px 0 #fff4c4; }
 .agx-prompt--three b { margin-left: auto; font-size: 1.15rem; }
 .agx-launcher__hint { position: absolute; right: 3px; bottom: 1px; padding: 4px 8px; border-radius: 99px; color: rgba(255,255,255,.96); background: rgba(23,56,47,.82); box-shadow: 0 5px 16px rgba(0,0,0,.16); text-shadow: 0 1px 4px rgba(0,0,0,.35); font-size: .66rem; font-weight: 750; letter-spacing: .02em; }
+.agx-launcher__drag-surface { position: absolute; inset: 0; z-index: 10; cursor: grab; touch-action: none; }
+.agx-launcher.is-dragging .agx-launcher__drag-surface { cursor: grabbing; }
 
 .agx-panel {
   position: fixed;

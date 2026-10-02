@@ -79,14 +79,15 @@
   root.style.setProperty('--agx-surface', config.colors.surface);
   root.style.setProperty('--agx-ink', config.colors.ink);
   root.innerHTML = `
-    <button class="agx-launcher" type="button" aria-label="Agro, asistente virtual movible. Arrástrala para cambiarla de lugar, usa las flechas para moverla o presiona Inicio para restaurarla. Toca para abrir el chat." title="Arrastra a Agro · toca para abrir" aria-expanded="false" data-agx-open>
+    <button class="agx-launcher" type="button" aria-label="Agro, asistente virtual. Toca para conversar." title="Toca para conversar" aria-expanded="false" data-agx-open>
       ${avatarMarkup('agx-avatar--launcher')}
       <span class="agx-prompts" aria-hidden="true">
         <span class="agx-prompt agx-prompt--one">¡Hola! Soy Agro <b>👋</b></span>
         <span class="agx-prompt agx-prompt--two">¿Qué quieres aprender?</span>
         <span class="agx-prompt agx-prompt--three">Encuentra tu curso ideal <b>→</b></span>
       </span>
-      <span class="agx-launcher__hint" aria-hidden="true">Arrastra a Agro · toca para conversar</span>
+      <span class="agx-launcher__hint" aria-hidden="true">Toca para conversar</span>
+      <span class="agx-launcher__drag-surface" aria-hidden="true"></span>
     </button>
     <section class="agx-panel" role="dialog" aria-modal="false" aria-label="Conversación con ${escapeHtml(config.assistantName)}, asistente virtual" aria-hidden="true" data-agx-panel>
       <header class="agx-header">
@@ -157,10 +158,10 @@
 
   function avatarMarkup(extraClass) {
     const image = config.character.src
-      ? `<img class="agx-avatar__open" src="${escapeHtml(config.character.src)}" alt="${escapeHtml(config.character.alt)}" onerror="this.remove()">`
+      ? `<img class="agx-avatar__open" src="${escapeHtml(config.character.src)}" alt="${escapeHtml(config.character.alt)}" draggable="false" onerror="this.remove()">`
       : '';
     const blinkImage = config.character.blinkSrc
-      ? `<img class="agx-avatar__blink" src="${escapeHtml(config.character.blinkSrc)}" alt="" aria-hidden="true" onerror="this.remove()">`
+      ? `<img class="agx-avatar__blink" src="${escapeHtml(config.character.blinkSrc)}" alt="" aria-hidden="true" draggable="false" onerror="this.remove()">`
       : '';
     const fallback = config.character.src ? '' : `<span class="agx-avatar__fallback" aria-hidden="true">${escapeHtml(config.character.placeholder || 'A')}</span>`;
     const dragAttributes = extraClass === 'agx-avatar--header'
