@@ -8,6 +8,7 @@
   const positionKey = `${config.id}-assistant-position`;
   const panelPositionKey = `${config.id}-assistant-panel-position`;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const mobileViewport = window.matchMedia('(max-width: 680px)');
   const stopwords = new Set(['quiero','curso','cursos','sobre','para','como','algo','una','uno','unos','unas','del','las','los','que','con','por','me','interesa','busco','aprender','capacitacion']);
 
   const safeRead = () => {
@@ -89,6 +90,7 @@
       <span class="agx-launcher__hint" aria-hidden="true">Toca para conversar</span>
       <span class="agx-launcher__drag-surface" aria-hidden="true"></span>
     </button>
+    <div class="agx-backdrop" aria-hidden="true" data-agx-backdrop></div>
     <section class="agx-panel" role="dialog" aria-modal="false" aria-label="Conversación con ${escapeHtml(config.assistantName)}, asistente virtual" aria-hidden="true" data-agx-panel>
       <header class="agx-header">
         ${avatarMarkup('agx-avatar--header')}
@@ -114,6 +116,7 @@
 
   const panel = root.querySelector('[data-agx-panel]');
   const launcher = root.querySelector('[data-agx-open]');
+  const backdrop = root.querySelector('[data-agx-backdrop]');
   const messagesEl = root.querySelector('[data-agx-messages]');
   const quickEl = root.querySelector('[data-agx-quick]');
   const typingEl = root.querySelector('[data-agx-typing]');
@@ -121,6 +124,7 @@
   const pauseButton = root.querySelector('[data-agx-pause]');
   const panelDragHandle = root.querySelector('[data-agx-panel-drag]');
   let suppressLauncherClick = false;
+  let pageLock = null;
   let keepLauncherOnScreen = () => {};
   let keepPanelOnScreen = () => {};
 
@@ -155,6 +159,10 @@
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && state.open) close(); });
   document.addEventListener('visibilitychange', syncVisibility);
   reducedMotion.addEventListener?.('change', () => { if (reducedMotion.matches) setPaused(true); });
+  mobileViewport.addEventListener?.('change', (event) => {
+    if (!state.open) return;
+    if (event.matches) lockPageOnMobile(); else unlockPage();
+  });
 
   function avatarMarkup(extraClass) {
     const image = config.character.src
@@ -185,6 +193,8 @@
 
   function open() {
     state.open = true;
+    lockPageOnMobile();
+    backdrop.classList.add('is-open');
     panel.classList.add('is-open');
     panel.setAttribute('aria-hidden', 'false');
     launcher.hidden = true;
@@ -192,19 +202,58 @@
     wave();
     requestAnimationFrame(() => {
       keepPanelOnScreen();
-      input.focus({ preventScroll: true });
+      if (!mobileViewport.matches) input.focus({ preventScroll: true });
+      setTimeout(() => { if (state.open) keepPanelOnScreen(); }, 260);
     });
   }
 
   function close() {
     state.open = false;
+    backdrop.classList.remove('is-open');
     panel.classList.remove('is-open');
     panel.setAttribute('aria-hidden', 'true');
     launcher.hidden = false;
     launcher.setAttribute('aria-expanded', 'false');
     root.dataset.agxState = 'idle';
+    unlockPage();
     requestAnimationFrame(() => keepLauncherOnScreen());
     launcher.focus({ preventScroll: true });
+  }
+
+  function lockPageOnMobile() {
+    if (pageLock || !mobileViewport.matches) return;
+    const scrollY = window.scrollY;
+    pageLock = {
+      scrollY,
+      htmlOverflow: document.documentElement.style.overflow,
+      bodyPosition: document.body.style.position,
+      bodyTop: document.body.style.top,
+      bodyRight: document.body.style.right,
+      bodyLeft: document.body.style.left,
+      bodyWidth: document.body.style.width,
+      bodyOverflow: document.body.style.overflow
+    };
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.right = '0';
+    document.body.style.left = '0';
+    document.body.style.width = '100%';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function unlockPage() {
+    if (!pageLock) return;
+    const lock = pageLock;
+    pageLock = null;
+    document.documentElement.style.overflow = lock.htmlOverflow;
+    document.body.style.position = lock.bodyPosition;
+    document.body.style.top = lock.bodyTop;
+    document.body.style.right = lock.bodyRight;
+    document.body.style.left = lock.bodyLeft;
+    document.body.style.width = lock.bodyWidth;
+    document.body.style.overflow = lock.bodyOverflow;
+    window.scrollTo(0, lock.scrollY);
   }
 
   function wave() {

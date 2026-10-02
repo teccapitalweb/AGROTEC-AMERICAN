@@ -88,6 +88,8 @@
 .agx-launcher__drag-surface { position: absolute; inset: 0; z-index: 10; cursor: grab; touch-action: none; }
 .agx-launcher.is-dragging .agx-launcher__drag-surface { cursor: grabbing; }
 
+.agx-backdrop { display: none; }
+
 .agx-panel {
   position: fixed;
   right: 22px;
@@ -202,29 +204,45 @@
 @keyframes agx-response { 0% { transform: scale(.97); } 48% { transform: scale(1.035) translateY(-3px); } 100% { transform: scale(1); } }
 
 @media (max-width: 680px) {
-  .agx-launcher { right: 5px; bottom: 18px; width: 320px; height: 224px; }
-  .agx-launcher:focus-visible::after { left: 1px; bottom: 2px; width: 141px; height: 201px; }
-  .agx-avatar--launcher { width: 145px; height: 220px; }
-  .agx-prompts { top: 28px; right: 0; width: 194px; gap: 9px; }
-  .agx-prompt { min-height: 43px; padding: 9px 12px; font-size: .77rem; }
-  .agx-prompt--one { width: 158px; }
-  .agx-prompt--one b { font-size: 1rem; }
-  .agx-prompt--two { width: 180px; }
-  .agx-prompt--three { width: 192px; }
-  .agx-launcher__hint { right: 2px; font-size: .58rem; }
-  .agx-panel { right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); width: calc(100vw - 16px); height: min(650px, calc(100dvh - 136px - env(safe-area-inset-bottom))); border-radius: 18px; }
-  .agx-header { min-height: 90px; padding-left: 112px; border-radius: 18px 18px 0 0; }
-  .agx-header .agx-avatar { left: 5px; top: -82px; width: 116px; height: 150px; }
+  .agx-launcher { right: 8px; bottom: 18px; width: 260px; height: 172px; }
+  .agx-launcher:focus-visible::after { left: 1px; bottom: 2px; width: 103px; height: 157px; }
+  .agx-avatar--launcher { width: 108px; height: 168px; }
+  .agx-prompts { top: 19px; right: 0; width: 170px; gap: 7px; }
+  .agx-prompt { min-height: 34px; padding: 7px 10px; border-radius: 9px 20px 20px 9px; font-size: .64rem; }
+  .agx-prompt::before { left: -5px; width: 10px; height: 10px; }
+  .agx-prompt--one { width: 137px; }
+  .agx-prompt--one b { margin-left: 4px; font-size: .8rem; }
+  .agx-prompt--two { width: 156px; }
+  .agx-prompt--three { width: 168px; }
+  .agx-prompt--three b { font-size: .85rem; }
+  .agx-launcher__hint { right: 2px; bottom: 0; padding: 3px 7px; font-size: .5rem; }
+  .agx-backdrop { position: fixed; inset: 0; z-index: 1490; display: block; pointer-events: none; opacity: 0; background: rgba(22,59,48,.2); transition: opacity .2s ease; }
+  .agx-backdrop.is-open { pointer-events: auto; opacity: 1; }
+  .agx-panel { z-index: 1500; right: 8px; bottom: max(8px, env(safe-area-inset-bottom)); width: calc(100vw - 16px); height: min(650px, calc(100dvh - 136px - env(safe-area-inset-bottom))); border-radius: 26px; border-color: rgba(40,83,69,.15); background: linear-gradient(180deg, #edf4ea 0%, #edf4ec 58%, #f7faf4 100%); box-shadow: 0 22px 70px rgba(17,45,36,.3); }
+  .agx-header { min-height: 86px; padding: 14px; border-radius: 26px 26px 0 0; background: rgba(239,246,236,.98); }
+  .agx-header .agx-avatar { left: 50%; top: -150px; width: 126px; height: 154px; transform: translateX(-50%); }
+  .agx-header__title::before { content: 'AGROTEC AMÉRICA'; display: block; margin-bottom: 3px; color: var(--agx-primary); font-size: .51rem; font-weight: 850; letter-spacing: .11em; }
   .agx-header__title strong { font-size: .9rem; }
   .agx-header__title small { font-size: .62rem; }
   .agx-icon-btn { width: 31px; height: 31px; }
-  .agx-composer { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .agx-disclosure { background: rgba(247,249,239,.92); }
+  .agx-message { background: rgba(255,255,255,.92); }
+  .agx-quick { gap: 8px; }
+  .agx-chip { border-color: rgba(40,83,69,.13); border-radius: 10px; box-shadow: 0 5px 16px rgba(31,64,53,.05); }
+  .agx-composer { padding-bottom: max(12px, env(safe-area-inset-bottom)); background: rgba(255,255,255,.68); }
+  .agx-composer input { border-radius: 999px; }
+  .agx-send { border-radius: 50%; }
+  .agx-footer { border-radius: 0 0 26px 26px; background: rgba(255,255,255,.68); }
 }
 
 @media (max-width: 370px) {
-  .agx-launcher { transform: scale(.92); transform-origin: bottom right; }
-  .agx-header { padding-left: 92px; }
-  .agx-header .agx-avatar { left: 2px; top: -72px; width: 98px; height: 132px; }
+  .agx-launcher { width: 242px; height: 162px; }
+  .agx-avatar--launcher { width: 101px; height: 158px; }
+  .agx-prompts { width: 158px; }
+  .agx-prompt--one { width: 132px; }
+  .agx-prompt--two { width: 148px; }
+  .agx-prompt--three { width: 157px; }
+  .agx-header .agx-avatar { top: -120px; width: 102px; height: 128px; }
   .agx-header__title strong { max-width: 105px; }
   .agx-header__actions { gap: 1px; }
   .agx-icon-btn { width: 29px; height: 29px; }
