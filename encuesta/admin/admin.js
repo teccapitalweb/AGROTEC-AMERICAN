@@ -1,22 +1,34 @@
 /* ==========================================================================
    AgroTec América · Panel administrativo de la encuesta
    Pestañas: Resumen (gráficas) · Preguntas · Cursos · Respuestas · Textos
-   Acceso: Google (Firebase Auth) + documento en `encuesta_admins/{correo}`.
+   Acceso: Google (Firebase Auth) + lista ADMIN_EMAILS o documento en
+   `encuesta_admins/{correo}`.
    ========================================================================== */
 (() => {
   'use strict';
 
   const DEFAULTS = window.AGROTEC_ENCUESTA_DEFAULTS;
-  const { clone, normalizeConfig } = window.AGROTEC_ENCUESTA_UTILS;
+  const { clone, normalizeConfig, DIMENSIONS, LAYOUTS, MOODS, LEVELS } = window.AGROTEC_ENCUESTA_UTILS;
   const FB = window.AGROTEC_FIREBASE;
+  const ICONS = window.AGROTEC_ICONS || {};
   const SITE_BASE = '../../';
   const PAGE_SIZE = 50;
   const MAX_RESPONSES = 3000;
   /* Serie categórica validada (orden fijo). El color sigue a la opción, no al ranking. */
   const PALETTE = ['#5c8c3a', '#2a78d6', '#eb6834', '#4a3aa7', '#eda100', '#e87ba4', '#1baf7a', '#e34948'];
   const OTHER_COLOR = '#b9c0b8';
-  const STAT_ICONS = ['list', 'clock', 'lock'];
-  const BRAND_ICONS = ['brand:instagram', 'brand:facebook', 'brand:tiktok', 'brand:google', 'brand:whatsapp'];
+  const STAT_ICONS = ['list-checks', 'timer', 'shield-check', 'clock', 'lock', 'sparkles', 'award', 'play-circle'];
+  const LAYOUT_LABELS = { cards: 'Tarjetas con ícono', scale: 'Escala visual', tiles: 'Mosaico (logotipos)', big: 'Botones grandes', images: 'Tarjetas con imagen', list: 'Lista compacta', chips: 'Chips (pastillas)' };
+  const DIMENSION_LABELS = { profile: 'Perfil (quién es)', level: 'Nivel de experiencia', source: 'Cómo nos conoció (solo estadística)', goal: 'Objetivo', interests: 'Áreas de interés (enlaza cursos)', format: 'Formato de aprendizaje', problem: 'Principal obstáculo', time: 'Tiempo disponible', none: 'Ninguna (solo estadística)' };
+  const MOOD_LABELS = { greet: 'Saluda', point: 'Señala la pregunta', think: 'Piensa', tablet: 'Usa una tablet', calculator: 'Usa una calculadora', approve: 'Aprueba', surprise: 'Se sorprende', celebrate: 'Celebra' };
+  const LEVEL_LABELS = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
+  const TAG_GROUPS = [
+    { key: 'interests', label: 'Áreas de interés', dimension: 'interests', help: 'La primera marcada cuenta como principal.' },
+    { key: 'goals', label: 'Objetivos', dimension: 'goal' },
+    { key: 'profiles', label: 'Perfiles', dimension: 'profile' },
+    { key: 'problems', label: 'Obstáculos que resuelve', dimension: 'problem' },
+    { key: 'levels', label: 'Niveles', fixed: LEVELS.map((l) => ({ value: l, title: LEVEL_LABELS[l] })) }
+  ];
 
   /* ---------- Utilidades ---------- */
   const $ = (selector, root = document) => root.querySelector(selector);
@@ -25,13 +37,13 @@
   const pad2 = (n) => String(n).padStart(2, '0');
   const num = (n) => Number(n || 0).toLocaleString('es-MX');
   const pct = (part, total) => (total ? Math.round((part / total) * 100) : 0);
-  const slug = (text) => String(text || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40);
   const uid = () => Math.random().toString(36).slice(2, 7);
   const assetUrl = (path) => (!path ? '' : /^(https?:)?\/\//i.test(path) || path.startsWith('/') ? path : SITE_BASE + path);
   const startOfDay = (date) => { const d = new Date(date); d.setHours(0, 0, 0, 0); return d; };
   const dayKey = (date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
   const fmtDate = (date) => (date ? date.toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
   const fmtDay = (date) => date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
+  const fmtMin = (min) => (!min ? '—' : min >= 60 ? `${Math.floor(min / 60)} h ${pad2(min % 60)}` : `${min} min`);
   const relTime = (date) => {
     if (!date) return '—';
     const diff = Math.round((Date.now() - date.getTime()) / 1000);
@@ -40,19 +52,29 @@
     if (diff < 86400) return `hace ${Math.round(diff / 3600)} h`;
     return `hace ${Math.round(diff / 86400)} días`;
   };
-  const getPath = (obj, path) => path.split('.').reduce((acc, key) => (acc == null ? acc : acc[key]), obj);
   const setPath = (obj, path, value) => {
     const keys = path.split('.');
     const last = keys.pop();
     const target = keys.reduce((acc, key) => (acc[key] == null ? (acc[key] = {}) : acc[key]), obj);
     target[last] = value;
   };
-  const move = (array, from, to) => {
-    if (to < 0 || to >= array.length) return;
-    const [item] = array.splice(from, 1);
-    array.splice(to, 0, item);
-  };
+  const move = (array, from, to) => { if (to < 0 || to >= array.length) return; const [item] = array.splice(from, 1); array.splice(to, 0, item); };
+  const toDate = (value) => (value && typeof value.toDate === 'function' ? value.toDate() : typeof value === 'string' && value ? new Date(value) : null);
 
+  const BRAND = {
+    instagram: '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#e1306c"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="17.3" cy="6.7" r="1.2" fill="#fff"/></svg>',
+    facebook: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1877f2"/><path d="M13.4 20v-6.2h2.1l.3-2.5h-2.4V9.7c0-.7.2-1.2 1.2-1.2h1.3V6.3c-.2 0-1-.1-1.9-.1-1.9 0-3.1 1.1-3.1 3.2v1.9H8.8v2.5h2.1V20z" fill="#fff"/></svg>',
+    tiktok: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#111"/><path d="M13.6 6h2c.1 1.5 1.1 2.6 2.6 2.8v2c-1 0-1.9-.3-2.6-.8v4.3a3.8 3.8 0 1 1-3.8-3.8c.2 0 .5 0 .7.1v2.1a1.7 1.7 0 1 0 1.1 1.6z" fill="#fff"/></svg>',
+    google: '<svg viewBox="0 0 24 24"><path d="M21.6 12.2c0-.7-.1-1.3-.2-1.9H12v3.7h5.4a4.6 4.6 0 0 1-2 3v2.5h3.2c1.9-1.7 3-4.3 3-7.3z" fill="#4285f4"/><path d="M12 22c2.7 0 5-.9 6.6-2.4l-3.2-2.5c-.9.6-2 1-3.4 1-2.6 0-4.8-1.8-5.6-4.1H3.1v2.6A10 10 0 0 0 12 22z" fill="#34a853"/><path d="M6.4 13.9a6 6 0 0 1 0-3.8V7.5H3.1a10 10 0 0 0 0 9z" fill="#fbbc04"/><path d="M12 6c1.5 0 2.8.5 3.8 1.5l2.9-2.9A10 10 0 0 0 3.1 7.5l3.3 2.6C7.2 7.8 9.4 6 12 6z" fill="#ea4335"/></svg>',
+    whatsapp: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#25d366"/><path d="M12 5.5a6.5 6.5 0 0 0-5.6 9.8L5.5 18.5l3.3-.9A6.5 6.5 0 1 0 12 5.5z" fill="none" stroke="#fff" stroke-width="1.6"/></svg>'
+  };
+  const iconMarkup = (icon) => {
+    if (!icon) return '';
+    if (icon.startsWith('i:') && ICONS[icon.slice(2)]) return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[icon.slice(2)]}</svg>`;
+    if (icon.startsWith('brand:')) return BRAND[icon.slice(6)] || '';
+    if (icon.startsWith('i:')) return '<span class="icon-missing" title="Ícono no encontrado">?</span>';
+    return esc(icon);
+  };
   const ICON = {
     up: '<svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg>',
     down: '<svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg>',
@@ -89,6 +111,7 @@
     toastTimer = setTimeout(() => { els.toast.hidden = true; }, 3800);
   };
   const setStatus = (text) => { els.status.textContent = text; };
+  const showBanner = (html) => { els.banner.innerHTML = html; els.banner.hidden = !html; };
 
   /* ---------- Acceso ---------- */
   const showGate = (mode = 'login', detail = '') => {
@@ -144,10 +167,7 @@
     } catch (error) {
       console.error('[panel] Error al iniciar sesión', error);
       const code = error?.code || '';
-      const message = code === 'auth/popup-closed-by-user' ? 'Cerraste la ventana de Google antes de terminar.'
-        : code === 'auth/unauthorized-domain' ? 'Este dominio no está autorizado en Firebase Auth.'
-        : 'No se pudo iniciar sesión. Intenta de nuevo.';
-      showGate('login', message);
+      showGate('login', code === 'auth/popup-closed-by-user' ? 'Cerraste la ventana de Google antes de terminar.' : code === 'auth/unauthorized-domain' ? 'Este dominio no está autorizado en Firebase Auth.' : 'No se pudo iniciar sesión. Intenta de nuevo.');
     } finally {
       els.btnLogin.classList.remove('is-busy');
     }
@@ -176,18 +196,15 @@
     const snap = await getDocs(query(collection(db, FB.COLLECTIONS.responses), orderBy('createdAt', 'desc'), limit(MAX_RESPONSES)));
     state.responses = snap.docs.map((d) => {
       const data = d.data() || {};
-      const createdAt = data.createdAt && typeof data.createdAt.toDate === 'function' ? data.createdAt.toDate() : null;
+      const rec = data.recommendation && typeof data.recommendation === 'object' ? data.recommendation : null;
       return {
-        id: d.id, createdAt, answers: data.answers || {}, labels: data.labels || {}, recommended: Array.isArray(data.recommended) ? data.recommended : [],
-        device: data.device || '', durationSec: Number.isFinite(data.durationSec) ? data.durationSec : null, configVersion: data.configVersion ?? '', ref: data.ref || ''
+        id: d.id, createdAt: toDate(data.createdAt), answers: data.answers || {}, labels: data.labels || {},
+        courseId: rec?.courseId || (Array.isArray(data.recommended) ? data.recommended[0] : '') || '', classN: rec?.classN || null,
+        clickedClass: data.clickedClass === true, clickedAt: toDate(data.clickedAt), enteredCourse: data.enteredCourse === true, uid: data.uid || '',
+        device: data.device || '', durationSec: Number.isFinite(data.durationSec) ? data.durationSec : null, configVersion: data.configVersion ?? ''
       };
     });
     state.loadedAt = new Date();
-  };
-
-  const showBanner = (html) => {
-    els.banner.innerHTML = html;
-    els.banner.hidden = !html;
   };
 
   const loadAll = async () => {
@@ -195,7 +212,6 @@
     const results = await Promise.allSettled([loadConfig(), loadResponses()]);
     const failed = results.filter((r) => r.status === 'rejected').map((r) => r.reason);
     if (results[0].status === 'rejected') {
-      /* Sin acceso a la configuración: trabajar con la predeterminada para que el panel sea usable. */
       state.configExists = false;
       state.config = normalizeConfig(null);
       state.draft = clone(state.config);
@@ -247,31 +263,16 @@
       else if (cids.has(id)) errors.push(`${n}: el ID "${id}" está repetido.`);
       cids.add(id);
       if (!String(c.title || '').trim()) errors.push(`${n}: falta el nombre.`);
+      if (!Array.isArray(c.classes) || !c.classes.length) errors.push(`${n}: necesita al menos una clase para poder recomendarse.`);
     });
     return errors;
   };
 
-  const cleanDraft = (draft) => {
-    const out = clone(draft);
-    out.preguntas = out.preguntas.map((q) => ({
-      id: String(q.id).trim(), kicker: q.kicker || '', title: q.title, hint: q.hint || '',
-      type: q.type === 'multi' ? 'multi' : 'single', max: Math.max(1, Number(q.max) || 3),
-      layout: ['list', 'tiles', 'chips'].includes(q.layout) ? q.layout : 'list',
-      options: q.options.map((o) => ({ value: String(o.value).trim(), icon: o.icon || '', title: o.title, detail: o.detail || '' }))
-    }));
-    out.cursos = out.cursos.map((c) => ({
-      id: String(c.id).trim(), title: c.title, category: c.category || '', level: c.level || '', image: c.image || '', url: c.url || '',
-      areas: Array.isArray(c.areas) ? c.areas : [], available: c.available !== false
-    }));
-    return out;
-  };
+  const cleanDraft = (draft) => normalizeConfig(clone(draft));
 
   const save = async () => {
     const errors = validateDraft(state.draft);
-    if (errors.length) {
-      toast(errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} más)` : ''), 'error');
-      return;
-    }
+    if (errors.length) { toast(errors[0] + (errors.length > 1 ? ` (+${errors.length - 1} más)` : ''), 'error'); return; }
     els.btnSave.classList.add('is-busy');
     els.btnSave.textContent = 'Guardando…';
     try {
@@ -288,24 +289,14 @@
       render();
     } catch (error) {
       console.error('[panel] Error al guardar', error);
-      toast(error?.code === 'permission-denied' ? 'Firestore rechazó el guardado. Revisa que tu correo esté en encuesta_admins.' : 'No se pudo guardar. Intenta de nuevo.', 'error');
+      toast(error?.code === 'permission-denied' ? 'Firestore rechazó el guardado. Revisa las reglas y que tu correo sea administrador.' : 'No se pudo guardar. Intenta de nuevo.', 'error');
     } finally {
       els.btnSave.classList.remove('is-busy');
       els.btnSave.textContent = 'Guardar cambios';
     }
   };
-
-  const discard = () => {
-    state.draft = clone(state.config);
-    state.dirty = false;
-    els.savebar.hidden = true;
-    render();
-  };
-
-  const markDirty = () => {
-    state.dirty = true;
-    els.savebar.hidden = false;
-  };
+  const discard = () => { state.draft = clone(state.config); state.dirty = false; els.savebar.hidden = true; render(); };
+  const markDirty = () => { state.dirty = true; els.savebar.hidden = false; };
 
   /* ---------- Análisis ---------- */
   const periodSince = () => {
@@ -315,26 +306,18 @@
     if (state.period === '30d') return new Date(now.getTime() - 30 * 86400000);
     return null;
   };
-  const filteredResponses = () => {
-    const since = periodSince();
-    return since ? state.responses.filter((r) => r.createdAt && r.createdAt >= since) : state.responses;
-  };
-
-  const valuesFor = (response, question) => {
-    const raw = response.answers?.[question.id];
-    return Array.isArray(raw) ? raw : raw != null && raw !== '' ? [raw] : [];
-  };
-
+  const filteredResponses = () => { const since = periodSince(); return since ? state.responses.filter((r) => r.createdAt && r.createdAt >= since) : state.responses; };
+  const valuesFor = (response, question) => { const raw = response.answers?.[question.id]; return Array.isArray(raw) ? raw : raw != null && raw !== '' ? [raw] : []; };
   const labelsFor = (response, question) => {
     const stored = response.labels?.[question.id];
     if (Array.isArray(stored) && stored.length) return stored;
     return valuesFor(response, question).map((v) => question.options.find((o) => o.value === v)?.title || String(v));
   };
+  const courseTitle = (id) => state.config.cursos.find((c) => c.id === id)?.title || id || '—';
 
-  const countQuestion = (question, rows) => {
+  const countQuestion = (question, rows, fold = true) => {
     const counts = new Map(question.options.map((o) => [o.value, 0]));
-    let legacy = 0;
-    let respondents = 0;
+    let legacy = 0; let respondents = 0;
     rows.forEach((row) => {
       const values = valuesFor(row, question);
       if (!values.length) return;
@@ -342,10 +325,10 @@
       values.forEach((v) => { if (counts.has(v)) counts.set(v, counts.get(v) + 1); else legacy += 1; });
     });
     const data = question.options.map((o, i) => ({ key: o.value, label: o.title, count: counts.get(o.value) || 0, color: i < PALETTE.length ? PALETTE[i] : OTHER_COLOR }));
-    if (question.options.length > PALETTE.length) {
+    if (fold && question.options.length > PALETTE.length) {
       const head = data.slice(0, PALETTE.length - 1);
       const tail = data.slice(PALETTE.length - 1);
-      head.push({ key: '__fold', label: 'Otras opciones', count: tail.reduce((s, d) => s + d.count, 0), color: OTHER_COLOR, folded: tail });
+      head.push({ key: '__fold', label: 'Otras opciones', count: tail.reduce((s, d) => s + d.count, 0), color: OTHER_COLOR });
       data.splice(0, data.length, ...head);
     }
     if (legacy) data.push({ key: '__legacy', label: 'Opciones anteriores', count: legacy, color: OTHER_COLOR });
@@ -368,9 +351,7 @@
     }).join('');
     const legend = stats.data.map((d, i) => `
       <li data-i="${i}" data-label="${esc(d.label)}" data-count="${d.count}" data-pct="${pct(d.count, stats.total)}">
-        <i style="background:${d.color}"></i>
-        <span title="${esc(d.label)}">${esc(d.label)}</span>
-        <b>${num(d.count)}<em>${pct(d.count, stats.total)}%</em></b>
+        <i style="background:${d.color}"></i><span title="${esc(d.label)}">${esc(d.label)}</span><b>${num(d.count)}<em>${pct(d.count, stats.total)}%</em></b>
       </li>`).join('');
     return `
       <div class="donut" data-chart="donut">
@@ -418,29 +399,27 @@
     const now = new Date();
     const today = startOfDay(now);
     const week = new Date(now.getTime() - 7 * 86400000);
+    const clicks = rows.filter((r) => r.clickedClass).length;
+    const entered = rows.filter((r) => r.enteredCourse).length;
     const mobile = rows.filter((r) => r.device === 'mobile').length;
     const durations = rows.map((r) => r.durationSec).filter((s) => Number.isFinite(s) && s > 0 && s < 3600);
     const avgSec = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null;
     const periodLabel = { all: 'en total', today: 'hoy', '7d': 'en 7 días', '30d': 'en 30 días' }[state.period];
 
     const days = [];
-    for (let i = 13; i >= 0; i -= 1) {
-      const d = new Date(today.getTime() - i * 86400000);
-      days.push({ key: dayKey(d), label: fmtDay(d), count: 0 });
-    }
+    for (let i = 13; i >= 0; i -= 1) { const d = new Date(today.getTime() - i * 86400000); days.push({ key: dayKey(d), label: fmtDay(d), count: 0 }); }
     all.forEach((r) => { if (!r.createdAt) return; const hit = days.find((d) => d.key === dayKey(r.createdAt)); if (hit) hit.count += 1; });
 
     const courseCounts = new Map();
-    rows.forEach((r) => r.recommended.forEach((id) => courseCounts.set(id, (courseCounts.get(id) || 0) + 1)));
-    const courseItems = Array.from(courseCounts.entries())
-      .map(([id, count]) => ({ label: state.config.cursos.find((c) => c.id === id)?.title || id, count }))
-      .sort((a, b) => b.count - a.count);
+    rows.forEach((r) => { if (r.courseId) courseCounts.set(r.courseId, (courseCounts.get(r.courseId) || 0) + 1); });
+    const courseItems = Array.from(courseCounts.entries()).map(([id, count]) => ({ label: courseTitle(id), count })).sort((a, b) => b.count - a.count);
     const topCourses = courseItems.slice(0, 8);
     if (courseItems.length > 8) topCourses.push({ label: 'Otros cursos', count: courseItems.slice(8).reduce((s, d) => s + d.count, 0) });
+    const funnel = [{ label: 'Terminaron la encuesta', count: rows.length }, { label: 'Hicieron clic en la clase', count: clicks }, { label: 'Entraron al curso en el club', count: entered }];
 
     view('resumen').innerHTML = `
       <div class="view__head">
-        <div><h2>Resumen</h2><p>Qué están contestando las personas que llegan a la encuesta. Las gráficas usan el periodo seleccionado.</p></div>
+        <div><h2>Resumen</h2><p>Qué están contestando las personas y cuántas llegan a la clase recomendada. Las gráficas usan el periodo seleccionado.</p></div>
         <div class="view__tools">
           <div class="seg" role="group" aria-label="Periodo">
             ${[['all', 'Todo'], ['today', 'Hoy'], ['7d', '7 días'], ['30d', '30 días']].map(([v, l]) => `<button type="button" class="${state.period === v ? 'is-active' : ''}" data-action="period" data-value="${v}">${l}</button>`).join('')}
@@ -448,40 +427,43 @@
           <button class="btn btn--line btn--sm" type="button" data-action="reload">Actualizar</button>
         </div>
       </div>
-      <div class="grid-kpi">
+      <div class="grid-kpi grid-kpi--6">
         <div class="card kpi"><span class="kpi__label">Respuestas ${esc(periodLabel)}</span><span class="kpi__value">${num(rows.length)}</span><span class="kpi__delta">${num(all.length)} desde el inicio</span></div>
         <div class="card kpi"><span class="kpi__label">Hoy</span><span class="kpi__value">${num(all.filter((r) => r.createdAt && r.createdAt >= today).length)}</span><span class="kpi__delta">${num(all.filter((r) => r.createdAt && r.createdAt >= week).length)} en los últimos 7 días</span></div>
+        <div class="card kpi"><span class="kpi__label">Clic en la clase</span><span class="kpi__value">${rows.length ? `${pct(clicks, rows.length)}%` : '—'}</span><span class="kpi__delta">${num(clicks)} de ${num(rows.length)} respuestas</span></div>
+        <div class="card kpi"><span class="kpi__label">Entraron al curso</span><span class="kpi__value">${rows.length ? `${pct(entered, rows.length)}%` : '—'}</span><span class="kpi__delta">${num(entered)} llegaron al club con sesión</span></div>
         <div class="card kpi"><span class="kpi__label">Desde celular</span><span class="kpi__value">${rows.length ? `${pct(mobile, rows.length)}%` : '—'}</span><span class="kpi__delta">${num(mobile)} de ${num(rows.length)} respuestas</span></div>
         <div class="card kpi"><span class="kpi__label">Tiempo promedio</span><span class="kpi__value">${avgSec != null ? (avgSec >= 60 ? `${Math.floor(avgSec / 60)}:${pad2(avgSec % 60)}` : `${avgSec}s`) : '—'}</span><span class="kpi__delta">${avgSec != null && avgSec >= 60 ? 'minutos por encuesta' : 'segundos por encuesta'}</span></div>
       </div>
       ${all.length ? '' : `<div class="empty" style="margin-bottom:12px"><strong>Aún no hay respuestas</strong>Comparte la encuesta para empezar a ver datos aquí.<br><code>https://agrotecamerican.com/encuesta/</code></div>`}
       <div class="grid-charts">
         ${chartCard('Actividad', 'Respuestas por día (últimos 14 días)', columnsMarkup(days), true)}
+        ${chartCard('Embudo', 'De la encuesta a la clase', barsMarkup(funnel, rows.length, 'de quienes terminaron la encuesta'))}
+        ${chartCard('Recomendaciones', 'Cursos más recomendados', topCourses.length ? barsMarkup(topCourses, rows.length, 'de las respuestas del periodo') : '<p class="muted small">Todavía no hay recomendaciones registradas.</p>')}
         ${state.config.preguntas.map((q, i) => {
-          const stats = countQuestion(q, rows);
-          const body = q.type === 'multi'
-            ? barsMarkup(stats.data.slice().sort((a, b) => b.count - a.count), stats.respondents)
-            : donutMarkup(stats);
+          const stats = countQuestion(q, rows, q.type !== 'multi');
+          const body = q.type === 'multi' ? barsMarkup(stats.data.slice().sort((a, b) => b.count - a.count), stats.respondents) : donutMarkup(stats);
           return chartCard(`${pad2(i + 1)} · ${q.kicker || q.id}`, q.title, body);
         }).join('')}
-        ${chartCard('Recomendaciones', 'Cursos más recomendados al final', topCourses.length ? barsMarkup(topCourses, rows.length, 'de las respuestas del periodo') : '<p class="muted small">Todavía no hay recomendaciones registradas.</p>', true)}
       </div>`;
   };
 
   /* ---------- Vista: Preguntas ---------- */
   const typeLabel = (t) => (t === 'multi' ? 'Múltiple' : 'Única');
-  const layoutLabel = (l) => ({ tiles: 'Mosaico', chips: 'Chips', list: 'Lista' }[l] || 'Lista');
+  const selectMarkup = (path, value, entries, extra = '') => `<select class="input" data-path="${path}" ${extra}>${entries.map(([v, l]) => `<option value="${esc(v)}" ${value === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
 
   const questionItem = (q, i, total) => {
     const open = state.open.preguntas.has(i);
     const base = `preguntas.${i}`;
+    const showImage = q.layout === 'images';
+    const showLevel = q.dimension === 'level';
     return `
       <article class="card item ${open ? 'is-open' : ''}">
         <div class="item__head" data-action="toggle-item" data-col="preguntas" data-i="${i}">
           <span class="item__num">${pad2(i + 1)}</span>
           <div class="item__title">
             <strong>${esc(q.title || '(sin título)')}</strong>
-            <span><span class="pill">${typeLabel(q.type)}</span><span class="pill">${layoutLabel(q.layout)}</span><span class="pill">${q.options.length} opciones</span>${q.id === 'areas' ? '<span class="pill pill--green">Enlaza cursos</span>' : ''}</span>
+            <span><span class="pill">${typeLabel(q.type)}</span><span class="pill">${esc(LAYOUT_LABELS[q.layout] || q.layout)}</span><span class="pill">${q.options.length} opciones</span>${q.dimension && q.dimension !== 'none' ? `<span class="pill pill--green">${esc(DIMENSION_LABELS[q.dimension] || q.dimension)}</span>` : ''}</span>
           </div>
           <div class="item__tools">
             <button class="icon-btn" type="button" data-action="q-up" data-i="${i}" title="Subir" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button>
@@ -496,27 +478,23 @@
             <div class="field"><label>ID interno</label><input class="input input--mono" data-path="${base}.id" value="${esc(q.id)}"><small>No lo cambies si ya hay respuestas: enlaza la pregunta con sus datos.</small></div>
             <div class="field span-2"><label>Pregunta</label><input class="input" data-path="${base}.title" value="${esc(q.title)}"></div>
             <div class="field span-2"><label>Texto de ayuda</label><input class="input" data-path="${base}.hint" value="${esc(q.hint)}" placeholder="Opcional"></div>
-            <div class="field"><label>Tipo de respuesta</label>
-              <select class="input" data-path="${base}.type" data-rerender="preguntas">
-                <option value="single" ${q.type !== 'multi' ? 'selected' : ''}>Una sola opción</option>
-                <option value="multi" ${q.type === 'multi' ? 'selected' : ''}>Varias opciones</option>
-              </select></div>
-            <div class="field"><label>Diseño</label>
-              <select class="input" data-path="${base}.layout">
-                <option value="list" ${q.layout === 'list' ? 'selected' : ''}>Lista (dos columnas)</option>
-                <option value="tiles" ${q.layout === 'tiles' ? 'selected' : ''}>Mosaico (íconos grandes)</option>
-                <option value="chips" ${q.layout === 'chips' ? 'selected' : ''}>Chips (pastillas)</option>
-              </select></div>
+            <div class="field"><label>Tipo de respuesta</label>${selectMarkup(`${base}.type`, q.type === 'multi' ? 'multi' : 'single', [['single', 'Una sola opción'], ['multi', 'Varias opciones']], 'data-rerender="preguntas"')}</div>
+            <div class="field"><label>Diseño de las opciones</label>${selectMarkup(`${base}.layout`, q.layout, LAYOUTS.map((l) => [l, LAYOUT_LABELS[l]]), 'data-rerender="preguntas"')}</div>
+            <div class="field"><label>Qué aporta al perfil</label>${selectMarkup(`${base}.dimension`, q.dimension || 'none', DIMENSIONS.map((d) => [d, DIMENSION_LABELS[d]]), 'data-rerender="preguntas"')}<small>El motor de recomendación compara cada dimensión con las etiquetas de los cursos.</small></div>
+            <div class="field"><label>Personaje</label>${selectMarkup(`${base}.mood`, q.mood || 'point', MOODS.map((m) => [m, MOOD_LABELS[m]]))}</div>
+            <div class="field span-2"><label>Globo del personaje</label><input class="input" data-path="${base}.bubble" value="${esc(q.bubble)}" placeholder="Si lo dejas vacío usa el mensaje general"></div>
             ${q.type === 'multi' ? `<div class="field"><label>Máximo de opciones</label><input class="input" type="number" min="1" max="12" data-path="${base}.max" data-type="number" value="${esc(q.max || 3)}"></div>` : ''}
           </div>
-          <div class="editor-sub"><h3>Opciones</h3><span class="small muted">Ícono: un emoji o ${BRAND_ICONS.map((b) => `<code>${b}</code>`).join(', ')}</span></div>
-          <div class="options-editor">
-            <div class="options-editor__head"><span>Ícono</span><span>Texto</span><span>Detalle (opcional)</span><span>Valor interno</span><span></span></div>
+          <div class="editor-sub"><h3>Opciones</h3><span class="small muted">Ícono: <code>i:nombre</code> (lucide), <code>brand:instagram</code>… o un emoji</span></div>
+          <div class="options-editor ${showImage ? 'has-image' : ''} ${showLevel ? 'has-level' : ''}">
+            <div class="options-editor__head"><span>Ícono</span><span>Texto</span><span>Detalle</span>${showImage ? '<span>Imagen</span>' : ''}${showLevel ? '<span>Nivel</span>' : ''}<span>Valor interno</span><span></span></div>
             ${q.options.map((o, j) => `
               <div class="option-row">
-                <input class="input input--sm input--icon" data-path="${base}.options.${j}.icon" value="${esc(o.icon)}" title="Ícono">
+                <span class="icon-field"><span class="icon-preview" aria-hidden="true">${iconMarkup(o.icon)}</span><input class="input input--sm input--icon" data-path="${base}.options.${j}.icon" data-icon-preview value="${esc(o.icon)}" title="Ícono"></span>
                 <input class="input input--sm" data-path="${base}.options.${j}.title" value="${esc(o.title)}" placeholder="Texto de la opción">
-                <input class="input input--sm" data-path="${base}.options.${j}.detail" data-detail value="${esc(o.detail)}" placeholder="Detalle">
+                <input class="input input--sm" data-path="${base}.options.${j}.detail" data-detail value="${esc(o.detail)}" placeholder="Detalle (opcional)">
+                ${showImage ? `<input class="input input--sm input--mono" data-path="${base}.options.${j}.image" value="${esc(o.image)}" placeholder="URL de imagen">` : ''}
+                ${showLevel ? selectMarkup(`${base}.options.${j}.level`, o.level || '', [['', '—'], ...LEVELS.map((l) => [l, LEVEL_LABELS[l]])]).replace('class="input"', 'class="input input--sm"') : ''}
                 <input class="input input--sm input--mono" data-path="${base}.options.${j}.value" value="${esc(o.value)}" title="Valor interno (se guarda en las respuestas)">
                 <div class="option-row__tools">
                   <button class="icon-btn" type="button" data-action="opt-up" data-q="${i}" data-i="${j}" ${j === 0 ? 'disabled' : ''}>${ICON.up}</button>
@@ -534,7 +512,7 @@
     const qs = state.draft.preguntas;
     view('preguntas').innerHTML = `
       <div class="view__head">
-        <div><h2>Preguntas</h2><p>Edita el texto, las opciones y el orden. Los cambios se publican al guardar y la encuesta los toma al instante.</p></div>
+        <div><h2>Preguntas</h2><p>Edita el texto, el diseño, las opciones y el orden. Los cambios se publican al guardar y la encuesta los toma al instante.</p></div>
         <div class="view__tools">
           <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="preguntas">Restaurar predeterminadas</button>
           <button class="btn btn--sm" type="button" data-action="q-add">${ICON.plus} Nueva pregunta</button>
@@ -542,23 +520,30 @@
       </div>
       ${state.configExists ? '' : '<div class="help help--warn" style="margin-bottom:14px">La encuesta todavía usa la configuración predeterminada del código. Al guardar por primera vez se publica en Firestore y desde entonces se edita solo desde aquí.</div>'}
       <div class="stack">${qs.map((q, i) => questionItem(q, i, qs.length)).join('')}</div>
-      <div class="help" style="margin-top:16px">La pregunta con ID <code>areas</code> es la que enlaza intereses con cursos: sus opciones aparecen como áreas en la pestaña Cursos.</div>`;
+      <div class="help" style="margin-top:16px">Las opciones de las preguntas marcadas como <b>Áreas de interés</b>, <b>Objetivo</b>, <b>Perfil</b> y <b>Obstáculo</b> aparecen como etiquetas en la pestaña Cursos. Así el motor sabe qué curso recomendar.</div>`;
   };
 
   /* ---------- Vista: Cursos ---------- */
-  const areasOptions = () => (state.draft.preguntas.find((q) => q.id === 'areas') || state.draft.preguntas.find((q) => q.type === 'multi'))?.options || [];
+  const tagOptions = (group) => {
+    if (group.fixed) return group.fixed;
+    const q = state.draft.preguntas.find((x) => x.dimension === group.dimension);
+    return q ? q.options.map((o) => ({ value: o.value, title: o.title })) : [];
+  };
 
-  const courseItem = (c, i, total, areas) => {
+  const courseItem = (c, i, total) => {
     const open = state.open.cursos.has(i);
     const base = `cursos.${i}`;
-    const areaTitles = (c.areas || []).map((a) => areas.find((o) => o.value === a)?.title || a);
+    const interests = tagOptions(TAG_GROUPS[0]);
+    const interestTitles = (c.tags?.interests || []).map((a) => interests.find((o) => o.value === a)?.title || a);
+    const classes = Array.isArray(c.classes) ? c.classes : [];
+    const totalMin = classes.reduce((a, k) => a + (k.min || 0), 0);
     return `
       <article class="card item ${open ? 'is-open' : ''} ${c.available === false ? 'is-off' : ''}">
         <div class="item__head" data-action="toggle-item" data-col="cursos" data-i="${i}">
           <span class="item__thumb">${c.image ? `<img src="${esc(assetUrl(c.image))}" alt="" loading="lazy">` : 'Sin foto'}</span>
           <div class="item__title">
             <strong>${esc(c.title || '(sin nombre)')}</strong>
-            <span>${c.category ? `<span class="pill">${esc(c.category)}</span>` : ''}${c.level ? `<span class="pill">${esc(c.level)}</span>` : ''}${areaTitles.length ? `<span class="pill pill--green">${esc(areaTitles.join(' · '))}</span>` : '<span class="pill pill--orange">Sin áreas: no se recomienda</span>'}</span>
+            <span>${c.category ? `<span class="pill">${esc(c.category)}</span>` : ''}<span class="pill">${classes.length} clases${totalMin ? ` · ${fmtMin(totalMin)}` : ''}</span>${interestTitles.length ? `<span class="pill pill--green">${esc(interestTitles.join(' · '))}</span>` : '<span class="pill pill--orange">Sin áreas: no se recomienda</span>'}</span>
           </div>
           <div class="item__tools">
             <label class="switch" data-stop><input type="checkbox" data-path="${base}.available" ${c.available !== false ? 'checked' : ''}><i></i><span>${c.available !== false ? 'Disponible' : 'Oculto'}</span></label>
@@ -571,55 +556,69 @@
         <div class="item__body" ${open ? '' : 'hidden'}>
           <div class="form-grid form-grid--3" style="margin-top:14px">
             <div class="field span-2"><label>Nombre del curso</label><input class="input" data-path="${base}.title" value="${esc(c.title)}"></div>
-            <div class="field"><label>ID interno</label><input class="input input--mono" data-path="${base}.id" value="${esc(c.id)}"></div>
+            <div class="field"><label>ID (slug del club)</label><input class="input input--mono" data-path="${base}.id" value="${esc(c.id)}"><small>Debe coincidir con la URL del curso en el club.</small></div>
             <div class="field"><label>Categoría</label><input class="input" data-path="${base}.category" value="${esc(c.category)}" placeholder="Cultivos"></div>
-            <div class="field"><label>Nivel</label><input class="input" data-path="${base}.level" value="${esc(c.level)}" placeholder="Intermedio"></div>
-            <div class="field"><label>Imagen</label><input class="input input--mono" data-path="${base}.image" value="${esc(c.image)}" placeholder="img/cursos-real/… o URL"></div>
-            <div class="field span-2"><label>Enlace del curso</label><input class="input input--mono" data-path="${base}.url" value="${esc(c.url)}" placeholder="https://club.agrotecamerican.com/#/curso/…"></div>
-            <div class="field"><label>&nbsp;</label><small>Se abre al tocar el curso en la pantalla final.</small></div>
-            <div class="field span-2" style="grid-column:1/-1"><label>Áreas de interés que lo recomiendan</label>
-              <div class="chipset">${areas.map((o) => `<button type="button" class="chip ${(c.areas || []).includes(o.value) ? 'is-on' : ''}" data-action="c-area" data-i="${i}" data-area="${esc(o.value)}">${esc(o.title)}</button>`).join('') || '<span class="small muted">Agrega opciones a la pregunta "areas" para enlazar cursos.</span>'}</div>
-              <small>Se recomiendan hasta 3 cursos disponibles que compartan áreas con lo que eligió la persona.</small>
-            </div>
+            <div class="field"><label>Nivel (texto)</label><input class="input" data-path="${base}.level" value="${esc(c.level)}" placeholder="Intermedio"></div>
+            <div class="field"><label>Clase destacada (gancho)</label>${selectMarkup(`${base}.featuredClass`, String(c.featuredClass || 1), classes.length ? classes.map((k) => [String(k.n), `Clase ${k.n}${k.free ? ' · gratis' : ''}${k.min ? ` · ${fmtMin(k.min)}` : ''}`]) : [['1', 'Clase 1']], 'data-type="number"')}</div>
+            <div class="field span-2"><label>Portada (URL)</label><input class="input input--mono" data-path="${base}.image" value="${esc(c.image)}" placeholder="https://club.agrotecamerican.com/cursos/…"></div>
+            <div class="field"><label>Enlace del curso</label><input class="input input--mono" data-path="${base}.url" value="${esc(c.url)}" placeholder="https://club.agrotecamerican.com/#/curso/…"></div>
+            <div class="field" style="grid-column:1/-1"><label>Qué logra la persona (resumen)</label><input class="input" data-path="${base}.summary" value="${esc(c.summary)}" placeholder="Una línea que aparece en la tarjeta del resultado"></div>
           </div>
+          <div class="editor-sub"><h3>Etiquetas para recomendar</h3><span class="small muted">Marca con qué respuestas encaja este curso.</span></div>
+          <div class="tag-groups">
+            ${TAG_GROUPS.map((group) => {
+              const options = tagOptions(group);
+              const selected = c.tags?.[group.key] || [];
+              return `<div class="tag-group"><label>${esc(group.label)}${group.help ? ` <small>${esc(group.help)}</small>` : ''}</label>
+                <div class="chipset">${options.length ? options.map((o) => `<button type="button" class="chip ${selected.includes(o.value) ? 'is-on' : ''}" data-action="c-tag" data-i="${i}" data-group="${group.key}" data-value="${esc(o.value)}">${esc(o.title)}</button>`).join('') : `<span class="small muted">No hay pregunta marcada como "${esc(DIMENSION_LABELS[group.dimension] || group.key)}".</span>`}</div></div>`;
+            }).join('')}
+          </div>
+          <div class="editor-sub"><h3>Clases</h3><span class="small muted">Vienen del catálogo del club. Duración en minutos.</span></div>
+          <div class="classes-editor">
+            <div class="classes-editor__head"><span>#</span><span>Título</span><span>Min</span><span>Gratis</span><span></span></div>
+            ${classes.map((k, j) => `
+              <div class="class-row">
+                <input class="input input--sm input--mono" type="number" min="1" data-path="${base}.classes.${j}.n" data-type="number" value="${esc(k.n)}">
+                <input class="input input--sm" data-path="${base}.classes.${j}.title" value="${esc(k.title)}" placeholder="Clase ${k.n}">
+                <input class="input input--sm input--mono" type="number" min="0" data-path="${base}.classes.${j}.min" data-type="number" value="${k.min ?? ''}" placeholder="min">
+                <label class="switch switch--sm"><input type="checkbox" data-path="${base}.classes.${j}.free" ${k.free ? 'checked' : ''}><i></i></label>
+                <button class="icon-btn icon-btn--danger" type="button" data-action="k-remove" data-c="${i}" data-i="${j}" title="Quitar clase">${ICON.trash}</button>
+              </div>`).join('')}
+          </div>
+          <div class="add-row"><button class="btn btn--line btn--sm" type="button" data-action="k-add" data-c="${i}">${ICON.plus} Agregar clase</button></div>
         </div>
       </article>`;
   };
 
   const renderCursos = () => {
-    const areas = areasOptions();
     const all = state.draft.cursos;
     const term = state.search.cursos.trim().toLowerCase();
     const visible = all.map((c, i) => ({ c, i })).filter(({ c }) => {
       if (state.cursosFilter === 'on' && c.available === false) return false;
       if (state.cursosFilter === 'off' && c.available !== false) return false;
-      if (term && !`${c.title} ${c.category} ${c.level}`.toLowerCase().includes(term)) return false;
+      if (term && !`${c.title} ${c.category} ${c.level} ${c.id}`.toLowerCase().includes(term)) return false;
       return true;
     });
     const available = all.filter((c) => c.available !== false).length;
     view('cursos').innerHTML = `
       <div class="view__head">
-        <div><h2>Cursos</h2><p>Decide qué cursos se pueden recomendar al final de la encuesta y con qué áreas de interés se relacionan. ${num(all.length)} cursos · ${num(available)} disponibles.</p></div>
+        <div><h2>Cursos</h2><p>Los cursos reales del club con las etiquetas que usa el motor de recomendación. Decide cuáles pueden recomendarse y qué clase es el gancho. ${num(all.length)} cursos · ${num(available)} disponibles.</p></div>
         <div class="view__tools">
           <input class="input input--sm" type="search" data-search="cursos" value="${esc(state.search.cursos)}" placeholder="Buscar curso…" style="width:200px">
           <div class="seg" role="group" aria-label="Filtro">
             ${[['all', 'Todos'], ['on', 'Disponibles'], ['off', 'Ocultos']].map(([v, l]) => `<button type="button" class="${state.cursosFilter === v ? 'is-active' : ''}" data-action="cursos-filter" data-value="${v}">${l}</button>`).join('')}
           </div>
-          <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="cursos">Restaurar predeterminados</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="cursos">Restaurar catálogo del club</button>
           <button class="btn btn--sm" type="button" data-action="c-add">${ICON.plus} Nuevo curso</button>
         </div>
       </div>
-      ${visible.length ? `<div class="stack">${visible.map(({ c, i }) => courseItem(c, i, all.length, areas)).join('')}</div>` : '<div class="empty"><strong>Sin resultados</strong>Prueba con otro filtro o agrega un curso nuevo.</div>'}`;
+      ${visible.length ? `<div class="stack">${visible.map(({ c, i }) => courseItem(c, i, all.length)).join('')}</div>` : '<div class="empty"><strong>Sin resultados</strong>Prueba con otro filtro o agrega un curso nuevo.</div>'}`;
   };
 
   /* ---------- Vista: Respuestas ---------- */
   const rowMatches = (row, term) => {
     if (!term) return true;
-    const text = [
-      ...state.config.preguntas.map((q) => labelsFor(row, q).join(' ')),
-      ...row.recommended.map((id) => state.config.cursos.find((c) => c.id === id)?.title || id),
-      row.device, row.id
-    ].join(' ').toLowerCase();
+    const text = [...state.config.preguntas.map((q) => labelsFor(row, q).join(' ')), courseTitle(row.courseId), row.device, row.id].join(' ').toLowerCase();
     return text.includes(term);
   };
 
@@ -630,7 +629,7 @@
     const shown = rows.slice(0, state.page * PAGE_SIZE);
     view('respuestas').innerHTML = `
       <div class="view__head">
-        <div><h2>Respuestas</h2><p>Cada fila es una encuesta completada, sin datos personales. Puedes buscar por cualquier respuesta y exportar todo a Excel.</p></div>
+        <div><h2>Respuestas</h2><p>Cada fila es una encuesta completada. Puedes buscar por cualquier respuesta y exportar todo a Excel.</p></div>
         <div class="view__tools">
           <input class="input input--sm" type="search" data-search="respuestas" value="${esc(state.search.respuestas)}" placeholder="Buscar en respuestas…" style="width:220px">
           <button class="btn btn--line btn--sm" type="button" data-action="reload">Actualizar</button>
@@ -643,14 +642,16 @@
           <thead><tr>
             <th>Fecha</th>
             ${qs.map((q) => `<th title="${esc(q.title)}">${esc(q.kicker || q.id)}</th>`).join('')}
-            <th>Cursos sugeridos</th><th>Dispositivo</th><th>Tiempo</th><th></th>
+            <th>Curso sugerido</th><th>Clic</th><th>Entró</th><th>Dispositivo</th><th>Tiempo</th><th></th>
           </tr></thead>
           <tbody>
             ${shown.map((r) => `
               <tr>
                 <td class="nowrap">${esc(fmtDate(r.createdAt))}</td>
                 ${qs.map((q) => `<td>${labelsFor(r, q).map((l) => esc(l)).join(q.type === 'multi' ? '<br>' : ', ') || '<span class="muted">—</span>'}</td>`).join('')}
-                <td>${r.recommended.map((id) => `<span class="pill">${esc(state.config.cursos.find((c) => c.id === id)?.title || id)}</span>`).join('') || '<span class="muted">—</span>'}</td>
+                <td>${r.courseId ? `<span class="pill">${esc(courseTitle(r.courseId))}</span>${r.classN ? `<span class="small muted"> clase ${r.classN}</span>` : ''}` : '<span class="muted">—</span>'}</td>
+                <td class="nowrap">${r.clickedClass ? '<span class="pill pill--green">Sí</span>' : '<span class="muted">—</span>'}</td>
+                <td class="nowrap">${r.enteredCourse ? '<span class="pill pill--green">Sí</span>' : '<span class="muted">—</span>'}</td>
                 <td class="nowrap">${r.device === 'mobile' ? 'Celular' : r.device === 'desktop' ? 'Computadora' : '—'}</td>
                 <td class="nowrap">${Number.isFinite(r.durationSec) ? `${r.durationSec}s` : '—'}</td>
                 <td><button class="icon-btn icon-btn--danger" type="button" data-action="r-delete" data-id="${esc(r.id)}" title="Eliminar respuesta">${ICON.trash}</button></td>
@@ -669,12 +670,11 @@
     const term = state.search.respuestas.trim().toLowerCase();
     const rows = state.responses.filter((r) => rowMatches(r, term));
     const quote = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const header = ['fecha', 'dispositivo', 'segundos', ...qs.map((q) => q.kicker || q.id), 'cursos_sugeridos', 'version_config', 'id'];
+    const header = ['fecha', 'dispositivo', 'segundos', ...qs.map((q) => q.kicker || q.id), 'curso_sugerido', 'clase', 'clic_clase', 'entro_curso', 'version_config', 'id'];
     const lines = rows.map((r) => [
       r.createdAt ? r.createdAt.toISOString() : '', r.device, r.durationSec ?? '',
       ...qs.map((q) => labelsFor(r, q).join(' | ')),
-      r.recommended.map((id) => state.config.cursos.find((c) => c.id === id)?.title || id).join(' | '),
-      r.configVersion, r.id
+      courseTitle(r.courseId), r.classN ?? '', r.clickedClass ? 'si' : 'no', r.enteredCourse ? 'si' : 'no', r.configVersion, r.id
     ].map(quote).join(','));
     const csv = '﻿' + [header.map(quote).join(','), ...lines].join('\r\n');
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
@@ -706,61 +706,67 @@
   const textField = (label, path, value, opts = {}) => `
     <div class="field ${opts.span ? 'span-2' : ''}">
       <label>${esc(label)}</label>
-      ${opts.textarea ? `<textarea class="input" data-path="${path}">${esc(value)}</textarea>` : `<input class="input ${opts.mono ? 'input--mono' : ''}" data-path="${path}" value="${esc(value)}" placeholder="${esc(opts.placeholder || '')}">`}
+      ${opts.textarea ? `<textarea class="input" data-path="${path}">${esc(value)}</textarea>` : `<input class="input ${opts.mono ? 'input--mono' : ''}" data-path="${path}" ${opts.type ? `type="${opts.type}" data-type="number"` : ''} value="${esc(value)}" placeholder="${esc(opts.placeholder || '')}">`}
       ${opts.help ? `<small>${esc(opts.help)}</small>` : ''}
     </div>`;
+  const textCard = (eyebrow, title, fields) => `<article class="card"><div class="card__head"><div><p class="eyebrow">${esc(eyebrow)}</p><h3>${esc(title)}</h3></div></div><div class="card__body form-grid">${fields}</div></article>`;
 
   const renderTextos = () => {
     const t = state.draft.textos;
     view('textos').innerHTML = `
       <div class="view__head">
-        <div><h2>Textos</h2><p>Lo que dice la encuesta antes y después de las preguntas. Usa <code>{n}</code> donde quieras mostrar el número de preguntas.</p></div>
+        <div><h2>Textos</h2><p>Lo que dice la encuesta, el personaje y la pantalla final. Usa <code>{n}</code> para el número de preguntas y <code>{c}</code> para el número de cursos disponibles.</p></div>
         <div class="view__tools"><button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="textos">Restaurar predeterminados</button></div>
       </div>
       <div class="stack">
-        <article class="card">
-          <div class="card__head"><div><p class="eyebrow">Pantalla 1</p><h3>Bienvenida</h3></div></div>
-          <div class="card__body form-grid">
-            ${textField('Etiqueta superior', 'textos.intro.eyebrow', t.intro.eyebrow)}
-            ${textField('Botón', 'textos.intro.button', t.intro.button)}
-            ${textField('Título (línea verde oscuro)', 'textos.intro.title', t.intro.title)}
-            ${textField('Título (línea verde claro)', 'textos.intro.titleAccent', t.intro.titleAccent)}
-            ${textField('Descripción', 'textos.intro.subtitle', t.intro.subtitle, { span: true, textarea: true })}
-            ${textField('Aviso legal', 'textos.intro.legal', t.intro.legal, { span: true })}
-            ${(t.intro.stats || []).slice(0, 3).map((s, i) => `
-              <div class="field"><label>Dato ${i + 1} · ícono</label>
-                <select class="input" data-path="textos.intro.stats.${i}.icon">${STAT_ICONS.map((ic) => `<option value="${ic}" ${s.icon === ic ? 'selected' : ''}>${({ list: 'Lista', clock: 'Reloj', lock: 'Candado' })[ic]}</option>`).join('')}</select>
-              </div>
-              <div class="field"><label>Dato ${i + 1} · texto</label>
-                <div style="display:grid;gap:6px"><input class="input input--sm" data-path="textos.intro.stats.${i}.title" value="${esc(s.title)}" placeholder="Título"><input class="input input--sm" data-path="textos.intro.stats.${i}.detail" value="${esc(s.detail)}" placeholder="Detalle"></div>
-              </div>`).join('')}
-          </div>
-        </article>
-        <article class="card">
-          <div class="card__head"><div><p class="eyebrow">Pantalla final</p><h3>Ruta recomendada</h3></div></div>
-          <div class="card__body form-grid">
-            ${textField('Etiqueta superior', 'textos.final.eyebrow', t.final.eyebrow)}
-            ${textField('Etiqueta de cursos', 'textos.final.coursesEyebrow', t.final.coursesEyebrow)}
-            ${textField('Título (verde oscuro)', 'textos.final.title', t.final.title)}
-            ${textField('Título (verde claro)', 'textos.final.titleAccent', t.final.titleAccent)}
-            ${textField('Descripción', 'textos.final.subtitle', t.final.subtitle, { span: true, textarea: true })}
-            ${textField('Mensaje si no hay cursos', 'textos.final.emptyCourses', t.final.emptyCourses, { span: true })}
-            ${textField('Botón principal', 'textos.final.button', t.final.button)}
-            ${textField('Enlace del botón', 'textos.final.buttonUrl', t.final.buttonUrl, { mono: true, placeholder: 'https://club.agrotecamerican.com/' })}
-            ${textField('Texto "responder de nuevo"', 'textos.final.again', t.final.again)}
-          </div>
-        </article>
-        <article class="card">
-          <div class="card__head"><div><p class="eyebrow">Navegación</p><h3>Botones y enlaces</h3></div></div>
-          <div class="card__body form-grid">
-            ${textField('"Responder después"', 'textos.nav.later', t.nav.later)}
-            ${textField('Enlace de "Responder después"', 'textos.nav.laterUrl', t.nav.laterUrl, { mono: true, help: '../ lleva al inicio del sitio.' })}
-            ${textField('Botón atrás', 'textos.nav.back', t.nav.back)}
-            ${textField('Botón continuar', 'textos.nav.next', t.nav.next)}
-            ${textField('Botón en la última pregunta', 'textos.nav.finish', t.nav.finish)}
-            ${textField('Pista de teclado', 'textos.nav.hint', t.nav.hint)}
-          </div>
-        </article>
+        ${textCard('Pantalla 1', 'Bienvenida', `
+          ${textField('Etiqueta superior', 'textos.intro.eyebrow', t.intro.eyebrow)}
+          ${textField('Botón', 'textos.intro.button', t.intro.button)}
+          ${textField('Título (verde oscuro)', 'textos.intro.title', t.intro.title)}
+          ${textField('Título (verde claro)', 'textos.intro.titleAccent', t.intro.titleAccent)}
+          ${textField('Descripción', 'textos.intro.subtitle', t.intro.subtitle, { span: true, textarea: true })}
+          ${textField('Aviso legal', 'textos.intro.legal', t.intro.legal, { span: true })}
+          ${(t.intro.stats || []).slice(0, 3).map((s, i) => `
+            <div class="field"><label>Dato ${i + 1} · ícono</label>${selectMarkup(`textos.intro.stats.${i}.icon`, s.icon, STAT_ICONS.map((ic) => [ic, ic]))}</div>
+            <div class="field"><label>Dato ${i + 1} · texto</label><div style="display:grid;gap:6px"><input class="input input--sm" data-path="textos.intro.stats.${i}.title" value="${esc(s.title)}" placeholder="Título"><input class="input input--sm" data-path="textos.intro.stats.${i}.detail" value="${esc(s.detail)}" placeholder="Detalle"></div></div>`).join('')}`)}
+        ${textCard('Personaje', `${esc(t.personaje.nombre || 'Agro')} · globos de diálogo`, `
+          ${textField('Nombre', 'textos.personaje.nombre', t.personaje.nombre)}
+          ${textField('Al iniciar', 'textos.personaje.intro', t.personaje.intro)}
+          ${textField('Durante las preguntas', 'textos.personaje.pregunta', t.personaje.pregunta)}
+          ${textField('A la mitad', 'textos.personaje.mitad', t.personaje.mitad)}
+          ${textField('Casi al final', 'textos.personaje.casi', t.personaje.casi)}
+          ${textField('Mientras analiza', 'textos.personaje.analizando', t.personaje.analizando)}
+          ${textField('En el resultado', 'textos.personaje.resultado', t.personaje.resultado, { span: true })}`)}
+        ${textCard('Avance', 'Mensajes de ánimo en la barra', `
+          ${textField('A la mitad', 'textos.avance.mitad', t.avance.mitad)}
+          ${textField('Casi al final', 'textos.avance.casi', t.avance.casi)}
+          ${textField('Última pregunta', 'textos.avance.ultima', t.avance.ultima)}`)}
+        ${textCard('Pantalla intermedia', 'Analizando respuestas', `
+          ${textField('Título', 'textos.analizando.title', t.analizando.title)}
+          ${textField('Duración (milisegundos)', 'textos.analizando.durationMs', t.analizando.durationMs, { type: 'number' })}
+          ${(t.analizando.steps || []).slice(0, 3).map((s, i) => textField(`Paso ${i + 1}`, `textos.analizando.steps.${i}`, s)).join('')}`)}
+        ${textCard('Pantalla final', 'Resultado', `
+          ${textField('Etiqueta superior', 'textos.final.eyebrow', t.final.eyebrow)}
+          ${textField('Etiqueta de la tarjeta del curso', 'textos.final.courseEyebrow', t.final.courseEyebrow)}
+          ${textField('Título (verde oscuro)', 'textos.final.title', t.final.title)}
+          ${textField('Título (verde claro)', 'textos.final.titleAccent', t.final.titleAccent)}
+          ${textField('Descripción', 'textos.final.subtitle', t.final.subtitle, { span: true, textarea: true })}
+          ${textField('Inicio de la explicación', 'textos.final.whyPrefix', t.final.whyPrefix, { help: 'Se completa con las coincidencias de la persona.' })}
+          ${textField('Etiqueta de la clase', 'textos.final.classEyebrow', t.final.classEyebrow)}
+          ${textField('Texto bajo la etiqueta de la clase', 'textos.final.classHint', t.final.classHint, { span: true })}
+          ${textField('Botón principal', 'textos.final.button', t.final.button)}
+          ${textField('Botón secundario', 'textos.final.secondary', t.final.secondary)}
+          ${textField('Enlace del botón secundario', 'textos.final.secondaryUrl', t.final.secondaryUrl, { mono: true })}
+          ${textField('Texto "responder de nuevo"', 'textos.final.again', t.final.again)}
+          ${textField('Mensaje si no hay cursos', 'textos.final.emptyCourses', t.final.emptyCourses, { span: true })}`)}
+        ${textCard('Navegación', 'Botones, enlaces y club', `
+          ${textField('URL del club', 'clubUrl', state.draft.clubUrl, { mono: true, help: 'Las clases se abren en {club}/#/curso/{id}/clase/{n}.' })}
+          ${textField('"Responder después"', 'textos.nav.later', t.nav.later)}
+          ${textField('Enlace de "Responder después"', 'textos.nav.laterUrl', t.nav.laterUrl, { mono: true })}
+          ${textField('Botón atrás', 'textos.nav.back', t.nav.back)}
+          ${textField('Botón continuar', 'textos.nav.next', t.nav.next)}
+          ${textField('Botón en la última pregunta', 'textos.nav.finish', t.nav.finish)}
+          ${textField('Pista de teclado', 'textos.nav.hint', t.nav.hint)}`)}
       </div>`;
   };
 
@@ -774,10 +780,8 @@
     $$('.tab').forEach((t) => t.classList.toggle('is-active', t.dataset.tab === state.tab));
     renderTab();
   };
-  const updateTabBadges = () => {
-    const tab = $('.tab[data-tab="respuestas"]');
-    if (tab) tab.innerHTML = `Respuestas <span class="badge">${num(state.responses.length)}</span>`;
-  };
+  const updateTabBadges = () => { const tab = $('.tab[data-tab="respuestas"]'); if (tab) tab.innerHTML = `Respuestas <span class="badge">${num(state.responses.length)}</span>`; };
+  const TABS = ['resumen', 'preguntas', 'cursos', 'respuestas', 'textos'];
   const switchTab = (name) => {
     if (!name || state.tab === name) return;
     state.tab = name;
@@ -793,16 +797,10 @@
     'export-csv': () => exportCsv(),
     'page-more': () => { state.page += 1; renderTab(); },
     'cursos-filter': ({ value }) => { state.cursosFilter = value; renderTab(); },
-    'toggle-item': ({ col, i }) => {
-      const set = state.open[col];
-      const index = Number(i);
-      set.has(index) ? set.delete(index) : set.add(index);
-      renderTab();
-    },
+    'toggle-item': ({ col, i }) => { const set = state.open[col]; const index = Number(i); set.has(index) ? set.delete(index) : set.add(index); renderTab(); },
     'q-add': () => {
-      const id = `pregunta-${uid()}`;
-      state.draft.preguntas.push({ id, kicker: 'Nueva', title: 'Nueva pregunta', hint: '', type: 'single', max: 3, layout: 'list', options: [
-        { value: 'opcion-1', icon: '✨', title: 'Opción 1', detail: '' }, { value: 'opcion-2', icon: '✨', title: 'Opción 2', detail: '' }
+      state.draft.preguntas.push({ id: `pregunta-${uid()}`, dimension: 'none', kicker: 'Nueva', title: 'Nueva pregunta', hint: '', type: 'single', max: 3, layout: 'cards', mood: 'point', bubble: '', options: [
+        { value: 'opcion-1', icon: 'i:sparkles', title: 'Opción 1', detail: '', image: '' }, { value: 'opcion-2', icon: 'i:sparkles', title: 'Opción 2', detail: '', image: '' }
       ] });
       state.open.preguntas = new Set([state.draft.preguntas.length - 1]);
       markDirty(); renderTab();
@@ -820,16 +818,15 @@
     'q-down': ({ i }) => { move(state.draft.preguntas, Number(i), Number(i) + 1); state.open.preguntas = new Set([Number(i) + 1]); markDirty(); renderTab(); },
     'opt-add': ({ q }) => {
       const question = state.draft.preguntas[Number(q)];
-      question.options.push({ value: `opcion-${question.options.length + 1}-${uid()}`, icon: '✨', title: '', detail: '' });
+      question.options.push({ value: `opcion-${question.options.length + 1}-${uid()}`, icon: 'i:sparkles', title: '', detail: '', image: '' });
       markDirty(); renderTab();
-      const inputs = $$(`[data-path="preguntas.${q}.options.${question.options.length - 1}.title"]`);
-      inputs[0]?.focus();
+      $$(`[data-path="preguntas.${q}.options.${question.options.length - 1}.title"]`)[0]?.focus();
     },
     'opt-remove': ({ q, i }) => { state.draft.preguntas[Number(q)].options.splice(Number(i), 1); markDirty(); renderTab(); },
     'opt-up': ({ q, i }) => { move(state.draft.preguntas[Number(q)].options, Number(i), Number(i) - 1); markDirty(); renderTab(); },
     'opt-down': ({ q, i }) => { move(state.draft.preguntas[Number(q)].options, Number(i), Number(i) + 1); markDirty(); renderTab(); },
     'c-add': () => {
-      state.draft.cursos.unshift({ id: `curso-${uid()}`, title: 'Nuevo curso', category: '', level: '', image: '', url: '', areas: [], available: true });
+      state.draft.cursos.unshift({ id: `curso-${uid()}`, title: 'Nuevo curso', category: '', level: '', image: '', url: '', summary: '', tags: { interests: [], goals: [], profiles: [], problems: [], levels: [] }, featuredClass: 1, available: true, classes: [{ n: 1, title: 'Clase 1', min: null, free: false }] });
       state.open.cursos = new Set([0]);
       state.cursosFilter = 'all'; state.search.cursos = '';
       markDirty(); renderTab();
@@ -844,14 +841,23 @@
     },
     'c-up': ({ i }) => { move(state.draft.cursos, Number(i), Number(i) - 1); state.open.cursos = new Set(); markDirty(); renderTab(); },
     'c-down': ({ i }) => { move(state.draft.cursos, Number(i), Number(i) + 1); state.open.cursos = new Set(); markDirty(); renderTab(); },
-    'c-area': ({ i, area }, button) => {
+    'c-tag': ({ i, group, value }, button) => {
       const c = state.draft.cursos[Number(i)];
-      c.areas = Array.isArray(c.areas) ? c.areas : [];
-      const index = c.areas.indexOf(area);
-      index >= 0 ? c.areas.splice(index, 1) : c.areas.push(area);
+      c.tags = c.tags || {};
+      const list = Array.isArray(c.tags[group]) ? c.tags[group] : (c.tags[group] = []);
+      const index = list.indexOf(value);
+      index >= 0 ? list.splice(index, 1) : list.push(value);
       button.classList.toggle('is-on', index < 0);
       markDirty();
     },
+    'k-add': ({ c }) => {
+      const course = state.draft.cursos[Number(c)];
+      course.classes = Array.isArray(course.classes) ? course.classes : [];
+      const n = (course.classes.reduce((m, k) => Math.max(m, Number(k.n) || 0), 0) || 0) + 1;
+      course.classes.push({ n, title: `Clase ${n}`, min: null, free: false });
+      markDirty(); renderTab();
+    },
+    'k-remove': ({ c, i }) => { state.draft.cursos[Number(c)].classes.splice(Number(i), 1); markDirty(); renderTab(); },
     restore: ({ section }) => {
       if (!window.confirm(`¿Restaurar ${section} a los valores predeterminados? Se aplicará al guardar.`)) return;
       state.draft[section] = clone(DEFAULTS[section]);
@@ -889,14 +895,15 @@
     const path = el.dataset.path;
     if (!path || !state.draft) return;
     let value = el.type === 'checkbox' ? el.checked : el.value;
-    if (el.dataset.type === 'number') value = Number(value);
+    if (el.dataset.type === 'number') value = el.value === '' ? null : Number(value);
     setPath(state.draft, path, value);
     markDirty();
-    if (el.type === 'checkbox') {
+    if (el.type === 'checkbox' && el.closest('.item__tools')) {
       const label = el.closest('.switch')?.querySelector('span');
       if (label) label.textContent = el.checked ? 'Disponible' : 'Oculto';
       el.closest('.item')?.classList.toggle('is-off', !el.checked);
     }
+    if (el.dataset.iconPreview !== undefined) { const preview = el.closest('.icon-field')?.querySelector('.icon-preview'); if (preview) preview.innerHTML = iconMarkup(el.value); }
     if (el.dataset.rerender) renderTab();
   });
 
@@ -911,7 +918,6 @@
     els.tooltip.style.top = `${top}px`;
   };
   const hideTooltip = () => { els.tooltip.hidden = true; };
-
   els.content.addEventListener('mousemove', (event) => {
     const seg = event.target.closest('.donut__seg, .legend li');
     if (seg) {
@@ -924,37 +930,27 @@
       return;
     }
     const bar = event.target.closest('.bar, .col');
-    if (bar) {
-      showTooltip(`<b>${esc(bar.dataset.label)}</b><span>${num(bar.dataset.count)} ${Number(bar.dataset.count) === 1 ? 'respuesta' : 'respuestas'}${bar.dataset.pct != null ? ` · ${bar.dataset.pct}%` : ''}</span>`, event.clientX, event.clientY);
-      return;
-    }
+    if (bar) { showTooltip(`<b>${esc(bar.dataset.label)}</b><span>${num(bar.dataset.count)} ${Number(bar.dataset.count) === 1 ? 'respuesta' : 'respuestas'}${bar.dataset.pct != null ? ` · ${bar.dataset.pct}%` : ''}</span>`, event.clientX, event.clientY); return; }
     hideTooltip();
     const donut = event.target.closest('.donut');
     $$('.donut.has-hover').forEach((d) => { if (d !== donut) { d.classList.remove('has-hover'); $$('.is-hot', d).forEach((n) => n.classList.remove('is-hot')); } });
   });
-  els.content.addEventListener('mouseleave', () => {
-    hideTooltip();
-    $$('.donut.has-hover').forEach((d) => { d.classList.remove('has-hover'); $$('.is-hot', d).forEach((n) => n.classList.remove('is-hot')); });
-  });
+  els.content.addEventListener('mouseleave', () => { hideTooltip(); $$('.donut.has-hover').forEach((d) => { d.classList.remove('has-hover'); $$('.is-hot', d).forEach((n) => n.classList.remove('is-hot')); }); });
 
   /* Pestañas y barra de guardado */
-  els.tabs.addEventListener('click', (event) => {
-    const tab = event.target.closest('.tab');
-    if (tab) switchTab(tab.dataset.tab);
-  });
+  els.tabs.addEventListener('click', (event) => { const tab = event.target.closest('.tab'); if (tab) switchTab(tab.dataset.tab); });
   els.btnSave.addEventListener('click', save);
   els.btnDiscard.addEventListener('click', () => { if (window.confirm('¿Descartar los cambios sin guardar?')) discard(); });
   els.btnLogin.addEventListener('click', login);
   els.btnLogout.addEventListener('click', logout);
   els.btnLogoutGate.addEventListener('click', logout);
   window.addEventListener('beforeunload', (event) => { if (state.dirty) { event.preventDefault(); event.returnValue = ''; } });
-  window.addEventListener('hashchange', () => { const name = location.hash.slice(1); if (actionsTabs.includes(name)) switchTab(name); });
-  const actionsTabs = ['resumen', 'preguntas', 'cursos', 'respuestas', 'textos'];
+  window.addEventListener('hashchange', () => { const name = location.hash.slice(1); if (TABS.includes(name)) switchTab(name); });
 
   /* ---------- Arranque ---------- */
   const boot = async () => {
     const initial = location.hash.slice(1);
-    if (actionsTabs.includes(initial)) state.tab = initial;
+    if (TABS.includes(initial)) state.tab = initial;
     try {
       state.authKit = await FB.getAuthKit();
     } catch (error) {

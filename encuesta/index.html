@@ -3,39 +3,56 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Encuesta AgroTec | Tu ruta de aprendizaje</title>
-  <meta name="description" content="Responde 7 preguntas rápidas y descubre los cursos y herramientas de AgroTec América pensados para ti.">
+  <title>Encuesta AgroTec | Descubre tu siguiente paso</title>
+  <meta name="description" content="Responde 8 preguntas rápidas y descubre el curso y la clase del club de AgroTec América que mejor encajan contigo.">
   <meta name="theme-color" content="#fbfaf5">
   <link rel="canonical" href="https://agrotecamerican.com/encuesta/">
   <link rel="icon" href="../img/logo.jpg">
   <link rel="preload" href="../fonts/bricolage-800.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="../fonts/hanken-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="img/agro-mascot-orange-clean-v5.webp" as="image" type="image/webp">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <a class="skip-link" href="#stage">Ir al contenido</a>
 
-  <div class="app" id="app">
+  <div class="app" id="app" data-screen="intro">
     <header class="topbar">
       <a class="topbar__brand" href="../" aria-label="Volver a AgroTec América">
         <img src="../img/brand/logo-horizontal.png" alt="AgroTec América" width="304" height="84">
       </a>
-      <div class="topbar__progress" id="progress" aria-hidden="true"></div>
+      <div class="topbar__progress" id="progress"></div>
       <a class="topbar__later" id="later" href="../">Responder después</a>
     </header>
 
+    <!-- Personaje (versión compacta en móvil, columna lateral en escritorio) -->
+    <aside class="agro" id="agro" data-mood="greet" data-variant="orange" aria-live="polite">
+      <div class="agro__bubble">
+        <span class="agro__name" id="agro-name">Agro</span>
+        <p class="agro__text" id="agro-text">¡Hola! Voy a hacerte unas preguntas rápidas para conocerte mejor.</p>
+      </div>
+      <div class="agro__stage">
+        <div class="agro__props" id="agro-props" aria-hidden="true"></div>
+        <img class="agro__img agro__img--orange" src="img/agro-mascot-orange-clean-v5.webp" alt="Agro, la guía agricultora de AgroTec América" width="640" height="960">
+        <img class="agro__img agro__img--orange-blink" src="img/agro-mascot-orange-blink-v5.webp" alt="" aria-hidden="true" width="640" height="960">
+        <img class="agro__img agro__img--guide" src="img/agro-guide-white-open-v1.webp" alt="" aria-hidden="true" width="640" height="960" loading="lazy">
+        <img class="agro__img agro__img--guide-blink" src="img/agro-guide-white-blink-v1.webp" alt="" aria-hidden="true" width="640" height="960" loading="lazy">
+        <span class="agro__shadow" aria-hidden="true"></span>
+      </div>
+    </aside>
+
     <main class="stage" id="stage" aria-live="polite">
-      <!-- Pantalla de bienvenida estática (la sustituye app.js al cargar) -->
       <section class="screen screen--intro">
-        <p class="eyebrow">Te damos la bienvenida</p>
-        <h1 class="title">Armemos tu ruta <span class="title__accent">a tu medida.</span></h1>
-        <p class="lead">Responde 7 preguntas rápidas y te recomendaremos los cursos, materiales y herramientas que más te sirven. Solo se hace una vez.</p>
+        <p class="eyebrow">Diagnóstico de aprendizaje</p>
+        <h1 class="title">Descubre tu <span class="title__accent">siguiente paso en el campo.</span></h1>
+        <p class="lead">Responde 8 preguntas rápidas. Con tus respuestas encontraremos el curso y la clase del club que mejor encajan contigo.</p>
       </section>
     </main>
 
     <footer class="actionbar" id="actionbar"></footer>
   </div>
 
+  <script src="icons.js"></script>
   <script src="encuesta-defaults.js"></script>
   <script src="firebase-shared.js"></script>
   <script src="app.js" defer></script>
