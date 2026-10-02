@@ -237,3 +237,17 @@ h1{font-size:clamp(2rem,2.7vw,2.7rem)}
 .guide__character-stage{left:-50px;width:380px}
 .progress,.question-card__content,.question-card__footer{padding-inline:36px}
 }
+
+
+/* ==========================================================
+   ENCUESTA · PREGUNTA EN MOSAICO ("¿Cómo nos conociste?")
+   Clase nueva .answers--tiles, no afecta a las demás preguntas.
+   ========================================================== */
+.answers--tiles{grid-template-columns:repeat(4,minmax(0,1fr))}
+.answers--tiles .answer,.answers--tiles .answer:last-child{grid-column:auto;min-height:104px;grid-template-columns:1fr;justify-items:center;align-content:center;gap:9px;padding:16px 10px;text-align:center}
+.answers--tiles .answer strong{font-size:.86rem}
+.answers--tiles .answer__key{position:absolute;top:8px;right:8px}
+@media(max-width:760px){
+.answers--tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+.answers--tiles .answer,.answers--tiles .answer:last-child{min-height:92px;grid-template-columns:1fr;padding:14px 8px}
+}
