@@ -153,8 +153,12 @@
 
   const card = document.querySelector('.question-card');
   const guide = document.querySelector('.guide');
+  const guideStage = document.querySelector('.guide__character-stage');
+  const guideDragHandle = document.querySelector('.guide__drag-handle');
   const totalSteps = sharedQuestions.length + 2;
   const state = { step: 0, answers: {}, finished: false, locked: false };
+  const guideStorageKey = 'agrotec-survey-guide-position';
+  let guidePosition = { x: 0, y: 0 };
 
   const getFlow = () => {
     const branch = branchQuestions[state.answers.profile] || null;
@@ -333,6 +337,99 @@
     focusHeading();
   };
 
+  const initGuideDrag = () => {
+    if (!guideStage || !guideDragHandle) return;
+
+    const canDrag = () => window.matchMedia('(min-width: 761px) and (pointer: fine)').matches;
+    const applyPosition = () => {
+      guideStage.style.setProperty('--guide-drag-x', `${Math.round(guidePosition.x)}px`);
+      guideStage.style.setProperty('--guide-drag-y', `${Math.round(guidePosition.y)}px`);
+    };
+    const savePosition = () => {
+      try { window.localStorage.setItem(guideStorageKey, JSON.stringify(guidePosition)); } catch (_) { /* Local preference only. */ }
+    };
+    const resetPosition = () => {
+      guidePosition = { x: 0, y: 0 };
+      applyPosition();
+      savePosition();
+    };
+    const moveWithinViewport = (deltaX, deltaY, rect = guideStage.getBoundingClientRect()) => {
+      const margin = 10;
+      const safeX = Math.min(Math.max(deltaX, margin - rect.left), window.innerWidth - margin - rect.right);
+      const safeY = Math.min(Math.max(deltaY, margin - rect.top), window.innerHeight - margin - rect.bottom);
+      guidePosition = { x: guidePosition.x + safeX, y: guidePosition.y + safeY };
+      applyPosition();
+    };
+
+    try {
+      const saved = JSON.parse(window.localStorage.getItem(guideStorageKey));
+      if (Number.isFinite(saved?.x) && Number.isFinite(saved?.y)) guidePosition = saved;
+    } catch (_) { /* Ignore an unavailable or invalid local preference. */ }
+    applyPosition();
+    window.requestAnimationFrame(() => {
+      if (!canDrag()) return;
+      moveWithinViewport(0, 0);
+      savePosition();
+    });
+
+    let drag = null;
+    guideDragHandle.addEventListener('pointerdown', (event) => {
+      if (!canDrag() || event.button !== 0) return;
+      event.preventDefault();
+      drag = {
+        pointerId: event.pointerId,
+        startX: event.clientX,
+        startY: event.clientY,
+        startPosition: { ...guidePosition },
+        rect: guideStage.getBoundingClientRect()
+      };
+      guideStage.classList.add('is-dragging');
+      guideDragHandle.setPointerCapture(event.pointerId);
+    });
+
+    guideDragHandle.addEventListener('pointermove', (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      const margin = 10;
+      const deltaX = Math.min(Math.max(event.clientX - drag.startX, margin - drag.rect.left), window.innerWidth - margin - drag.rect.right);
+      const deltaY = Math.min(Math.max(event.clientY - drag.startY, margin - drag.rect.top), window.innerHeight - margin - drag.rect.bottom);
+      guidePosition = { x: drag.startPosition.x + deltaX, y: drag.startPosition.y + deltaY };
+      applyPosition();
+    });
+
+    const finishDrag = (event) => {
+      if (!drag || drag.pointerId !== event.pointerId) return;
+      drag = null;
+      guideStage.classList.remove('is-dragging');
+      savePosition();
+    };
+    guideDragHandle.addEventListener('pointerup', finishDrag);
+    guideDragHandle.addEventListener('pointercancel', finishDrag);
+    guideDragHandle.addEventListener('dblclick', resetPosition);
+    guideDragHandle.addEventListener('click', (event) => event.preventDefault());
+
+    guideDragHandle.addEventListener('keydown', (event) => {
+      if (!canDrag()) return;
+      if (event.key === 'Home') {
+        event.preventDefault();
+        resetPosition();
+        return;
+      }
+      const directions = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] };
+      const direction = directions[event.key];
+      if (!direction) return;
+      event.preventDefault();
+      const distance = event.shiftKey ? 48 : 16;
+      moveWithinViewport(direction[0] * distance, direction[1] * distance);
+      savePosition();
+    });
+
+    window.addEventListener('resize', () => {
+      if (!canDrag()) return;
+      moveWithinViewport(0, 0);
+      savePosition();
+    });
+  };
+
   document.addEventListener('keydown', (event) => {
     if (state.finished || event.altKey || event.ctrlKey || event.metaKey) return;
     const number = Number(event.key);
@@ -341,5 +438,6 @@
     if (target) target.click();
   });
 
+  initGuideDrag();
   renderQuestion();
 })();
