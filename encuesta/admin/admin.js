@@ -74,7 +74,7 @@
   const els = {
     gate: $('#gate'), gateText: $('#gate-text'), gateNote: $('#gate-note'), btnLogin: $('#btn-login'), btnLogoutGate: $('#btn-logout-gate'),
     panel: $('#panel'), status: $('#topbar-status'), userChip: $('#user-chip'), btnLogout: $('#btn-logout'),
-    tabs: $('.tabs'), content: $('.content'), savebar: $('#savebar'), btnSave: $('#btn-save'), btnDiscard: $('#btn-discard'),
+    tabs: $('.tabs'), content: $('.content'), banner: $('#banner'), savebar: $('#savebar'), btnSave: $('#btn-save'), btnDiscard: $('#btn-discard'),
     tooltip: $('#tooltip'), toast: $('#toast')
   };
   const view = (name) => $(`#view-${name}`);
@@ -97,7 +97,7 @@
     els.gateNote.className = 'gate__note';
     if (mode === 'denied') {
       els.gateText.textContent = `La cuenta ${state.user?.email || ''} no tiene acceso al panel.`;
-      els.gateNote.textContent = 'Pide que agreguen tu correo en Firestore → encuesta_admins (ver README del panel).';
+      els.gateNote.textContent = 'Pide que agreguen tu correo a la lista de administradores (encuesta/firebase-shared.js o Firestore → encuesta_admins).';
       els.gateNote.classList.add('is-error');
       els.btnLogin.hidden = true;
       els.btnLogoutGate.hidden = false;
@@ -119,10 +119,11 @@
   };
 
   const isAdmin = async (user) => {
+    const email = String(user.email || '').toLowerCase();
+    if (!email) return false;
+    if ((FB.ADMIN_EMAILS || []).map((e) => String(e).toLowerCase()).includes(email)) return true;
     try {
       const { db, doc, getDoc } = await FB.getDb();
-      const email = String(user.email || '').toLowerCase();
-      if (!email) return false;
       const snap = await getDoc(doc(db, FB.COLLECTIONS.admins, email));
       return snap.exists();
     } catch (error) {
@@ -184,18 +185,37 @@
     state.loadedAt = new Date();
   };
 
+  const showBanner = (html) => {
+    els.banner.innerHTML = html;
+    els.banner.hidden = !html;
+  };
+
   const loadAll = async () => {
     setStatus('Cargando datos…');
-    try {
-      await Promise.all([loadConfig(), loadResponses()]);
-      setStatus(`${num(state.responses.length)} respuestas · actualizado ${relTime(state.loadedAt)}`);
-      updateTabBadges();
-      render();
-    } catch (error) {
-      console.error('[panel] Error cargando datos', error);
-      setStatus('Error al cargar');
-      toast(error?.code === 'permission-denied' ? 'Firestore rechazó la lectura. Revisa las reglas de seguridad.' : 'No se pudieron cargar los datos.', 'error');
+    const results = await Promise.allSettled([loadConfig(), loadResponses()]);
+    const failed = results.filter((r) => r.status === 'rejected').map((r) => r.reason);
+    if (results[0].status === 'rejected') {
+      /* Sin acceso a la configuración: trabajar con la predeterminada para que el panel sea usable. */
+      state.configExists = false;
+      state.config = normalizeConfig(null);
+      state.draft = clone(state.config);
+      state.dirty = false;
+      els.savebar.hidden = true;
     }
+    if (results[1].status === 'rejected') state.responses = [];
+    updateTabBadges();
+    render();
+    if (failed.length) {
+      console.error('[panel] Error cargando datos', failed);
+      setStatus('Sin conexión con Firestore');
+      const denied = failed.some((e) => e?.code === 'permission-denied');
+      showBanner(denied
+        ? '<strong>Firestore rechazó la lectura.</strong> Faltan las reglas de seguridad de la encuesta: copia el bloque de <code>encuesta/admin/README.md</code> en Firebase → Firestore → Reglas y vuelve a cargar. Hasta entonces no se verán respuestas ni se podrán guardar cambios.'
+        : '<strong>No se pudieron cargar los datos.</strong> Revisa tu conexión y vuelve a intentar.');
+      return;
+    }
+    showBanner('');
+    setStatus(`${num(state.responses.length)} respuestas · actualizado ${relTime(state.loadedAt)}`);
   };
 
   const validateDraft = (draft) => {

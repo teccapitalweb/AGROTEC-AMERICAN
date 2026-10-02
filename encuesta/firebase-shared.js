@@ -19,6 +19,12 @@
     appId: '1:231737548143:web:6651621c2cbad8a31a9c9a'
   });
 
+  /* Correos con acceso al panel sin necesidad de documento en Firestore.
+     Deben coincidir con la lista de las reglas de seguridad (ver admin/README.md). */
+  const ADMIN_EMAILS = Object.freeze([
+    'teccapitalweb@gmail.com'
+  ]);
+
   const COLLECTIONS = Object.freeze({
     config: 'encuesta_config',      // doc `main`: preguntas, cursos, textos
     responses: 'encuesta_respuestas', // una respuesta anónima por documento
@@ -52,5 +58,5 @@
     return { auth: auth.getAuth(app), ...auth };
   };
 
-  window.AGROTEC_FIREBASE = Object.freeze({ config, COLLECTIONS, getApp, getDb, getAuthKit });
+  window.AGROTEC_FIREBASE = Object.freeze({ config, COLLECTIONS, ADMIN_EMAILS, getApp, getDb, getAuthKit });
 })();

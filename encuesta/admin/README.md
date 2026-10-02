@@ -26,22 +26,16 @@ de `encuesta/encuesta-defaults.js`.
 |---|---|---|---|
 | `encuesta_config` → doc `main` | preguntas, cursos, textos, `version`, `updatedAt`, `updatedBy` | público | admins |
 | `encuesta_respuestas` → un doc por encuesta | `answers`, `labels`, `recommended`, `device`, `durationSec`, `createdAt`… | admins | cualquiera puede **crear**, nadie puede editar |
-| `encuesta_admins` → doc por correo | ID = correo en minúsculas (`teccapitalweb@gmail.com`) | el propio usuario | solo desde la consola |
+| `encuesta_admins` → doc por correo | admins extra: ID = correo en minúsculas | el propio usuario | solo desde la consola |
+
+Los correos administradores fijos viven en `encuesta/firebase-shared.js`
+(`ADMIN_EMAILS`) **y** en las reglas de seguridad; hoy: `teccapitalweb@gmail.com`.
+Para sumar a alguien más hay dos caminos: agregar su correo en esos dos lugares,
+o crear su documento en `encuesta_admins` desde la consola (sin tocar código).
 
 ## Activar el panel (una sola vez)
 
-### 1. Dar acceso a los correos administradores
-
-Firebase Console → proyecto **agroclub-mx** → Firestore Database → *Iniciar colección*:
-
-- ID de la colección: `encuesta_admins`
-- ID del documento: el correo **en minúsculas**, por ejemplo `teccapitalweb@gmail.com`
-- Un campo cualquiera, por ejemplo `rol` = `admin`
-
-Repetir un documento por cada persona del equipo que deba entrar al panel.
-Para quitar acceso basta con borrar su documento.
-
-### 2. Reglas de seguridad
+### 1. Reglas de seguridad (obligatorio)
 
 Firestore Database → *Reglas*. Pegar este bloque **dentro** de
 `match /databases/{database}/documents { … }`, sin tocar las reglas que ya
@@ -52,7 +46,11 @@ existen para `miembros` y `usuarios_free`:
     function esAdminEncuesta() {
       return request.auth != null
         && request.auth.token.email != null
-        && exists(/databases/$(database)/documents/encuesta_admins/$(request.auth.token.email.lower()));
+        && (
+          // Misma lista que ADMIN_EMAILS en encuesta/firebase-shared.js
+          request.auth.token.email.lower() in ['teccapitalweb@gmail.com']
+          || exists(/databases/$(database)/documents/encuesta_admins/$(request.auth.token.email.lower()))
+        );
     }
 
     match /encuesta_admins/{correo} {
@@ -74,6 +72,12 @@ existen para `miembros` y `usuarios_free`:
       allow update: if false;
     }
 ```
+
+### 2. Dar acceso a más correos (opcional)
+
+Sin tocar código: Firestore Database → *Iniciar colección* `encuesta_admins`,
+ID del documento = el correo **en minúsculas**, un campo cualquiera
+(por ejemplo `rol` = `admin`). Para quitar acceso, borrar el documento.
 
 ### 3. Login con Google
 
