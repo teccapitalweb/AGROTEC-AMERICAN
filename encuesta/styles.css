@@ -177,7 +177,7 @@ img{max-width:100%;height:auto}
 .options--tiles .opt__key{display:none}
 
 /* images: tarjetas con imagen real */
-.options--images{grid-template-columns:repeat(3,minmax(0,1fr))}
+.options--images{grid-template-columns:repeat(auto-fill,minmax(168px,1fr))}
 .options--images .opt{flex-direction:column;align-items:stretch;gap:0;padding:0;overflow:hidden;min-height:0;border-radius:16px}
 .options--images .opt__media{position:relative;aspect-ratio:2/1;background:var(--cream);overflow:hidden}
 .options--images .opt__media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s var(--ease)}

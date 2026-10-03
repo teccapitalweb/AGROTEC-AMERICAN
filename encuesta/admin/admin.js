@@ -19,15 +19,15 @@
   const OTHER_COLOR = '#b9c0b8';
   const STAT_ICONS = ['list-checks', 'timer', 'shield-check', 'clock', 'lock', 'sparkles', 'award', 'play-circle'];
   const LAYOUT_LABELS = { cards: 'Tarjetas con ícono', scale: 'Escala visual', tiles: 'Mosaico (logotipos)', big: 'Botones grandes', images: 'Tarjetas con imagen', list: 'Lista compacta', chips: 'Chips (pastillas)' };
-  const DIMENSION_LABELS = { profile: 'Perfil', level: 'Nivel', source: 'Cómo nos conoció', goal: 'Objetivo', interests: 'Intereses', format: 'Formato', problem: 'Obstáculo', time: 'Tiempo', none: 'Solo estadística' };
-  const DIMENSION_HELP = { profile: 'Perfil (quién es)', level: 'Nivel de experiencia', source: 'Cómo nos conoció (solo estadística)', goal: 'Objetivo', interests: 'Áreas de interés (enlaza cursos)', format: 'Formato de aprendizaje', problem: 'Principal obstáculo', time: 'Tiempo disponible', none: 'Ninguna (solo estadística)' };
+  const DIMENSION_LABELS = { profile: 'Perfil', level: 'Nivel', source: 'Cómo nos conoció', goal: 'Objetivo', interests: 'Intereses', format: 'Formato', problem: 'Necesidad', time: 'Tiempo', none: 'Solo estadística' };
+  const DIMENSION_HELP = { profile: 'Perfil (quién es)', level: 'Nivel de experiencia', source: 'Cómo nos conoció (solo estadística)', goal: 'Objetivo', interests: 'Áreas de interés (enlaza cursos)', format: 'Formato de aprendizaje', problem: 'Necesidad principal', time: 'Tiempo disponible', none: 'Ninguna (solo estadística)' };
   const MOOD_LABELS = { greet: 'Saluda', point: 'Señala la pregunta', think: 'Piensa', tablet: 'Usa una tablet', calculator: 'Usa una calculadora', approve: 'Aprueba', surprise: 'Se sorprende', celebrate: 'Celebra' };
   const LEVEL_LABELS = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
   const TAG_GROUPS = [
     { key: 'interests', label: 'Áreas de interés', dimension: 'interests', help: 'La primera marcada cuenta como principal.' },
     { key: 'goals', label: 'Objetivos', dimension: 'goal' },
     { key: 'profiles', label: 'Perfiles', dimension: 'profile' },
-    { key: 'problems', label: 'Obstáculos que resuelve', dimension: 'problem' },
+    { key: 'problems', label: 'Necesidades que resuelve', dimension: 'problem' },
     { key: 'levels', label: 'Niveles', fixed: LEVELS.map((l) => ({ value: l, title: LEVEL_LABELS[l] })) }
   ];
 
@@ -317,7 +317,7 @@
     if (Array.isArray(stored) && stored.length) return stored;
     return valuesFor(response, question).map((v) => question.options.find((o) => o.value === v)?.title || String(v));
   };
-  const questionBy = (dimension) => state.config.preguntas.find((q) => q.dimension === dimension);
+  const questionBy = (dimension) => state.config.preguntas.find((q) => q.dimension === dimension && q.enabled !== false) || state.config.preguntas.find((q) => q.dimension === dimension);
   const courseOf = (id) => state.config.cursos.find((c) => c.id === id);
   const courseTitle = (id) => courseOf(id)?.title || id || '—';
   const perfilDe = (r) => {
@@ -479,29 +479,29 @@
       </article>`;
 
     const qInterests = questionBy('interests');
-    const qFormat = questionBy('format');
+    const qGoal = questionBy('goal');
     const qProblem = questionBy('problem');
     const qTime = questionBy('time');
-    const featured = new Set([qInterests, qFormat, qProblem, qTime].filter(Boolean).map((q) => q.id));
+    const featured = new Set([qInterests, qGoal, qProblem, qTime].filter(Boolean).map((q) => q.id));
     const cards = [];
     if (qInterests) {
       const stats = countQuestion(qInterests, rows, false);
       const sorted = stats.data.slice().sort((a, b) => b.count - a.count);
       const shown = state.showAllInterests ? sorted : sorted.slice(0, 5);
-      cards.push(chartCard('Intereses principales', barsMarkup(shown, stats.respondents), {
+      cards.push(chartCard('Temas que más interesan', barsMarkup(shown, stats.respondents), {
         meta: `${num(stats.respondents)} resp.`,
-        foot: sorted.length > 5 ? `<button class="btn btn--ghost btn--sm" type="button" data-action="toggle-interests">${state.showAllInterests ? 'Ver solo los principales' : 'Ver todos los intereses'}</button>` : ''
+        foot: sorted.length > 5 ? `<button class="btn btn--ghost btn--sm" type="button" data-action="toggle-interests">${state.showAllInterests ? 'Ver solo los principales' : 'Ver todos los temas'}</button>` : ''
       }));
     }
-    if (qFormat) cards.push(chartCard('¿Cómo prefieren aprender?', donutMarkup(countQuestion(qFormat, rows))));
-    if (qProblem) cards.push(chartCard('Principales dificultades', donutMarkup(countQuestion(qProblem, rows))));
-    if (qTime) cards.push(chartCard('Tiempo disponible por semana', donutMarkup(countQuestion(qTime, rows))));
+    if (qGoal) cards.push(chartCard('Qué quieren lograr', donutMarkup(countQuestion(qGoal, rows))));
+    if (qProblem) cards.push(chartCard('Qué necesitan resolver', donutMarkup(countQuestion(qProblem, rows))));
+    if (qTime) cards.push(chartCard('Tiempo que quieren dedicar por semana', donutMarkup(countQuestion(qTime, rows))));
 
     const days = [];
     for (let i = 13; i >= 0; i -= 1) { const d = new Date(today.getTime() - i * 86400000); days.push({ key: dayKey(d), label: fmtDay(d), count: 0 }); }
     all.forEach((r) => { if (!r.createdAt) return; const hit = days.find((d) => d.key === dayKey(r.createdAt)); if (hit) hit.count += 1; });
     const funnel = [{ label: 'Terminaron la encuesta', count: rows.length }, { label: 'Hicieron clic en la clase', count: clicks }, { label: 'Entraron al curso', count: entered }];
-    const rest = state.config.preguntas.filter((q) => !featured.has(q.id));
+    const rest = state.config.preguntas.filter((q) => !featured.has(q.id) && (q.enabled !== false || rows.some((r) => r.answers && r.answers[q.id] != null)));
     const more = `
       <details class="more">
         <summary><span style="color:var(--ink);font-weight:600;font-size:.92rem">Más resultados</span><span>Actividad por día, embudo y ${num(rest.length)} preguntas más</span>${I.chevron}</summary>
@@ -566,17 +566,19 @@
       </div>`;
   };
 
-  const questionRow = (q, i, total) => {
+  const questionRow = (q, i, total, position) => {
     const open = state.open.preguntas.has(i);
+    const on = q.enabled !== false;
     return `
-      <article class="row-item ${open ? 'is-open' : ''}">
+      <article class="row-item ${open ? 'is-open' : ''} ${on ? '' : 'is-off'}">
         <div class="row-item__main">
-          <span class="row-item__num">${pad2(i + 1)}</span>
+          <span class="row-item__num">${on ? pad2(position) : '—'}</span>
           <div class="row-item__title">
             <strong>${esc(q.title || '(sin título)')}</strong>
-            <span class="row-item__tags"><span class="tag">${esc(LAYOUT_LABELS[q.layout] || q.layout)}</span><span class="tag">${typeLabel(q.type)} · ${q.options.length} opciones</span>${q.dimension && q.dimension !== 'none' ? `<span class="tag tag--green">${esc(DIMENSION_LABELS[q.dimension] || q.dimension)}</span>` : ''}</span>
+            <span class="row-item__tags">${on ? '' : '<span class="tag tag--warn">No se muestra</span>'}<span class="tag">${esc(LAYOUT_LABELS[q.layout] || q.layout)}</span><span class="tag">${typeLabel(q.type)} · ${q.options.length} opciones</span>${q.dimension && q.dimension !== 'none' ? `<span class="tag tag--green">${esc(DIMENSION_LABELS[q.dimension] || q.dimension)}</span>` : ''}</span>
           </div>
           <div class="row-item__actions">
+            <label class="switch" data-stop title="Si la apagas, se guarda pero no aparece en la encuesta"><input type="checkbox" data-path="preguntas.${i}.enabled" data-rerender="preguntas" data-on="Activa" data-off="Apagada" ${on ? 'checked' : ''}><i></i><span>${on ? 'Activa' : 'Apagada'}</span></label>
             <button class="btn btn--line btn--sm" type="button" data-action="toggle-item" data-col="preguntas" data-i="${i}">${open ? I.x : I.pencil} ${open ? 'Cerrar' : 'Editar'}</button>
             ${menuMarkup([
               { label: 'Duplicar', icon: I.copy, data: { action: 'q-duplicate', i } },
@@ -593,17 +595,19 @@
 
   const renderPreguntas = () => {
     const qs = state.draft.preguntas;
+    const active = qs.filter((q) => q.enabled !== false).length;
+    let position = 0;
     view('preguntas').innerHTML = `
       <div class="page-head">
-        <div><h2>Preguntas</h2><p>Edita el texto, el diseño y las opciones de cada pregunta. Los cambios se publican al guardar.</p></div>
+        <div><h2>Preguntas</h2><p>Edita el texto, el diseño y las opciones de cada pregunta. ${num(active)} activas de ${num(qs.length)}; las apagadas se conservan con sus datos. Los cambios se publican al guardar.</p></div>
         <div class="page-tools">
           <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="preguntas">Restaurar predeterminadas</button>
           <button class="btn btn--sm" type="button" data-action="q-add">${I.plus} Nueva pregunta</button>
         </div>
       </div>
       ${state.configExists ? '' : '<div class="help help--warn" style="margin-bottom:14px">La encuesta todavía usa la configuración predeterminada del código. Al guardar por primera vez se publica en Firestore y desde entonces se edita solo desde aquí.</div>'}
-      <div class="rows">${qs.map((q, i) => questionRow(q, i, qs.length)).join('')}</div>
-      <p class="small muted" style="margin:14px 0 0">Las opciones de las preguntas de <b>intereses</b>, <b>objetivo</b>, <b>perfil</b> y <b>obstáculo</b> aparecen como etiquetas en Cursos; así el motor sabe qué recomendar.</p>`;
+      <div class="rows">${qs.map((q, i) => questionRow(q, i, qs.length, q.enabled !== false ? (position += 1) : 0)).join('')}</div>
+      <p class="small muted" style="margin:14px 0 0">Las opciones de las preguntas de <b>intereses</b>, <b>objetivo</b>, <b>necesidad</b> y <b>perfil</b> aparecen como etiquetas en Cursos; así el motor sabe qué recomendar. Pesan en ese orden; la experiencia elige el nivel y el tiempo, por dónde empezar.</p>`;
   };
 
   /* ---------- Vista: Cursos ---------- */
@@ -943,7 +947,7 @@
     'row-open': ({ id }) => openDrawer(id),
     'drawer-close': () => closeDrawer(),
     'q-add': () => {
-      state.draft.preguntas.push({ id: `pregunta-${uid()}`, dimension: 'none', kicker: 'Nueva', title: 'Nueva pregunta', hint: '', type: 'single', max: 3, layout: 'cards', mood: 'point', bubble: '', options: [
+      state.draft.preguntas.push({ id: `pregunta-${uid()}`, dimension: 'none', enabled: true, kicker: 'Nueva', title: 'Nueva pregunta', hint: '', type: 'single', max: 3, layout: 'cards', mood: 'point', bubble: '', options: [
         { value: 'opcion-1', icon: 'i:sparkles', title: 'Opción 1', detail: '', image: '' }, { value: 'opcion-2', icon: 'i:sparkles', title: 'Opción 2', detail: '', image: '' }
       ] });
       state.open.preguntas = new Set([state.draft.preguntas.length - 1]);
@@ -1071,7 +1075,7 @@
     markDirty();
     if (el.type === 'checkbox' && el.closest('.row-item__actions')) {
       const label = el.closest('.switch')?.querySelector('span');
-      if (label) label.textContent = el.checked ? 'Disponible' : 'Oculto';
+      if (label) label.textContent = el.checked ? (el.dataset.on || 'Disponible') : (el.dataset.off || 'Oculto');
       el.closest('.row-item')?.classList.toggle('is-off', !el.checked);
     }
     if (el.dataset.iconPreview !== undefined) { const preview = el.closest('.icon-field')?.querySelector('.icon-preview'); if (preview) preview.innerHTML = iconMarkup(el.value); }

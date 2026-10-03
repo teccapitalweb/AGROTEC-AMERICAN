@@ -14,7 +14,7 @@
   const FB = window.AGROTEC_FIREBASE;
   const ICONS = window.AGROTEC_ICONS || {};
   const SITE_BASE = '../';
-  const STORAGE_KEY = 'agrotec-encuesta:v3';
+  const STORAGE_KEY = 'agrotec-encuesta:v4';
   const CONFIG_WAIT_MS = 4000;
   const LEAVE_MS = 180;
 
@@ -90,7 +90,7 @@
   /* ---------- Estado ---------- */
   const state = { screen: 'intro', step: 0, answers: {}, startedAt: 0, responseId: null, result: null, saveState: null };
 
-  const questions = () => config.preguntas;
+  const questions = () => config.preguntas.filter((q) => q.enabled !== false);
   const findQuestion = (id) => questions().find((q) => q.id === id);
   const byDimension = (dimension) => questions().find((q) => q.dimension === dimension);
   const optionOf = (question, value) => question?.options.find((o) => o.value === value);
@@ -131,7 +131,12 @@
   const recommend = (profile) => {
     const courses = availableCourses();
     if (!courses.length) return null;
-    const INTEREST_W = [30, 24, 18];
+    /* Pesos: temas (en el orden elegido) + objetivo + necesidad deciden casi todo;
+       el perfil afina, la experiencia elige el nivel y el tiempo, por dónde empezar. */
+    const INTEREST_W = [34, 26, 18];
+    const PRIMARY_W = [10, 5, 2]; // el tema principal del curso coincide con el 1.º, 2.º o 3.º elegido
+    const FREE_PROFILES = ['student', 'graduate', 'hobby'];
+    const FREE_NEEDS = ['start', 'costs'];
     const scored = courses.map((course, index) => {
       const tags = course.tags || {};
       let score = 0;
@@ -139,24 +144,25 @@
       profile.interests.forEach((value, pos) => {
         if (!(tags.interests || []).includes(value)) return;
         score += INTEREST_W[pos] ?? 14;
-        if (tags.interests[0] === value) score += 6;
+        if (tags.interests[0] === value) score += PRIMARY_W[pos] ?? 2;
         matches.push({ kind: 'interest', rank: 1, label: profile.labels.interests?.[pos] || value });
       });
-      if (profile.goal && (tags.goals || []).includes(profile.goal)) { score += 14; matches.push({ kind: 'goal', rank: 2, label: profile.labels.goal }); }
-      if (profile.profile && (tags.profiles || []).includes(profile.profile)) { score += 10; matches.push({ kind: 'profile', rank: 3, label: profile.labels.profile }); }
-      if (profile.level && (tags.levels || []).length) score += tags.levels.includes(profile.level) ? 6 : -2;
-      if (profile.problem && (tags.problems || []).includes(profile.problem)) { score += 6; matches.push({ kind: 'problem', rank: 5, label: profile.labels.problem }); }
+      if (profile.goal && (tags.goals || []).includes(profile.goal)) { score += 16; matches.push({ kind: 'goal', rank: 2, label: profile.labels.goal }); }
+      if (profile.problem && (tags.problems || []).includes(profile.problem)) { score += 14; matches.push({ kind: 'problem', rank: 3, label: profile.labels.problem }); }
+      if (profile.profile && (tags.profiles || []).includes(profile.profile)) { score += 8; matches.push({ kind: 'profile', rank: 5, label: profile.labels.profile }); }
+      if (profile.level && (tags.levels || []).length) score += tags.levels.includes(profile.level) ? 6 : -3;
       const totalMin = course.classes.reduce((a, k) => a + (k.min || 0), 0);
       if (profile.time === 'lt1' && totalMin && totalMin <= 240) score += 4;
+      if (profile.time === '1-2' && totalMin && totalMin <= 300) score += 2;
       if (profile.time === '5plus' && totalMin >= 360) score += 3;
       const hasFree = course.classes.some((k) => k.free);
-      if (hasFree && (['student', 'hobby'].includes(profile.profile) || profile.problem === 'cost')) { score += 8; matches.push({ kind: 'free', rank: 4, label: 'Puedes empezar gratis' }); }
+      if (hasFree && (FREE_PROFILES.includes(profile.profile) || FREE_NEEDS.includes(profile.problem))) { score += 8; matches.push({ kind: 'free', rank: 4, label: 'Puedes empezar gratis' }); }
       return { course, score, matches, index, totalMin };
     }).sort((a, b) => b.score - a.score || a.index - b.index);
 
     const top = scored[0];
     const seen = new Set();
-    const matches = top.matches.sort((a, b) => a.rank - b.rank).filter((m) => (seen.has(m.label) ? false : seen.add(m.label))).slice(0, 3);
+    const matches = top.matches.sort((a, b) => a.rank - b.rank).filter((m) => (seen.has(m.label) ? false : seen.add(m.label))).slice(0, 4);
     const featured = top.course.classes.find((k) => k.n === top.course.featuredClass) || top.course.classes[0];
     return {
       course: top.course, score: top.score, matches, totalMin: top.totalMin, lesson: featured,
@@ -165,15 +171,32 @@
     };
   };
 
+  /* Las opciones están en primera persona ("Mejorar mi trabajo"); la explicación
+     se dirige a la persona ("buscas mejorar tu trabajo"). */
+  const YOU_WORDS = { mi: 'tu', mis: 'tus', me: 'te', conmigo: 'contigo' };
+  const YOU_VERBS = { quiero: 'quieres', sé: 'sabes', soy: 'eres', estoy: 'estás', tengo: 'tienes', trabajo: 'trabajas', voy: 'vas', puedo: 'puedes', necesito: 'necesitas', busco: 'buscas', hago: 'haces', egresé: 'egresaste', terminé: 'terminaste', vivo: 'vives', cultivo: 'cultivas', vendo: 'vendes', produzco: 'produces' };
+  /* "trabajo" y "cultivo" pueden ser sustantivo ("Mejorar mi trabajo"): solo se
+     conjugan al inicio de la frase ("Trabajo en el sector" → "trabajas en el sector"). */
+  const AMBIGUOUS = ['trabajo', 'cultivo'];
+  const toYou = (text) => lower(String(text || '').trim()).split(' ').map((w, i) => {
+    const key = w.toLowerCase();
+    if (YOU_WORDS[key]) return YOU_WORDS[key];
+    if (YOU_VERBS[key] && (i === 0 || !AMBIGUOUS.includes(key))) return YOU_VERBS[key];
+    return w;
+  }).join(' ');
+  const isInfinitive = (text) => /^[a-záéíóúñ]+[aei]r$/i.test(String(text || '').trim().split(' ')[0] || '');
+  const joinList = (items) => (items.length > 1 ? `${items.slice(0, -1).join(', ')} y ${items[items.length - 1]}` : items[0]);
+
   const buildWhy = (matches, profile) => {
     const interests = matches.filter((m) => m.kind === 'interest').map((m) => lower(m.label));
     const parts = [];
-    if (interests.length) parts.push(`mostraste interés en ${interests.length > 1 ? `${interests.slice(0, -1).join(', ')} y ${interests[interests.length - 1]}` : interests[0]}`);
-    if (matches.some((m) => m.kind === 'goal')) parts.push(`buscas ${lower(profile.labels.goal)}`);
-    if (matches.some((m) => m.kind === 'profile')) parts.push(`encaja con tu perfil de ${lower(profile.labels.profile)}`);
-    if (!parts.length && profile.labels.goal) parts.push(`buscas ${lower(profile.labels.goal)}`);
+    if (interests.length) parts.push(`mostraste interés en ${joinList(interests)}`);
+    if (matches.some((m) => m.kind === 'goal')) parts.push(`buscas ${toYou(profile.labels.goal)}`);
+    if (matches.some((m) => m.kind === 'problem')) parts.push(isInfinitive(profile.labels.problem) ? `necesitas ${toYou(profile.labels.problem)}` : toYou(profile.labels.problem));
+    if (parts.length < 3 && matches.some((m) => m.kind === 'profile')) parts.push(isInfinitive(profile.labels.profile) ? `quieres ${toYou(profile.labels.profile)}` : toYou(profile.labels.profile));
+    if (!parts.length && profile.labels.goal) parts.push(`buscas ${toYou(profile.labels.goal)}`);
     if (!parts.length) parts.push('es un buen punto de partida para tu perfil');
-    return parts.length > 1 ? `${parts.slice(0, -1).join(', ')} y ${parts[parts.length - 1]}.` : `${parts[0]}.`;
+    return `${joinList(parts.slice(0, 3))}.`;
   };
 
   /* ---------- Personaje ---------- */
