@@ -10,21 +10,34 @@ Todo corre en GitHub Pages (estático) + Firebase del proyecto **agroclub-mx**
 
 | Pestaña | Para qué sirve |
 |---|---|
-| **Resumen** | Métricas principales (respuestas, hoy, clics en clases, iniciaron curso, tasa de conversión, tiempo promedio), cursos más recomendados, intereses principales, cómo prefieren aprender, dificultades y tiempo disponible. En "Más resultados": actividad por día, embudo y el resto de preguntas. Filtro por periodo. |
-| **Preguntas** | Lista compacta con **Editar** y menú ⋯ (duplicar, subir, bajar, eliminar). El editor abre debajo de la fila: texto, ayuda, tipo, diseño (tarjetas con ícono, escala, mosaico, botones grandes, tarjetas con imagen, lista, chips), dimensión del perfil, estado y globo del personaje, y opciones (ícono `i:nombre`, imagen, nivel, valor). |
-| **Cursos** | Los 23 cursos reales del club con sus clases, en filas con interruptor disponible / oculto, **Editar** y menú ⋯. El editor: etiquetas (áreas, objetivos, perfiles, obstáculos, niveles), clase destacada, portada, enlace, resumen y clases. |
+| **Resumen** | Métricas principales (respuestas, hoy, clics en clases, iniciaron curso, tasa de conversión, tiempo promedio), cursos más recomendados, temas que más interesan, qué quieren lograr, qué necesitan resolver y tiempo por semana. En "Más resultados": actividad por día, embudo y el resto de preguntas. Filtro por periodo. |
+| **Preguntas** | Lista compacta con interruptor **Activa / Apagada** (una pregunta apagada se conserva con sus datos pero no aparece en la encuesta), **Editar** y menú ⋯ (duplicar, subir, bajar, eliminar). El editor abre debajo de la fila: texto, ayuda, tipo, diseño (tarjetas con ícono, escala, mosaico, botones grandes, tarjetas con imagen, lista, chips), dimensión del perfil, estado y globo del personaje, y opciones (ícono `i:nombre`, imagen, nivel, valor). |
+| **Cursos** | Los 23 cursos reales del club con sus clases, en filas con interruptor disponible / oculto, **Editar** y menú ⋯. El editor: etiquetas (temas, objetivos, perfiles, necesidades, niveles), clase destacada, portada, enlace, resumen y clases. |
 | **Respuestas** | Tabla Usuario · Fecha · Perfil · Curso recomendado · Estado, con buscador, filtro por fecha y por curso, y CSV. Al tocar una fila se abre el panel lateral con todas las respuestas, la recomendación y la opción de eliminar. |
 | **Textos** | Acordeones: bienvenida, durante la encuesta (avance y personaje), pantalla de análisis, resultados, clase recomendada, botones y enlaces. |
 
 ## Cómo recomienda
 
-Cada pregunta aporta a una dimensión del perfil (`profile`, `level`, `goal`, `interests`,
-`format`, `problem`, `time`). Cada curso tiene etiquetas por dimensión. El motor
-suma puntos por coincidencia (las áreas de interés pesan más y en el orden en que
-la persona las eligió, luego objetivo, perfil, nivel, obstáculo y tiempo; los cursos
-con clases gratis suman puntos para estudiantes, aficionados o quien señala el costo)
-y recomienda el curso con mayor puntaje junto con su **clase destacada**. La tarjeta
-final explica las 2 o 3 coincidencias que decidieron la recomendación.
+La encuesta tiene 7 preguntas activas (quién es, experiencia, temas, objetivo,
+necesidad, tiempo por semana y cómo nos conoció) y una apagada (tipo de contenido)
+que se puede encender desde el panel. Cada pregunta aporta a una dimensión del
+perfil (`profile`, `level`, `goal`, `interests`, `problem`, `time`, `format`) y cada
+curso tiene etiquetas por dimensión. El motor suma puntos por coincidencia:
+
+| Qué compara | Puntos |
+|---|---|
+| Temas de interés, en el orden en que los eligió | 34 · 26 · 18 (+6 si es el tema principal del curso) |
+| Objetivo | 16 |
+| Necesidad actual | 14 |
+| Perfil | 8 |
+| Nivel (según la experiencia) | +6 si coincide · −3 si no |
+| Tiempo por semana | +4 / +2 si el curso es corto y tiene poco tiempo · +3 si quiere más de 5 h y el curso es largo |
+| Clases gratis | +8 si estudia, recién egresó, aprende por gusto, no sabe por dónde empezar o quiere reducir costos |
+
+Temas + objetivo + necesidad definen casi toda la recomendación; la experiencia
+elige el nivel y el tiempo, por dónde empezar. Gana el curso con mayor puntaje
+junto con su **clase destacada**, y la tarjeta final explica las 2 o 3
+coincidencias que decidieron la recomendación.
 
 Al tocar la clase, la encuesta marca `clickedClass` y abre
 `club.agrotecamerican.com/#/curso/{id}/clase/{n}?enc={idRespuesta}`. El club pide
