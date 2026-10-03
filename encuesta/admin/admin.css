@@ -138,6 +138,7 @@ h3{font-size:1.02rem;font-weight:700}
 .card__head .eyebrow{margin-bottom:4px}
 .card__body{padding:14px 18px 18px}
 .grid-kpi{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:16px}
+.grid-kpi--6{grid-template-columns:repeat(6,minmax(0,1fr))}
 .kpi{padding:16px 18px}
 .kpi__label{display:block;color:var(--muted);font-size:.78rem;font-weight:600}
 .kpi__value{display:block;margin-top:6px;font-size:2rem;font-weight:700;line-height:1;color:var(--ink);letter-spacing:-.02em}
@@ -230,10 +231,26 @@ textarea.input{resize:vertical;min-height:72px;line-height:1.4}
 .item__caret{transition:transform .2s var(--ease)}
 .item.is-open .item__caret{transform:rotate(180deg)}
 .item.is-off{opacity:.7}
-.options-editor{display:grid;gap:8px;margin-top:14px}
-.option-row{display:grid;grid-template-columns:56px 1fr 1fr 150px auto;gap:8px;align-items:center}
+.options-editor{display:grid;gap:8px;margin-top:14px;--cols:96px 1fr 1fr 150px auto}
+.options-editor.has-image{--cols:96px 1fr 1fr 1fr 150px auto}
+.options-editor.has-level{--cols:96px 1fr 1fr 130px 150px auto}
+.option-row{display:grid;grid-template-columns:var(--cols);gap:8px;align-items:center}
 .option-row__tools{display:flex;gap:4px}
-.options-editor__head{display:grid;grid-template-columns:56px 1fr 1fr 150px auto;gap:8px;color:var(--faint);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:0 2px}
+.options-editor__head{display:grid;grid-template-columns:var(--cols);gap:8px;color:var(--faint);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:0 2px}
+.icon-field{display:flex;align-items:center;gap:4px}
+.icon-preview{display:grid;place-items:center;width:30px;height:30px;border-radius:8px;background:var(--cream);color:var(--ink);font-size:1rem;flex:0 0 auto}
+.icon-preview .ico,.icon-preview svg{width:17px;height:17px}
+.icon-missing{color:var(--danger);font-weight:800}
+.icon-field .input--icon{width:58px;font-size:.72rem;padding-inline:4px}
+.tag-groups{display:grid;gap:12px;margin-top:12px}
+.tag-group label{display:block;margin-bottom:6px;color:var(--muted);font-size:.72rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.tag-group label small{text-transform:none;letter-spacing:0;font-weight:500;color:var(--faint)}
+.classes-editor{display:grid;gap:6px;margin-top:12px}
+.classes-editor__head,.class-row{display:grid;grid-template-columns:64px 1fr 90px 60px auto;gap:8px;align-items:center}
+.classes-editor__head{color:var(--faint);font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:0 2px}
+.switch--sm i{width:34px;height:20px}
+.switch--sm i::after{width:14px;height:14px}
+.switch--sm input:checked + i::after{transform:translateX(14px)}
 .editor-sub{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:18px}
 .editor-sub h3{font-size:.9rem}
 .add-row{display:flex;justify-content:flex-start;margin-top:10px}
@@ -273,11 +290,11 @@ td .pill{margin:2px 4px 2px 0}
 
 /* ---------- Responsivo ---------- */
 @media(max-width:1000px){
-  .grid-kpi{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid-kpi,.grid-kpi--6{grid-template-columns:repeat(2,minmax(0,1fr))}
   .grid-charts{grid-template-columns:1fr}
-  .option-row,.options-editor__head{grid-template-columns:56px 1fr 1fr auto}
-  .option-row .input--mono{display:none}
-  .options-editor__head span:nth-child(4){display:none}
+  .options-editor{--cols:96px 1fr 1fr auto!important}
+  .option-row .input--mono,.option-row select,.option-row [data-path$=".image"]{display:none}
+  .options-editor__head span:nth-child(n+4):not(:last-child){display:none}
 }
 @media(max-width:760px){
   .topbar{grid-template-columns:auto 1fr;gap:10px;padding-inline:14px}
@@ -289,8 +306,9 @@ td .pill{margin:2px 4px 2px 0}
   .form-grid,.form-grid--3{grid-template-columns:1fr}
   .donut{grid-template-columns:1fr;justify-items:center}
   .legend{width:100%}
-  .option-row,.options-editor__head{grid-template-columns:50px 1fr auto}
+  .options-editor{--cols:96px 1fr auto!important}
   .option-row .input[data-detail],.options-editor__head span:nth-child(3){display:none}
+  .classes-editor__head,.class-row{grid-template-columns:52px 1fr 70px 48px auto}
   .item__head{grid-template-columns:auto 1fr;gap:10px}
   .item__tools{grid-column:1/-1;justify-content:flex-end}
   .savebar{flex-direction:column;align-items:stretch;border-radius:18px;padding:12px}

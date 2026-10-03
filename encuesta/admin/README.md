@@ -10,22 +10,37 @@ Todo corre en GitHub Pages (estático) + Firebase del proyecto **agroclub-mx**
 
 | Pestaña | Para qué sirve |
 |---|---|
-| **Resumen** | KPIs (respuestas, hoy, % celular, tiempo promedio), respuestas por día, una gráfica por pregunta (dona para opción única, barras para opción múltiple) y los cursos más recomendados. Filtro por periodo: todo / hoy / 7 días / 30 días. |
-| **Preguntas** | Editar texto, ayuda, tipo (única / múltiple), diseño (lista / mosaico / chips) y las opciones de cada pregunta. Agregar, ordenar y eliminar preguntas. |
-| **Cursos** | Qué cursos pueden recomendarse al final (interruptor *Disponible / Oculto*), con qué áreas de interés se relacionan, imagen, nivel y enlace. |
-| **Respuestas** | Tabla con cada encuesta completada (sin datos personales), buscador, exportar CSV y eliminar filas. |
-| **Textos** | Pantalla de bienvenida, pantalla final, botones y enlaces (por ejemplo a dónde lleva *Entrar al club*). |
+| **Resumen** | KPIs (respuestas, hoy, clic en la clase, ingresos al curso, % celular, tiempo promedio), respuestas por día, embudo encuesta → clase → curso, cursos más recomendados y una gráfica por pregunta. Filtro por periodo. |
+| **Preguntas** | Texto, ayuda, tipo (única / múltiple), diseño (tarjetas con ícono, escala, mosaico, botones grandes, tarjetas con imagen, lista, chips), qué dimensión del perfil alimenta, estado y globo del personaje, y las opciones (ícono `i:nombre`, imagen, nivel, valor). |
+| **Cursos** | Los 23 cursos reales del club con sus clases. Para cada uno: disponible / oculto, etiquetas (áreas, objetivos, perfiles, obstáculos, niveles), clase destacada que se muestra como gancho, portada, enlace y resumen. |
+| **Respuestas** | Cada encuesta completada con el curso y la clase sugeridos, si hizo clic y si entró al curso. Buscador, CSV y eliminar. |
+| **Textos** | Bienvenida, personaje (nombre y globos), mensajes de avance, pantalla "Analizando", resultado, botones y URL del club. |
+
+## Cómo recomienda
+
+Cada pregunta aporta a una dimensión del perfil (`profile`, `level`, `goal`, `interests`,
+`format`, `problem`, `time`). Cada curso tiene etiquetas por dimensión. El motor
+suma puntos por coincidencia (las áreas de interés pesan más y en el orden en que
+la persona las eligió, luego objetivo, perfil, nivel, obstáculo y tiempo; los cursos
+con clases gratis suman puntos para estudiantes, aficionados o quien señala el costo)
+y recomienda el curso con mayor puntaje junto con su **clase destacada**. La tarjeta
+final explica las 2 o 3 coincidencias que decidieron la recomendación.
+
+Al tocar la clase, la encuesta marca `clickedClass` y abre
+`club.agrotecamerican.com/#/curso/{id}/clase/{n}?enc={idRespuesta}`. El club pide
+iniciar sesión si hace falta y regresa automáticamente a esa clase.
 
 Los cambios se publican con el botón **Guardar cambios** y la encuesta los toma
 en su siguiente carga. Si nunca se ha guardado nada, la encuesta usa los valores
-de `encuesta/encuesta-defaults.js`.
+de `encuesta/encuesta-defaults.js` (preguntas, textos y el catálogo del club con
+sus etiquetas).
 
 ## Datos en Firestore
 
 | Colección | Contenido | Quién lee | Quién escribe |
 |---|---|---|---|
 | `encuesta_config` → doc `main` | preguntas, cursos, textos, `version`, `updatedAt`, `updatedBy` | público | admins |
-| `encuesta_respuestas` → un doc por encuesta | `answers`, `labels`, `recommended`, `device`, `durationSec`, `createdAt`… | admins | cualquiera puede **crear**, nadie puede editar |
+| `encuesta_respuestas` → un doc por encuesta | `answers`, `labels`, `profile`, `recommendation` (curso + clase), `clickedClass`, `enteredCourse`, `uid`, `device`, `durationSec`, `createdAt`… | admins | cualquiera puede **crear**; solo se pueden actualizar las banderas de clic/ingreso |
 | `encuesta_admins` → doc por correo | admins extra: ID = correo en minúsculas | el propio usuario | solo desde la consola |
 
 Los correos administradores fijos viven en `encuesta/firebase-shared.js`
@@ -67,9 +82,13 @@ existen para `miembros` y `usuarios_free`:
       allow create: if request.resource.data.keys().hasAll(['answers', 'createdAt'])
         && request.resource.data.answers is map
         && request.resource.data.createdAt == request.time
-        && request.resource.data.size() <= 14;
+        && request.resource.data.size() <= 20;
       allow read, delete: if esAdminEncuesta();
-      allow update: if false;
+      // La encuesta marca el clic en la clase (sin sesión); el club marca el
+      // ingreso al curso y enlaza la cuenta (con sesión). Nada más se puede tocar.
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clickedClass', 'clickedAt'])
+        || (request.auth != null
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['uid', 'email', 'enteredCourse', 'enteredAt', 'clickedClass', 'clickedAt']));
     }
 ```
 
@@ -91,7 +110,9 @@ encuesta/
 ├── index.html              Encuesta (una pregunta por pantalla)
 ├── styles.css
 ├── app.js                  Flujo, recomendación de cursos y guardado en Firestore
-├── encuesta-defaults.js    Preguntas, cursos y textos por defecto + normalizador
+├── encuesta-defaults.js    Preguntas, textos, personaje y cursos del club (con etiquetas) + normalizador
+├── icons.js                Íconos lucide usados por la encuesta y el panel
+├── img/                    Mascota Agro en WebP (dos poses + parpadeo)
 ├── firebase-shared.js      Config de Firebase (agroclub-mx) compartida
 └── admin/
     ├── index.html          Panel por pestañas
@@ -107,8 +128,8 @@ encuesta/
 - Las respuestas guardan el valor interno de cada opción **y** su texto, así
   que cambiar el texto de una opción no rompe los reportes anteriores. Cambiar
   el *valor interno* o el *ID* de una pregunta sí los separa de los datos viejos.
-- La recomendación final toma hasta 3 cursos **disponibles** que compartan
-  áreas con la pregunta `areas`; si ninguno coincide, muestra los 3 primeros
-  disponibles.
+- Para actualizar el catálogo con un curso nuevo del club: pestaña Cursos →
+  *Nuevo curso*, usar el mismo slug que en el club, cargar sus clases y marcar
+  sus etiquetas. *Restaurar catálogo del club* vuelve a los 23 cursos del código.
 - El panel carga hasta 3,000 respuestas por sesión. Si el volumen crece más,
   conviene exportar y limpiar periódicamente.
