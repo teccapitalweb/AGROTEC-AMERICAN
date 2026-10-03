@@ -7,8 +7,9 @@ Componente frontend aislado y reutilizable. No modifica autenticación, pagos, m
 - `agrotec-assistant.config.js`: marca, paleta, personaje, selectores de datos y contacto humano.
 - `agrotec-assistant.css`: estilos limitados al atributo `data-agx-root` y clases `agx-*`.
 - `agrotec-assistant.js`: interfaz, estado de sesión, accesibilidad, lectura del catálogo y respuestas guiadas.
-- `assets/agro-mascot-orange-clean-v5.png`: personaje con overol naranja y fondo completamente transparente.
-- `assets/agro-mascot-orange-blink-v5.png`: segundo fotograma limpio del mismo personaje con los ojos cerrados.
+- `assets/agro-mascot-orange-clean-v5.webp`: personaje optimizado para la web, con overol naranja y transparencia.
+- `assets/agro-mascot-orange-blink-v5.webp`: segundo fotograma optimizado del mismo personaje con los ojos cerrados.
+- Los PNG originales se conservan como fuentes maestras; la página pública usa los WebP ligeros.
 
 ## Estado actual
 

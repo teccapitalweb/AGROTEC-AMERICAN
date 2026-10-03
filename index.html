@@ -15,6 +15,46 @@
 <meta property="og:image" content="https://agrotecamerican.com/img/v3/hero-agrotec-v3.jpg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="img/logo.jpg">
+<link rel="preload" as="image" href="img/v3/hero-agrotec-v3.webp" type="image/webp" fetchpriority="high">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://agrotecamerican.com/#organization",
+      "name": "AgroTec América",
+      "url": "https://agrotecamerican.com/",
+      "logo": "https://agrotecamerican.com/img/brand/logo-horizontal.png",
+      "sameAs": [
+        "https://www.instagram.com/agrotec_american",
+        "https://www.facebook.com/share/1JWXU1Lcy1/"
+      ]
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://agrotecamerican.com/#website",
+      "url": "https://agrotecamerican.com/",
+      "name": "AgroTec América",
+      "publisher": { "@id": "https://agrotecamerican.com/#organization" },
+      "inLanguage": "es-MX"
+    },
+    {
+      "@type": "ItemList",
+      "name": "Cursos destacados de AgroClub MX",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "url": "https://club.agrotecamerican.com/#/curso/agricultura-organica", "item": { "@type": "Course", "name": "Agricultura Orgánica", "description": "Producción agrícola con prácticas orgánicas.", "provider": { "@id": "https://agrotecamerican.com/#organization" } } },
+        { "@type": "ListItem", "position": 2, "url": "https://club.agrotecamerican.com/#/curso/cultivo-de-berries", "item": { "@type": "Course", "name": "Cultivo de berries", "description": "Manejo técnico para producir berries.", "provider": { "@id": "https://agrotecamerican.com/#organization" } } },
+        { "@type": "ListItem", "position": 3, "url": "https://club.agrotecamerican.com/#/curso/cultivo-de-flor-de-lilis-para-corte", "item": { "@type": "Course", "name": "Cultivo de Flor de Lilis para Corte", "description": "Producción de flores de lilis para corte.", "provider": { "@id": "https://agrotecamerican.com/#organization" } } },
+        { "@type": "ListItem", "position": 4, "url": "https://club.agrotecamerican.com/#/curso/derivados-dulces-de-amaranto", "item": { "@type": "Course", "name": "Derivados Dulces de Amaranto", "description": "Elaboración de productos dulces de amaranto.", "provider": { "@id": "https://agrotecamerican.com/#organization" } } },
+        { "@type": "ListItem", "position": 5, "url": "https://club.agrotecamerican.com/#/curso/diseno-de-programas-nutricionales-en-diferentes-cultivos", "item": { "@type": "Course", "name": "Diseño de Programas Nutricionales", "description": "Nutrición aplicada a diferentes cultivos.", "provider": { "@id": "https://agrotecamerican.com/#organization" } } },
+        { "@type": "ListItem", "position": 6, "url": "https://club.agrotecamerican.com/#/curso/especializado-en-el-cultivo-de-hierbas-aromaticas", "item": { "@type": "Course", "name": "Cultivo de Hierbas Aromáticas", "description": "Producción especializada de hierbas aromáticas.", "provider": { "@id": "https://agrotecamerican.com/#organization" } } }
+      ]
+    }
+  ]
+}
+</script>
 
 <!-- MODIFICADO: fuentes BUNDLEADAS en /fonts. Cero dependencia de Google Fonts en runtime. -->
 <style>
@@ -417,6 +457,8 @@ button{font-family:inherit;cursor:pointer;}
 </head>
 <body>
 
+<a class="ag3-skip-link" href="#contenido-principal">Saltar al contenido</a>
+
 <!-- MODIFICADO: sprite de iconos SVG de línea. Reemplaza TODOS los emoji del landing viejo. -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
   <symbol id="i-play" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="3"/><path d="M10 9.2v5.6l4.5-2.8z"/></symbol>
@@ -479,7 +521,7 @@ button{font-family:inherit;cursor:pointer;}
   <header class="ag3-nav" aria-label="Navegación principal">
     <div class="ag3-nav__inner">
       <a class="ag3-brand" href="#ag3-inicio" aria-label="AgroTec América, inicio">
-        <img src="img/brand/logo-horizontal.png" alt="AgroTec América" width="304" height="84">
+        <img src="img/brand/logo-horizontal-ui.webp" alt="AgroTec América" width="480" height="192">
         <span class="ag3-brand__descriptor">Formación para el campo</span>
       </a>
       <nav class="ag3-nav__links" aria-label="Secciones">
@@ -505,7 +547,7 @@ button{font-family:inherit;cursor:pointer;}
     <a href="https://club.agrotecamerican.com/#/login">Entrar al portal</a>
   </nav>
 
-  <main>
+  <main id="contenido-principal" tabindex="-1">
     <section class="ag3-hero" id="ag3-inicio">
       <div class="ag3-hero__content">
         <div class="ag3-hero__copy ag3-reveal">
@@ -551,16 +593,16 @@ button{font-family:inherit;cursor:pointer;}
         <div class="ag3-collage">
           <div class="ag3-collage__left">
             <figure class="ag3-collage__image ag3-collage__image--a ag3-reveal">
-              <img src="img/v3/hero-agrotec-v3.jpg" alt="Paisaje agrícola e invernaderos en México" loading="lazy" width="2048" height="768">
+              <img src="img/v3/hero-agrotec-v3.webp" alt="Paisaje agrícola e invernaderos en México" loading="lazy" decoding="async" width="1983" height="793">
               <figcaption class="ag3-collage__caption"><strong>Del territorio</strong><span>Contenido conectado con retos productivos reales.</span></figcaption>
             </figure>
             <figure class="ag3-collage__image ag3-collage__image--b ag3-reveal">
-              <img src="img/v3/tecnologia-campo-v3.jpg" alt="Agrónoma usando herramientas digitales en campo" loading="lazy" width="2048" height="1024">
+              <img src="img/v3/tecnologia-campo-v3.webp" alt="Agrónoma usando herramientas digitales en campo" loading="lazy" decoding="async" width="1400" height="560">
               <figcaption class="ag3-collage__caption"><strong>A la decisión</strong><span>Herramientas para analizar, registrar y actuar.</span></figcaption>
             </figure>
           </div>
           <figure class="ag3-collage__image ag3-collage__image--c ag3-reveal">
-            <img src="img/v3/aprendizaje-campo-v3.jpg" alt="Profesionales agrícolas aprendiendo y evaluando un cultivo" loading="lazy" width="1456" height="1092">
+            <img src="img/v3/aprendizaje-campo-v3.webp" alt="Profesionales agrícolas aprendiendo y evaluando un cultivo" loading="lazy" decoding="async" width="1200" height="900">
             <figcaption class="ag3-collage__caption"><strong>Aprendizaje acompañado</strong><span>Productores, técnicos y especialistas creciendo en comunidad.</span></figcaption>
           </figure>
         </div>
@@ -579,37 +621,37 @@ button{font-family:inherit;cursor:pointer;}
         <div class="ag3-courses">
           <article class="ag3-course ag3-reveal">
             <a href="https://club.agrotecamerican.com/#/curso/agricultura-organica" aria-label="Ver Agricultura Orgánica">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-agricultura-organica.webp" alt="Portada del curso Agricultura Orgánica" loading="lazy" width="1200" height="675"></div>
+              <div class="ag3-course__media"><img src="img/cursos-real/curso-agricultura-organica-card.webp" alt="Portada del curso Agricultura Orgánica" loading="lazy" decoding="async" width="960" height="540"></div>
             </a>
             <div class="ag3-course__body"><div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div><h3>Agricultura Orgánica</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
           </article>
           <article class="ag3-course ag3-reveal">
             <a href="https://club.agrotecamerican.com/#/curso/cultivo-de-berries" aria-label="Ver Cultivo de berries">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-cultivo-de-berries.webp" alt="Portada del curso Cultivo de berries" loading="lazy" width="1200" height="675"></div>
+              <div class="ag3-course__media"><img src="img/cursos-real/curso-cultivo-de-berries-card.webp" alt="Portada del curso Cultivo de berries" loading="lazy" decoding="async" width="960" height="540"></div>
             </a>
             <div class="ag3-course__body"><div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div><h3>Cultivo de berries</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
           </article>
           <article class="ag3-course ag3-reveal">
             <a href="https://club.agrotecamerican.com/#/curso/cultivo-de-flor-de-lilis-para-corte" aria-label="Ver Cultivo de Flor de Lilis para Corte">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-cultivo-de-flor-de-lilis-para-corte.webp" alt="Portada del curso Cultivo de Flor de Lilis para Corte" loading="lazy" width="1200" height="675"></div>
+              <div class="ag3-course__media"><img src="img/cursos-real/curso-cultivo-de-flor-de-lilis-para-corte-card.webp" alt="Portada del curso Cultivo de Flor de Lilis para Corte" loading="lazy" decoding="async" width="960" height="540"></div>
             </a>
             <div class="ag3-course__body"><div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div><h3>Cultivo de Flor de Lilis para Corte</h3><div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
           </article>
           <article class="ag3-course ag3-reveal">
             <a href="https://club.agrotecamerican.com/#/curso/derivados-dulces-de-amaranto" aria-label="Ver Derivados Dulces de Amaranto">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-derivados-dulces-de-amaranto.webp" alt="Portada del curso Derivados Dulces de Amaranto" loading="lazy" width="1200" height="675"></div>
+              <div class="ag3-course__media"><img src="img/cursos-real/curso-derivados-dulces-de-amaranto-card.webp" alt="Portada del curso Derivados Dulces de Amaranto" loading="lazy" decoding="async" width="960" height="540"></div>
             </a>
             <div class="ag3-course__body"><div class="ag3-course__meta"><span>Agroindustria</span><span>Intermedio</span></div><h3>Derivados Dulces de Amaranto</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
           </article>
           <article class="ag3-course ag3-reveal">
             <a href="https://club.agrotecamerican.com/#/curso/diseno-de-programas-nutricionales-en-diferentes-cultivos" aria-label="Ver Diseño de Programas Nutricionales">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-diseno-de-programas-nutricionales-en-diferentes-cultivos.webp" alt="Portada del curso Diseño de Programas Nutricionales" loading="lazy" width="1200" height="675"></div>
+              <div class="ag3-course__media"><img src="img/cursos-real/curso-diseno-de-programas-nutricionales-en-diferentes-cultivos-card.webp" alt="Portada del curso Diseño de Programas Nutricionales" loading="lazy" decoding="async" width="960" height="540"></div>
             </a>
             <div class="ag3-course__body"><div class="ag3-course__meta"><span>Nutrición y suelos</span><span>Intermedio</span></div><h3>Diseño de Programas Nutricionales en Diferentes Cultivos</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
           </article>
           <article class="ag3-course ag3-reveal">
             <a href="https://club.agrotecamerican.com/#/curso/especializado-en-el-cultivo-de-hierbas-aromaticas" aria-label="Ver Cultivo de Hierbas Aromáticas">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-especializado-en-el-cultivo-de-hierbas-aromaticas.webp" alt="Portada del curso Cultivo de Hierbas Aromáticas" loading="lazy" width="1200" height="675"></div>
+              <div class="ag3-course__media"><img src="img/cursos-real/curso-especializado-en-el-cultivo-de-hierbas-aromaticas-card.webp" alt="Portada del curso Cultivo de Hierbas Aromáticas" loading="lazy" decoding="async" width="960" height="540"></div>
             </a>
             <div class="ag3-course__body"><div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div><h3>Especializado en el Cultivo de Hierbas Aromáticas</h3><div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
           </article>
@@ -621,7 +663,7 @@ button{font-family:inherit;cursor:pointer;}
     <section class="ag3-platform" id="plataforma">
       <div class="ag3-wrap ag3-platform__grid">
         <div class="ag3-platform__media ag3-reveal">
-          <img src="img/v3/tecnologia-campo-v3.jpg" alt="Tecnología aplicada al trabajo agrícola" loading="lazy" width="2048" height="1024">
+          <img src="img/v3/tecnologia-campo-v3.webp" alt="Tecnología aplicada al trabajo agrícola" loading="lazy" decoding="async" width="1400" height="560">
           <div class="ag3-platform__badge"><b>Más que una videoteca</b><span>Un espacio de consulta, seguimiento y colaboración para el trabajo diario.</span></div>
         </div>
         <div class="ag3-platform__copy ag3-reveal">
@@ -678,9 +720,9 @@ button{font-family:inherit;cursor:pointer;}
           </div>
         </div>
         <div class="ag3-faces ag3-reveal" aria-label="Comunidad AgroTec América">
-          <figure class="ag3-face"><img src="img/graduados/526874169_122128355354878087_5780776123066390259_n.jpg" alt="Integrante de la comunidad AgroTec América" loading="lazy"></figure>
-          <figure class="ag3-face"><img src="img/graduados/596049611_122149857362878087_2122334435349922538_n.jpg" alt="Integrante de la comunidad AgroTec América" loading="lazy"></figure>
-          <figure class="ag3-face"><img src="img/graduados/648591334_122163440204878087_8019711681512363756_n.jpg" alt="Integrante de la comunidad AgroTec América" loading="lazy"></figure>
+          <figure class="ag3-face"><img src="img/graduados/526874169_122128355354878087_5780776123066390259_n.jpg" alt="Integrante de la comunidad AgroTec América" loading="lazy" decoding="async" width="900" height="900"></figure>
+          <figure class="ag3-face"><img src="img/graduados/596049611_122149857362878087_2122334435349922538_n.jpg" alt="Integrante de la comunidad AgroTec América" loading="lazy" decoding="async" width="900" height="754"></figure>
+          <figure class="ag3-face"><img src="img/graduados/648591334_122163440204878087_8019711681512363756_n.jpg" alt="Integrante de la comunidad AgroTec América" loading="lazy" decoding="async" width="900" height="754"></figure>
         </div>
       </div>
     </section>
@@ -705,7 +747,7 @@ button{font-family:inherit;cursor:pointer;}
   <footer class="ag3-footer" id="ag3-contacto">
     <div class="ag3-wrap">
       <div class="ag3-footer__grid">
-        <div class="ag3-footer__brand"><img src="img/brand/logo-horizontal.png" alt="AgroTec América"><p>Formación, herramientas y comunidad para profesionalizar el campo latinoamericano.</p></div>
+        <div class="ag3-footer__brand"><img src="img/brand/logo-horizontal-ui.webp" alt="AgroTec América" loading="lazy" decoding="async" width="480" height="192"><p>Formación, herramientas y comunidad para profesionalizar el campo latinoamericano.</p></div>
         <div><h3>Explora</h3><ul><li><a href="encuesta/">Encuentra tu ruta</a></li><li><a href="#catalogo-real">Cursos</a></li><li><a href="#plataforma">Plataforma</a></li><li><a href="#membresia">Membresía</a></li></ul></div>
         <div><h3>Tu cuenta</h3><ul><li><a href="https://club.agrotecamerican.com/#/login">Iniciar sesión</a></li><li><a href="https://club.agrotecamerican.com/#/cursos">Ir al catálogo</a></li><li><a href="privacidad.html">Privacidad</a></li></ul></div>
         <div><h3>Contacto</h3><ul><li><a class="ag3-footer__wa" href="https://wa.me/5212361066811?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20AgroTec%20Am%C3%A9rica%20y%20quiero%20informaci%C3%B3n%20sobre%20AgroClub%20MX" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.895 9.825 9.825 0 0 1 2.893 6.99c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>WhatsApp</a></li><li><a href="https://www.instagram.com/agrotec_american" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/share/1JWXU1Lcy1/" target="_blank" rel="noopener">Facebook</a></li></ul></div>
@@ -1607,7 +1649,7 @@ var triggerShopifyAnual   = iniciarCheckoutAnual;
       <button onclick="doGoogleLogin()" class="btn btn-ghost" style="width:100%;margin-bottom:12px;">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style="width:20px;height:20px;">Continuar con Google
       </button>
-      <p style="text-align:center;font-size:.8rem;color:rgba(42,42,34,.62);">¿No tienes cuenta? <a onclick="switchTab('register')" style="color:#5C8C3A;font-weight:700;cursor:pointer;">Regístrate aquí</a></p>
+      <p style="text-align:center;font-size:.8rem;color:rgba(42,42,34,.62);">¿No tienes cuenta? <button type="button" onclick="switchTab('register')" style="padding:0;border:0;color:#5C8C3A;background:none;font:inherit;font-weight:700;cursor:pointer;">Regístrate aquí</button></p>
     </div>
 
     <div id="formRegister" style="display:none;">
@@ -1634,7 +1676,7 @@ var triggerShopifyAnual   = iniciarCheckoutAnual;
       <button onclick="doGoogleLogin()" class="btn btn-ghost" style="width:100%;margin-bottom:12px;">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="" style="width:20px;height:20px;">Continuar con Google
       </button>
-      <p style="text-align:center;font-size:.8rem;color:rgba(42,42,34,.62);">¿Ya tienes cuenta? <a onclick="switchTab('login')" style="color:#5C8C3A;font-weight:700;cursor:pointer;">Inicia sesión</a></p>
+      <p style="text-align:center;font-size:.8rem;color:rgba(42,42,34,.62);">¿Ya tienes cuenta? <button type="button" onclick="switchTab('login')" style="padding:0;border:0;color:#5C8C3A;background:none;font:inherit;font-weight:700;cursor:pointer;">Inicia sesión</button></p>
     </div>
   </div>
 </div>

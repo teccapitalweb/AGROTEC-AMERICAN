@@ -80,7 +80,7 @@
   root.style.setProperty('--agx-surface', config.colors.surface);
   root.style.setProperty('--agx-ink', config.colors.ink);
   root.innerHTML = `
-    <button class="agx-launcher" type="button" aria-label="Agro, asistente virtual. Toca para conversar." title="Toca para conversar" aria-expanded="false" data-agx-open>
+    <button class="agx-launcher" type="button" aria-label="¡Hola! Soy Agro. 7 preguntas, menos de 2 minutos. Encuentra tu ruta ideal. Toca para conversar." title="Toca para conversar" aria-expanded="false" data-agx-open>
       ${avatarMarkup('agx-avatar--launcher')}
       <span class="agx-prompts" aria-hidden="true">
         <span class="agx-prompt agx-prompt--one">¡Hola! Soy Agro <b>👋</b></span>
@@ -91,7 +91,7 @@
       <span class="agx-launcher__drag-surface" aria-hidden="true"></span>
     </button>
     <div class="agx-backdrop" aria-hidden="true" data-agx-backdrop></div>
-    <section class="agx-panel" role="dialog" aria-modal="false" aria-label="Conversación con ${escapeHtml(config.assistantName)}, asistente virtual" aria-hidden="true" data-agx-panel>
+    <section class="agx-panel" role="dialog" aria-modal="false" aria-label="Conversación con ${escapeHtml(config.assistantName)}, asistente virtual" aria-hidden="true" inert data-agx-panel>
       <header class="agx-header">
         ${avatarMarkup('agx-avatar--header')}
         <span class="agx-header__title"><strong>${escapeHtml(config.assistantName)}</strong><small>${escapeHtml(config.assistantLabel)} · Guía de cursos</small></span>
@@ -166,10 +166,10 @@
 
   function avatarMarkup(extraClass) {
     const image = config.character.src
-      ? `<img class="agx-avatar__open" src="${escapeHtml(config.character.src)}" alt="${escapeHtml(config.character.alt)}" draggable="false" onerror="this.remove()">`
+      ? `<img class="agx-avatar__open" src="${escapeHtml(config.character.src)}" alt="${escapeHtml(config.character.alt)}" width="256" height="384" decoding="async" draggable="false" onerror="this.remove()">`
       : '';
     const blinkImage = config.character.blinkSrc
-      ? `<img class="agx-avatar__blink" src="${escapeHtml(config.character.blinkSrc)}" alt="" aria-hidden="true" draggable="false" onerror="this.remove()">`
+      ? `<img class="agx-avatar__blink" src="${escapeHtml(config.character.blinkSrc)}" alt="" width="256" height="384" decoding="async" aria-hidden="true" draggable="false" onerror="this.remove()">`
       : '';
     const fallback = config.character.src ? '' : `<span class="agx-avatar__fallback" aria-hidden="true">${escapeHtml(config.character.placeholder || 'A')}</span>`;
     const dragAttributes = extraClass === 'agx-avatar--header'
@@ -196,6 +196,7 @@
     lockPageOnMobile();
     backdrop.classList.add('is-open');
     panel.classList.add('is-open');
+    panel.inert = false;
     panel.setAttribute('aria-hidden', 'false');
     launcher.hidden = true;
     launcher.setAttribute('aria-expanded', 'true');
@@ -212,6 +213,7 @@
     backdrop.classList.remove('is-open');
     panel.classList.remove('is-open');
     panel.setAttribute('aria-hidden', 'true');
+    panel.inert = true;
     launcher.hidden = false;
     launcher.setAttribute('aria-expanded', 'false');
     root.dataset.agxState = 'idle';
