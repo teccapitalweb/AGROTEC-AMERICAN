@@ -10,11 +10,11 @@ Todo corre en GitHub Pages (estático) + Firebase del proyecto **agroclub-mx**
 
 | Pestaña | Para qué sirve |
 |---|---|
-| **Resumen** | KPIs (respuestas, hoy, clic en la clase, ingresos al curso, % celular, tiempo promedio), respuestas por día, embudo encuesta → clase → curso, cursos más recomendados y una gráfica por pregunta. Filtro por periodo. |
-| **Preguntas** | Texto, ayuda, tipo (única / múltiple), diseño (tarjetas con ícono, escala, mosaico, botones grandes, tarjetas con imagen, lista, chips), qué dimensión del perfil alimenta, estado y globo del personaje, y las opciones (ícono `i:nombre`, imagen, nivel, valor). |
-| **Cursos** | Los 23 cursos reales del club con sus clases. Para cada uno: disponible / oculto, etiquetas (áreas, objetivos, perfiles, obstáculos, niveles), clase destacada que se muestra como gancho, portada, enlace y resumen. |
-| **Respuestas** | Cada encuesta completada con el curso y la clase sugeridos, si hizo clic y si entró al curso. Buscador, CSV y eliminar. |
-| **Textos** | Bienvenida, personaje (nombre y globos), mensajes de avance, pantalla "Analizando", resultado, botones y URL del club. |
+| **Resumen** | Métricas principales (respuestas, hoy, clics en clases, iniciaron curso, tasa de conversión, tiempo promedio), cursos más recomendados, intereses principales, cómo prefieren aprender, dificultades y tiempo disponible. En "Más resultados": actividad por día, embudo y el resto de preguntas. Filtro por periodo. |
+| **Preguntas** | Lista compacta con **Editar** y menú ⋯ (duplicar, subir, bajar, eliminar). El editor abre debajo de la fila: texto, ayuda, tipo, diseño (tarjetas con ícono, escala, mosaico, botones grandes, tarjetas con imagen, lista, chips), dimensión del perfil, estado y globo del personaje, y opciones (ícono `i:nombre`, imagen, nivel, valor). |
+| **Cursos** | Los 23 cursos reales del club con sus clases, en filas con interruptor disponible / oculto, **Editar** y menú ⋯. El editor: etiquetas (áreas, objetivos, perfiles, obstáculos, niveles), clase destacada, portada, enlace, resumen y clases. |
+| **Respuestas** | Tabla Usuario · Fecha · Perfil · Curso recomendado · Estado, con buscador, filtro por fecha y por curso, y CSV. Al tocar una fila se abre el panel lateral con todas las respuestas, la recomendación y la opción de eliminar. |
+| **Textos** | Acordeones: bienvenida, durante la encuesta (avance y personaje), pantalla de análisis, resultados, clase recomendada, botones y enlaces. |
 
 ## Cómo recomienda
 
