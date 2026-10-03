@@ -84,8 +84,8 @@
       ${avatarMarkup('agx-avatar--launcher')}
       <span class="agx-prompts" aria-hidden="true">
         <span class="agx-prompt agx-prompt--one">¡Hola! Soy Agro <b>👋</b></span>
-        <span class="agx-prompt agx-prompt--two">¿Qué quieres aprender?</span>
-        <span class="agx-prompt agx-prompt--three">Encuentra tu curso ideal <b>→</b></span>
+        <span class="agx-prompt agx-prompt--two">7 preguntas · menos de 2 min</span>
+        <span class="agx-prompt agx-prompt--three">Encuentra tu ruta ideal <b>→</b></span>
       </span>
       <span class="agx-launcher__hint" aria-hidden="true">Toca para conversar</span>
       <span class="agx-launcher__drag-surface" aria-hidden="true"></span>
@@ -101,7 +101,7 @@
           <button class="agx-icon-btn" type="button" aria-label="Minimizar asistente" title="Minimizar" data-agx-close>${icon('minus')}</button>
         </span>
       </header>
-      <div class="agx-disclosure">Respuestas guiadas con el catálogo visible de AgroTec. No hay una persona conectada; puedes contactar al equipo.</div>
+      <div class="agx-disclosure">Guía de orientación con cursos reales de AgroClub. No sustituye asesoría técnica ni hay una persona conectada.</div>
       <div class="agx-messages" role="log" aria-live="polite" data-agx-messages></div>
       <div class="agx-typing" aria-label="El asistente está preparando una respuesta" data-agx-typing hidden><i></i><i></i><i></i></div>
       <div class="agx-quick" aria-label="Opciones rápidas" data-agx-quick></div>
@@ -466,7 +466,13 @@
 
   function renderMessages() {
     messagesEl.innerHTML = state.messages.map((message) => {
-      const extra = message.kind === 'courses' ? courseCards(message.items || []) : message.kind === 'human' ? `<a href="${escapeHtml(config.humanContact.url)}" target="_blank" rel="noopener">${escapeHtml(config.humanContact.label)}</a>` : '';
+      const extra = message.kind === 'courses'
+        ? courseCards(message.items || [])
+        : message.kind === 'survey'
+          ? surveyCard()
+          : message.kind === 'human'
+            ? `<a href="${escapeHtml(config.humanContact.url)}" target="_blank" rel="noopener">${escapeHtml(config.humanContact.label)}</a>`
+            : '';
       const name = message.role === 'assistant' ? '<div class="agx-message-name">AGRO · ASISTENTE VIRTUAL</div>' : '';
       return `<div class="agx-message-row ${message.role === 'user' ? 'is-user' : ''}">${name}<div class="agx-message">${escapeHtml(message.text)}${extra}<span class="agx-time">${escapeHtml(message.time)}</span></div></div>`;
     }).join('');
@@ -475,6 +481,16 @@
 
   function courseCards(items) {
     return `<div class="agx-course-list">${items.map((course) => `<article class="agx-course"><strong>${escapeHtml(course.title)}</strong><span>${escapeHtml([course.area, course.level, course.modality, course.detail].filter(Boolean).join(' · '))}</span>${course.href ? `<a href="${escapeHtml(course.href)}">Ver curso</a>` : ''}</article>`).join('')}</div>`;
+  }
+
+  function surveyCard() {
+    const survey = config.survey || {};
+    return `<a class="agx-survey" href="${escapeHtml(survey.url || 'encuesta/')}">
+      <span class="agx-survey__eyebrow">${escapeHtml(survey.eyebrow || 'Diagnóstico de aprendizaje')}</span>
+      <strong>${escapeHtml(survey.title || 'Encuentra tu siguiente curso')}</strong>
+      <span>${escapeHtml(survey.detail || 'Responde unas preguntas rápidas para recibir una recomendación.')}</span>
+      <b>${escapeHtml(survey.label || 'Empezar')} <i aria-hidden="true">→</i></b>
+    </a>`;
   }
 
   function showQuick(items) {
@@ -491,7 +507,8 @@
 
   function showHomeActions() {
     showQuick([
-      { label: 'Buscar un curso', value: 'buscar-curso' },
+      { label: 'Descubrir mi ruta', value: 'encuesta' },
+      { label: 'Buscar por tema', value: 'buscar-curso' },
       { label: 'Conocer la membresía', value: 'membresia' },
       { label: 'Ver próximos cursos', value: 'proximos' },
       { label: 'Resolver una duda', value: 'duda' },
@@ -528,6 +545,12 @@
       reply('¿Sobre qué cultivo, actividad o tema te gustaría aprender?');
       return;
     }
+    if (value === 'encuesta' || /encuesta|diagnostico|diagnóstico|recomiend|ruta|perfil/.test(normalized)) {
+      state.flow = 'home'; save();
+      reply('Te acompaño con una entrevista breve: son 7 preguntas de opción múltiple y no te pide nombre ni teléfono. Al terminar verás un curso y una primera clase recomendados.', { kind: 'survey' });
+      showQuick([{ label: 'Buscar por tema', value: 'buscar-curso' }, { label: 'Conocer la membresía', value: 'membresia' }]);
+      return;
+    }
     if (value === 'membresia' || /membresia|agroclub|plan/.test(normalized)) { explainMembership(); return; }
     if (/en vivo|curso vivo|sesion vivo/.test(normalized)) {
       reply('La página confirma que AgroClub incluye sesiones en vivo, además de cursos en línea a tu ritmo. No publica aquí un calendario ni permite verificar si una actividad en vivo específica requiere inscripción adicional. Para ese dato conviene consultar a un asesor.');
@@ -557,7 +580,7 @@
     }
     if (state.flow === 'search' || /curso|aprender|cultivo|agricultura|berries|amaranto|flor|nutricion|hierba/.test(normalized)) { searchCourses(value); return; }
 
-    reply('No tengo una respuesta verificada para esa consulta. Puedo ayudarte a buscar un curso, explicar la membresía o abrir WhatsApp para atención humana.');
+    reply('No tengo una respuesta verificada para esa consulta. Puedo recomendarte una ruta, buscar un curso por tema, explicar la membresía o abrir WhatsApp para atención humana.');
     showHomeActions();
   }
 
@@ -590,7 +613,7 @@
     const selected = matches.length ? matches : catalog.slice(0, 3);
     const intro = matches.length ? 'Encontré estas opciones relacionadas en el catálogo visible:' : 'No encontré una coincidencia exacta. Estas son algunas opciones disponibles en el catálogo visible:';
     reply(intro, { kind: 'courses', items: selected });
-    showQuick([{ label: 'Buscar otro tema', value: 'buscar-curso' }, { label: 'Conocer la membresía', value: 'membresia' }, { label: 'Hablar con un asesor', value: 'humano' }]);
+    showQuick([{ label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Buscar otro tema', value: 'buscar-curso' }, { label: 'Conocer la membresía', value: 'membresia' }, { label: 'Hablar con un asesor', value: 'humano' }]);
   }
 
   function explainMembership(compare = false) {
@@ -603,7 +626,7 @@
     }
     const summary = plans.map((plan) => `${plan.label}: ${plan.price}${plan.description ? ` — ${plan.description}` : ''}`).join('\n\n');
     reply(`${compare ? 'Comparación con los datos publicados en esta página:' : 'AgroClub incluye el catálogo de cursos en línea a tu ritmo, materiales, sesiones en vivo, herramientas y comunidad. La landing no publica un calendario de actividades en vivo.'}\n\n${summary}`);
-    showQuick([{ label: 'Buscar un curso', value: 'buscar-curso' }, { label: '¿Cómo obtengo certificado?', value: '¿Cómo obtengo mi certificado?' }, { label: 'Hablar con un asesor', value: 'humano' }]);
+    showQuick([{ label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Buscar por tema', value: 'buscar-curso' }, { label: '¿Cómo obtengo certificado?', value: '¿Cómo obtengo mi certificado?' }, { label: 'Hablar con un asesor', value: 'humano' }]);
   }
 
   function offerHuman() {

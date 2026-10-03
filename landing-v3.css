@@ -83,6 +83,8 @@ body { background: var(--ag3-cream); }
 .ag3-btn--gold:hover { background: #edbb4d; box-shadow: 0 16px 38px rgba(223, 169, 54, .36); }
 .ag3-btn--cream { color: var(--ag3-ink); background: var(--ag3-paper); }
 .ag3-btn--line { color: inherit; border-color: currentColor; background: transparent; }
+.ag3-btn--route { color: #173328; background: rgba(255,253,247,.94); border-color: rgba(255,255,255,.7); box-shadow: 0 12px 32px rgba(8,30,22,.2); }
+.ag3-btn--route:hover { background: #fffdf7; box-shadow: 0 16px 38px rgba(8,30,22,.26); }
 .ag3-btn svg { width: 18px; height: 18px; }
 
 .ag3-nav {

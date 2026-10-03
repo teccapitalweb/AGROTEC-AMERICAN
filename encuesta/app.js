@@ -34,6 +34,7 @@
   const esc = (value) => String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const pad = (n) => String(n).padStart(2, '0');
   const isMobile = () => window.matchMedia('(max-width: 860px)').matches;
+  const isLocalPreview = () => ['127.0.0.1', 'localhost'].includes(window.location.hostname);
   const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fill = (text, map) => String(text ?? '').replace(/\{(\w+)\}/g, (m, k) => (k in map ? map[k] : m));
   const assetUrl = (path) => (!path ? '' : /^(https?:)?\/\//i.test(path) || path.startsWith('/') ? path : SITE_BASE + path);
@@ -69,6 +70,11 @@
   let configReady = false;
 
   const loadRemoteConfig = async () => {
+    if (isLocalPreview()) {
+      configReady = true;
+      if (state.screen === 'intro') renderIntro(false);
+      return;
+    }
     try {
       const { db, doc, getDoc } = await FB.getDb();
       const snap = await getDoc(doc(db, FB.COLLECTIONS.config, 'main'));
@@ -457,7 +463,7 @@
     const result = recommend(profile);
     state.result = result;
     const payload = buildPayload(profile, result);
-    state.saveState = 'saving';
+    state.saveState = isLocalPreview() ? 'local' : 'saving';
     const saving = saveResponse(payload);
     const items = els.stage.querySelectorAll('.analyzing__steps li');
     const slice = duration / Math.max(1, items.length);
@@ -470,7 +476,7 @@
     if (state.screen !== 'analyzing') return;
     writeStored({ at: Date.now(), answers: clone(state.answers), responseId: state.responseId });
     transition(() => renderResult(result, state.saveState || 'saving'));
-    saving.then(() => { setStatus('ok'); writeStored({ at: Date.now(), answers: clone(state.answers), responseId: state.responseId }); linkAuthUser(); })
+    saving.then(() => { setStatus(isLocalPreview() ? 'local' : 'ok'); writeStored({ at: Date.now(), answers: clone(state.answers), responseId: state.responseId }); if (!isLocalPreview()) linkAuthUser(); })
       .catch((error) => { console.error('[encuesta] No se pudo guardar la respuesta', error); setStatus('error'); });
   };
 
@@ -496,6 +502,7 @@
   const tempId = () => { try { let id = localStorage.getItem('agrotec-encuesta:tid'); if (!id) { id = uid(); localStorage.setItem('agrotec-encuesta:tid', id); } return id; } catch { return uid(); } };
 
   const saveResponse = async (payload) => {
+    if (isLocalPreview()) return null;
     const { db, collection, addDoc, serverTimestamp } = await FB.getDb();
     const ref = await addDoc(collection(db, FB.COLLECTIONS.responses), { ...payload, createdAt: serverTimestamp() });
     state.responseId = ref.id;
@@ -520,7 +527,13 @@
     const el = els.stage.querySelector('.result__status');
     if (!el) return;
     el.className = `result__status ${status === 'ok' ? 'is-ok' : status === 'error' ? 'is-error' : ''}`;
-    el.textContent = status === 'ok' ? 'Tus respuestas se guardaron de forma anónima.' : status === 'error' ? 'No pudimos guardar tus respuestas, pero tu resultado ya está listo.' : 'Guardando tus respuestas…';
+    el.textContent = status === 'ok'
+      ? 'Tus respuestas se guardaron de forma anónima.'
+      : status === 'local'
+        ? 'Vista local: tu resultado funciona y no se enviaron respuestas.'
+        : status === 'error'
+          ? 'No pudimos guardar tus respuestas, pero tu resultado ya está listo.'
+          : 'Guardando tus respuestas…';
   };
 
   /* ---------- Resultado ---------- */

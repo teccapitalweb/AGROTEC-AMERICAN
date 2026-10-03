@@ -3,8 +3,8 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
   brandName: 'AgroTec América',
   assistantName: 'Agro',
   assistantLabel: 'Asistente virtual',
-  welcome: 'Hola, soy Agro, tu asistente virtual. ¿Qué te gustaría aprender?',
-  closedLabel: 'Te ayudo a elegir',
+  welcome: 'Hola, soy Agro. Puedo recomendarte una ruta en 7 preguntas o ayudarte a buscar un tema.',
+  closedLabel: 'Encuentra tu ruta',
   tone: 'cálido, directo y profesional',
   colors: {
     primary: '#285345',
@@ -34,6 +34,13 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
     labelSelector: '.ag3-plan__label',
     priceSelector: '.ag3-plan__price',
     descriptionSelector: 'p'
+  },
+  survey: {
+    url: 'encuesta/',
+    label: 'Descubrir mi ruta',
+    eyebrow: 'Diagnóstico de aprendizaje',
+    title: 'Tu siguiente curso, en menos de 2 minutos',
+    detail: 'Responde 7 preguntas sencillas y recibe un curso y una primera clase recomendados.'
   },
   humanContact: {
     type: 'whatsapp-link',

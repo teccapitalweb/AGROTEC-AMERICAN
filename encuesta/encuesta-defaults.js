@@ -24,7 +24,7 @@ window.AGROTEC_ENCUESTA_DEFAULTS = Object.freeze({
       stats: [
         { icon: 'list-checks', title: '{n} preguntas', detail: 'una a la vez' },
         { icon: 'timer', title: 'Menos de dos minutos', detail: 'solo eliges opciones' },
-        { icon: 'shield-check', title: 'Privado', detail: 'sin datos personales' }
+        { icon: 'shield-check', title: 'Sin formularios', detail: 'no pedimos nombre ni teléfono' }
       ],
       button: 'Empezar',
       legal: 'Al continuar aceptas nuestro aviso de privacidad.'
