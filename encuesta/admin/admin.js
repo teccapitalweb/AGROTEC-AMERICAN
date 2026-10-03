@@ -1,6 +1,6 @@
 /* ==========================================================================
    AgroTec América · Panel administrativo de la encuesta
-   Pestañas: Resumen (gráficas) · Preguntas · Cursos · Respuestas · Textos
+   Pestañas: Resumen (dashboard) · Preguntas · Cursos · Respuestas · Textos
    Acceso: Google (Firebase Auth) + lista ADMIN_EMAILS o documento en
    `encuesta_admins/{correo}`.
    ========================================================================== */
@@ -19,7 +19,8 @@
   const OTHER_COLOR = '#b9c0b8';
   const STAT_ICONS = ['list-checks', 'timer', 'shield-check', 'clock', 'lock', 'sparkles', 'award', 'play-circle'];
   const LAYOUT_LABELS = { cards: 'Tarjetas con ícono', scale: 'Escala visual', tiles: 'Mosaico (logotipos)', big: 'Botones grandes', images: 'Tarjetas con imagen', list: 'Lista compacta', chips: 'Chips (pastillas)' };
-  const DIMENSION_LABELS = { profile: 'Perfil (quién es)', level: 'Nivel de experiencia', source: 'Cómo nos conoció (solo estadística)', goal: 'Objetivo', interests: 'Áreas de interés (enlaza cursos)', format: 'Formato de aprendizaje', problem: 'Principal obstáculo', time: 'Tiempo disponible', none: 'Ninguna (solo estadística)' };
+  const DIMENSION_LABELS = { profile: 'Perfil', level: 'Nivel', source: 'Cómo nos conoció', goal: 'Objetivo', interests: 'Intereses', format: 'Formato', problem: 'Obstáculo', time: 'Tiempo', none: 'Solo estadística' };
+  const DIMENSION_HELP = { profile: 'Perfil (quién es)', level: 'Nivel de experiencia', source: 'Cómo nos conoció (solo estadística)', goal: 'Objetivo', interests: 'Áreas de interés (enlaza cursos)', format: 'Formato de aprendizaje', problem: 'Principal obstáculo', time: 'Tiempo disponible', none: 'Ninguna (solo estadística)' };
   const MOOD_LABELS = { greet: 'Saluda', point: 'Señala la pregunta', think: 'Piensa', tablet: 'Usa una tablet', calculator: 'Usa una calculadora', approve: 'Aprueba', surprise: 'Se sorprende', celebrate: 'Celebra' };
   const LEVEL_LABELS = { basico: 'Básico', intermedio: 'Intermedio', avanzado: 'Avanzado' };
   const TAG_GROUPS = [
@@ -37,13 +38,17 @@
   const pad2 = (n) => String(n).padStart(2, '0');
   const num = (n) => Number(n || 0).toLocaleString('es-MX');
   const pct = (part, total) => (total ? Math.round((part / total) * 100) : 0);
+  const pct1 = (part, total) => (total ? (Math.round((part / total) * 1000) / 10).toLocaleString('es-MX') : '0');
   const uid = () => Math.random().toString(36).slice(2, 7);
   const assetUrl = (path) => (!path ? '' : /^(https?:)?\/\//i.test(path) || path.startsWith('/') ? path : SITE_BASE + path);
   const startOfDay = (date) => { const d = new Date(date); d.setHours(0, 0, 0, 0); return d; };
   const dayKey = (date) => `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
   const fmtDate = (date) => (date ? date.toLocaleString('es-MX', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—');
+  const fmtDateShort = (date) => (date ? date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short', year: 'numeric' }) : '—');
+  const fmtTime = (date) => (date ? date.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' }) : '');
   const fmtDay = (date) => date.toLocaleDateString('es-MX', { day: '2-digit', month: 'short' });
   const fmtMin = (min) => (!min ? '—' : min >= 60 ? `${Math.floor(min / 60)} h ${pad2(min % 60)}` : `${min} min`);
+  const fmtSec = (sec) => (sec == null ? '—' : sec >= 60 ? `${Math.floor(sec / 60)} min ${pad2(sec % 60)} s` : `${sec} s`);
   const relTime = (date) => {
     if (!date) return '—';
     const diff = Math.round((Date.now() - date.getTime()) / 1000);
@@ -61,6 +66,7 @@
   const move = (array, from, to) => { if (to < 0 || to >= array.length) return; const [item] = array.splice(from, 1); array.splice(to, 0, item); };
   const toDate = (value) => (value && typeof value.toDate === 'function' ? value.toDate() : typeof value === 'string' && value ? new Date(value) : null);
 
+  const svg = (name, cls = 'ico') => (ICONS[name] ? `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>` : '');
   const BRAND = {
     instagram: '<svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="20" rx="6" fill="#e1306c"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="17.3" cy="6.7" r="1.2" fill="#fff"/></svg>',
     facebook: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#1877f2"/><path d="M13.4 20v-6.2h2.1l.3-2.5h-2.4V9.7c0-.7.2-1.2 1.2-1.2h1.3V6.3c-.2 0-1-.1-1.9-.1-1.9 0-3.1 1.1-3.1 3.2v1.9H8.8v2.5h2.1V20z" fill="#fff"/></svg>',
@@ -70,34 +76,29 @@
   };
   const iconMarkup = (icon) => {
     if (!icon) return '';
-    if (icon.startsWith('i:') && ICONS[icon.slice(2)]) return `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[icon.slice(2)]}</svg>`;
+    if (icon.startsWith('i:') && ICONS[icon.slice(2)]) return svg(icon.slice(2));
     if (icon.startsWith('brand:')) return BRAND[icon.slice(6)] || '';
     if (icon.startsWith('i:')) return '<span class="icon-missing" title="Ícono no encontrado">?</span>';
     return esc(icon);
   };
-  const ICON = {
-    up: '<svg viewBox="0 0 24 24"><path d="m6 14 6-6 6 6"/></svg>',
-    down: '<svg viewBox="0 0 24 24"><path d="m6 10 6 6 6-6"/></svg>',
-    trash: '<svg viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>',
-    caret: '<svg class="item__caret" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
-    plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>'
-  };
+  const I = { up: svg('arrow-up'), down: svg('arrow-down'), trash: svg('trash-2'), plus: svg('plus') || '<svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>', more: svg('more-horizontal'), pencil: svg('pencil'), copy: svg('copy'), chevron: svg('chevron-down'), x: svg('x'), external: svg('external-link'), download: svg('download') };
 
   /* ---------- Estado ---------- */
   const state = {
     user: null, authKit: null,
     config: null, configExists: false, draft: null, dirty: false,
     responses: [], loadedAt: null,
-    tab: 'resumen', period: 'all',
-    open: { preguntas: new Set([0]), cursos: new Set() },
-    search: { respuestas: '', cursos: '' }, cursosFilter: 'all', page: 1
+    tab: 'resumen', period: 'all', showAllInterests: false,
+    open: { preguntas: new Set(), cursos: new Set() },
+    search: { respuestas: '', cursos: '' }, cursosFilter: 'all', page: 1,
+    respFilter: { period: 'all', course: '' }, drawerId: null
   };
 
   const els = {
     gate: $('#gate'), gateText: $('#gate-text'), gateNote: $('#gate-note'), btnLogin: $('#btn-login'), btnLogoutGate: $('#btn-logout-gate'),
     panel: $('#panel'), status: $('#topbar-status'), userChip: $('#user-chip'), btnLogout: $('#btn-logout'),
     tabs: $('.tabs'), content: $('.content'), banner: $('#banner'), savebar: $('#savebar'), btnSave: $('#btn-save'), btnDiscard: $('#btn-discard'),
-    tooltip: $('#tooltip'), toast: $('#toast')
+    tooltip: $('#tooltip'), toast: $('#toast'), drawer: $('#drawer-root')
   };
   const view = (name) => $(`#view-${name}`);
 
@@ -199,9 +200,11 @@
       const rec = data.recommendation && typeof data.recommendation === 'object' ? data.recommendation : null;
       return {
         id: d.id, createdAt: toDate(data.createdAt), answers: data.answers || {}, labels: data.labels || {},
-        courseId: rec?.courseId || (Array.isArray(data.recommended) ? data.recommended[0] : '') || '', classN: rec?.classN || null,
-        clickedClass: data.clickedClass === true, clickedAt: toDate(data.clickedAt), enteredCourse: data.enteredCourse === true, uid: data.uid || '',
-        device: data.device || '', durationSec: Number.isFinite(data.durationSec) ? data.durationSec : null, configVersion: data.configVersion ?? ''
+        profileLabels: data.profileLabels && typeof data.profileLabels === 'object' ? data.profileLabels : {},
+        courseId: rec?.courseId || (Array.isArray(data.recommended) ? data.recommended[0] : '') || '', classN: rec?.classN || null, matches: Array.isArray(rec?.matches) ? rec.matches : [],
+        clickedClass: data.clickedClass === true, clickedAt: toDate(data.clickedAt), enteredCourse: data.enteredCourse === true, enteredAt: toDate(data.enteredAt),
+        uid: data.uid || '', email: data.email || '', device: data.device || '', durationSec: Number.isFinite(data.durationSec) ? data.durationSec : null,
+        configVersion: data.configVersion ?? '', ref: data.ref || ''
       };
     });
     state.loadedAt = new Date();
@@ -299,21 +302,34 @@
   const markDirty = () => { state.dirty = true; els.savebar.hidden = false; };
 
   /* ---------- Análisis ---------- */
-  const periodSince = () => {
+  const sinceFor = (period) => {
     const now = new Date();
-    if (state.period === 'today') return startOfDay(now);
-    if (state.period === '7d') return new Date(now.getTime() - 7 * 86400000);
-    if (state.period === '30d') return new Date(now.getTime() - 30 * 86400000);
+    if (period === 'today') return startOfDay(now);
+    if (period === '7d') return new Date(now.getTime() - 7 * 86400000);
+    if (period === '30d') return new Date(now.getTime() - 30 * 86400000);
     return null;
   };
-  const filteredResponses = () => { const since = periodSince(); return since ? state.responses.filter((r) => r.createdAt && r.createdAt >= since) : state.responses; };
+  const byPeriod = (rows, period) => { const since = sinceFor(period); return since ? rows.filter((r) => r.createdAt && r.createdAt >= since) : rows; };
+  const filteredResponses = () => byPeriod(state.responses, state.period);
   const valuesFor = (response, question) => { const raw = response.answers?.[question.id]; return Array.isArray(raw) ? raw : raw != null && raw !== '' ? [raw] : []; };
   const labelsFor = (response, question) => {
     const stored = response.labels?.[question.id];
     if (Array.isArray(stored) && stored.length) return stored;
     return valuesFor(response, question).map((v) => question.options.find((o) => o.value === v)?.title || String(v));
   };
-  const courseTitle = (id) => state.config.cursos.find((c) => c.id === id)?.title || id || '—';
+  const questionBy = (dimension) => state.config.preguntas.find((q) => q.dimension === dimension);
+  const courseOf = (id) => state.config.cursos.find((c) => c.id === id);
+  const courseTitle = (id) => courseOf(id)?.title || id || '—';
+  const perfilDe = (r) => {
+    const parts = [];
+    const qp = questionBy('profile'); const ql = questionBy('level');
+    const p = r.profileLabels.profile || (qp ? labelsFor(r, qp)[0] : '');
+    const l = r.profileLabels.level || (ql ? labelsFor(r, ql)[0] : '');
+    if (p) parts.push(p);
+    if (l) parts.push(l);
+    return parts;
+  };
+  const statusOf = (r) => (r.enteredCourse ? { cls: 'status--in', label: 'Entró al curso' } : r.clickedClass ? { cls: 'status--click', label: 'Clic en clase' } : { cls: '', label: 'Completó encuesta' });
 
   const countQuestion = (question, rows, fold = true) => {
     const counts = new Map(question.options.map((o) => [o.value, 0]));
@@ -364,7 +380,7 @@
       </div>`;
   };
 
-  const barsMarkup = (items, denominator, denominatorLabel = 'de quienes respondieron') => {
+  const barsMarkup = (items, denominator) => {
     const max = Math.max(1, ...items.map((d) => d.count));
     return `
       <div class="bars" data-chart="bars">
@@ -373,8 +389,7 @@
             <span class="bar__label" title="${esc(d.label)}">${esc(d.label)}</span>
             <span class="bar__track"><i class="bar__fill" style="width:${(d.count / max) * 100}%"></i><span class="bar__value">${num(d.count)}<em>${pct(d.count, denominator)}%</em></span></span>
           </div>`).join('')}
-      </div>
-      <p class="small muted" style="margin:12px 0 0">Porcentaje ${esc(denominatorLabel)}.</p>`;
+      </div>`;
   };
 
   const columnsMarkup = (days) => {
@@ -386,141 +401,209 @@
       <div class="columns__axis"><span>${esc(days[0].label)}</span><span>${esc(days[days.length - 1].label)}</span></div>`;
   };
 
-  const chartCard = (eyebrow, title, body, wide = false) => `
-    <article class="card ${wide ? 'chart-card--wide' : ''}">
-      <div class="card__head"><div><p class="eyebrow">${esc(eyebrow)}</p><h3>${esc(title)}</h3></div></div>
+  const chartCard = (title, body, { meta = '', foot = '', wide = false } = {}) => `
+    <article class="card card--chart ${wide ? 'span-2' : ''}">
+      <div class="card__head"><h3>${esc(title)}</h3>${meta ? `<span class="card__meta">${esc(meta)}</span>` : ''}</div>
       <div class="card__body">${body}</div>
+      ${foot ? `<div class="card__foot">${foot}</div>` : ''}
     </article>`;
 
+  const questionChart = (q, rows) => {
+    const stats = countQuestion(q, rows, q.type !== 'multi');
+    const body = q.type === 'multi' ? barsMarkup(stats.data.slice().sort((a, b) => b.count - a.count), stats.respondents) : donutMarkup(stats);
+    return chartCard(q.kicker ? `${q.kicker}: ${q.title}` : q.title, body, { meta: `${num(stats.respondents)} resp.` });
+  };
+
   /* ---------- Vista: Resumen ---------- */
+  const emptyState = (title, text, action = '') => `
+    <div class="empty">
+      <img src="../img/agro-mascot-orange-clean-v5.webp" alt="" width="84">
+      <strong>${esc(title)}</strong>
+      <p>${esc(text)}</p>
+      ${action}
+    </div>`;
+
   const renderResumen = () => {
     const rows = filteredResponses();
     const all = state.responses;
     const now = new Date();
     const today = startOfDay(now);
-    const week = new Date(now.getTime() - 7 * 86400000);
     const clicks = rows.filter((r) => r.clickedClass).length;
     const entered = rows.filter((r) => r.enteredCourse).length;
-    const mobile = rows.filter((r) => r.device === 'mobile').length;
     const durations = rows.map((r) => r.durationSec).filter((s) => Number.isFinite(s) && s > 0 && s < 3600);
     const avgSec = durations.length ? Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : null;
-    const periodLabel = { all: 'en total', today: 'hoy', '7d': 'en 7 días', '30d': 'en 30 días' }[state.period];
+    const periodLabel = { all: 'en total', today: 'hoy', '7d': 'últimos 7 días', '30d': 'últimos 30 días' }[state.period];
+
+    const head = `
+      <div class="page-head">
+        <div><h2>Resumen de la encuesta</h2><p>Consulta el rendimiento de la encuesta y descubre qué perfiles, intereses y cursos predominan.</p></div>
+        <div class="page-tools">
+          <div class="seg" role="group" aria-label="Periodo">
+            ${[['all', 'Todo'], ['today', 'Hoy'], ['7d', '7 días'], ['30d', '30 días']].map(([v, l]) => `<button type="button" class="${state.period === v ? 'is-active' : ''}" data-action="period" data-value="${v}">${l}</button>`).join('')}
+          </div>
+          <button class="btn btn--line btn--sm" type="button" data-action="reload">${svg('refresh-cw')} Actualizar</button>
+        </div>
+      </div>`;
+
+    if (!all.length) {
+      view('resumen').innerHTML = head + emptyState('Todavía no hay respuestas', 'Cuando las personas comiencen a completar la encuesta, aquí podrás analizar sus intereses y recomendaciones.', `<a class="btn btn--sm" href="../" target="_blank" rel="noopener">Ver encuesta ${I.external}</a>`);
+      return;
+    }
+
+    const kpi = (icon, label, value, sub) => `<div class="card kpi"><span class="kpi__label">${svg(icon)}${esc(label)}</span><span class="kpi__value">${value}</span><span class="kpi__sub">${esc(sub)}</span></div>`;
+    const kpis = `
+      <div class="kpis">
+        ${kpi('users', 'Respuestas totales', num(rows.length), periodLabel)}
+        ${kpi('calendar-days', 'Hoy', num(all.filter((r) => r.createdAt && r.createdAt >= today).length), `${num(byPeriod(all, '7d').length)} en 7 días`)}
+        ${kpi('mouse-pointer-click', 'Clics en clases', num(clicks), rows.length ? `${pct(clicks, rows.length)}% de las respuestas` : '—')}
+        ${kpi('log-in', 'Iniciaron curso', num(entered), 'llegaron al club con sesión')}
+        ${kpi('percent', 'Tasa de conversión', rows.length ? `${pct1(entered, rows.length)} %` : '—', 'respuestas que iniciaron curso')}
+        ${kpi('timer', 'Tiempo promedio', avgSec != null ? esc(fmtSec(avgSec)) : '—', 'por encuesta completada')}
+      </div>`;
+
+    const courseCounts = new Map();
+    rows.forEach((r) => { if (r.courseId) courseCounts.set(r.courseId, (courseCounts.get(r.courseId) || 0) + 1); });
+    const ranking = Array.from(courseCounts.entries()).map(([id, count]) => ({ id, count })).sort((a, b) => b.count - a.count).slice(0, 5);
+    const maxCount = Math.max(1, ...ranking.map((r) => r.count));
+    const cursos = `
+      <article class="card">
+        <div class="card__head"><h3>Cursos más recomendados</h3><span class="card__meta">${num(courseCounts.size)} cursos distintos</span></div>
+        <div class="card__body">
+          ${ranking.length ? `<ol class="ranking">${ranking.map(({ id, count }) => { const c = courseOf(id); return `
+            <li>
+              <span class="ranking__thumb">${c?.image ? `<img src="${esc(assetUrl(c.image))}" alt="" loading="lazy">` : ''}</span>
+              <span><span class="ranking__name">${esc(courseTitle(id))}</span><span class="ranking__meta">${num(count)} ${count === 1 ? 'recomendación' : 'recomendaciones'} · ${pct(count, rows.length)} %</span></span>
+              <span class="ranking__bar"><i style="width:${(count / maxCount) * 100}%"></i></span>
+            </li>`; }).join('')}</ol>` : '<p class="muted small">Todavía no hay recomendaciones registradas.</p>'}
+        </div>
+      </article>`;
+
+    const qInterests = questionBy('interests');
+    const qFormat = questionBy('format');
+    const qProblem = questionBy('problem');
+    const qTime = questionBy('time');
+    const featured = new Set([qInterests, qFormat, qProblem, qTime].filter(Boolean).map((q) => q.id));
+    const cards = [];
+    if (qInterests) {
+      const stats = countQuestion(qInterests, rows, false);
+      const sorted = stats.data.slice().sort((a, b) => b.count - a.count);
+      const shown = state.showAllInterests ? sorted : sorted.slice(0, 5);
+      cards.push(chartCard('Intereses principales', barsMarkup(shown, stats.respondents), {
+        meta: `${num(stats.respondents)} resp.`,
+        foot: sorted.length > 5 ? `<button class="btn btn--ghost btn--sm" type="button" data-action="toggle-interests">${state.showAllInterests ? 'Ver solo los principales' : 'Ver todos los intereses'}</button>` : ''
+      }));
+    }
+    if (qFormat) cards.push(chartCard('¿Cómo prefieren aprender?', donutMarkup(countQuestion(qFormat, rows))));
+    if (qProblem) cards.push(chartCard('Principales dificultades', donutMarkup(countQuestion(qProblem, rows))));
+    if (qTime) cards.push(chartCard('Tiempo disponible por semana', donutMarkup(countQuestion(qTime, rows))));
 
     const days = [];
     for (let i = 13; i >= 0; i -= 1) { const d = new Date(today.getTime() - i * 86400000); days.push({ key: dayKey(d), label: fmtDay(d), count: 0 }); }
     all.forEach((r) => { if (!r.createdAt) return; const hit = days.find((d) => d.key === dayKey(r.createdAt)); if (hit) hit.count += 1; });
-
-    const courseCounts = new Map();
-    rows.forEach((r) => { if (r.courseId) courseCounts.set(r.courseId, (courseCounts.get(r.courseId) || 0) + 1); });
-    const courseItems = Array.from(courseCounts.entries()).map(([id, count]) => ({ label: courseTitle(id), count })).sort((a, b) => b.count - a.count);
-    const topCourses = courseItems.slice(0, 8);
-    if (courseItems.length > 8) topCourses.push({ label: 'Otros cursos', count: courseItems.slice(8).reduce((s, d) => s + d.count, 0) });
-    const funnel = [{ label: 'Terminaron la encuesta', count: rows.length }, { label: 'Hicieron clic en la clase', count: clicks }, { label: 'Entraron al curso en el club', count: entered }];
-
-    view('resumen').innerHTML = `
-      <div class="view__head">
-        <div><h2>Resumen</h2><p>Qué están contestando las personas y cuántas llegan a la clase recomendada. Las gráficas usan el periodo seleccionado.</p></div>
-        <div class="view__tools">
-          <div class="seg" role="group" aria-label="Periodo">
-            ${[['all', 'Todo'], ['today', 'Hoy'], ['7d', '7 días'], ['30d', '30 días']].map(([v, l]) => `<button type="button" class="${state.period === v ? 'is-active' : ''}" data-action="period" data-value="${v}">${l}</button>`).join('')}
+    const funnel = [{ label: 'Terminaron la encuesta', count: rows.length }, { label: 'Hicieron clic en la clase', count: clicks }, { label: 'Entraron al curso', count: entered }];
+    const rest = state.config.preguntas.filter((q) => !featured.has(q.id));
+    const more = `
+      <details class="more">
+        <summary><span style="color:var(--ink);font-weight:600;font-size:.92rem">Más resultados</span><span>Actividad por día, embudo y ${num(rest.length)} preguntas más</span>${I.chevron}</summary>
+        <div class="more__body">
+          <div class="grid-2">
+            ${chartCard('Respuestas por día (últimos 14 días)', columnsMarkup(days))}
+            ${chartCard('De la encuesta a la clase', barsMarkup(funnel, rows.length), { meta: 'porcentaje de quienes terminaron' })}
+            ${rest.map((q) => questionChart(q, rows)).join('')}
           </div>
-          <button class="btn btn--line btn--sm" type="button" data-action="reload">Actualizar</button>
         </div>
-      </div>
-      <div class="grid-kpi grid-kpi--6">
-        <div class="card kpi"><span class="kpi__label">Respuestas ${esc(periodLabel)}</span><span class="kpi__value">${num(rows.length)}</span><span class="kpi__delta">${num(all.length)} desde el inicio</span></div>
-        <div class="card kpi"><span class="kpi__label">Hoy</span><span class="kpi__value">${num(all.filter((r) => r.createdAt && r.createdAt >= today).length)}</span><span class="kpi__delta">${num(all.filter((r) => r.createdAt && r.createdAt >= week).length)} en los últimos 7 días</span></div>
-        <div class="card kpi"><span class="kpi__label">Clic en la clase</span><span class="kpi__value">${rows.length ? `${pct(clicks, rows.length)}%` : '—'}</span><span class="kpi__delta">${num(clicks)} de ${num(rows.length)} respuestas</span></div>
-        <div class="card kpi"><span class="kpi__label">Entraron al curso</span><span class="kpi__value">${rows.length ? `${pct(entered, rows.length)}%` : '—'}</span><span class="kpi__delta">${num(entered)} llegaron al club con sesión</span></div>
-        <div class="card kpi"><span class="kpi__label">Desde celular</span><span class="kpi__value">${rows.length ? `${pct(mobile, rows.length)}%` : '—'}</span><span class="kpi__delta">${num(mobile)} de ${num(rows.length)} respuestas</span></div>
-        <div class="card kpi"><span class="kpi__label">Tiempo promedio</span><span class="kpi__value">${avgSec != null ? (avgSec >= 60 ? `${Math.floor(avgSec / 60)}:${pad2(avgSec % 60)}` : `${avgSec}s`) : '—'}</span><span class="kpi__delta">${avgSec != null && avgSec >= 60 ? 'minutos por encuesta' : 'segundos por encuesta'}</span></div>
-      </div>
-      ${all.length ? '' : `<div class="empty" style="margin-bottom:12px"><strong>Aún no hay respuestas</strong>Comparte la encuesta para empezar a ver datos aquí.<br><code>https://agrotecamerican.com/encuesta/</code></div>`}
-      <div class="grid-charts">
-        ${chartCard('Actividad', 'Respuestas por día (últimos 14 días)', columnsMarkup(days), true)}
-        ${chartCard('Embudo', 'De la encuesta a la clase', barsMarkup(funnel, rows.length, 'de quienes terminaron la encuesta'))}
-        ${chartCard('Recomendaciones', 'Cursos más recomendados', topCourses.length ? barsMarkup(topCourses, rows.length, 'de las respuestas del periodo') : '<p class="muted small">Todavía no hay recomendaciones registradas.</p>')}
-        ${state.config.preguntas.map((q, i) => {
-          const stats = countQuestion(q, rows, q.type !== 'multi');
-          const body = q.type === 'multi' ? barsMarkup(stats.data.slice().sort((a, b) => b.count - a.count), stats.respondents) : donutMarkup(stats);
-          return chartCard(`${pad2(i + 1)} · ${q.kicker || q.id}`, q.title, body);
-        }).join('')}
-      </div>`;
+      </details>`;
+
+    view('resumen').innerHTML = `${head}${kpis}${cursos}<div class="grid-2 section-gap" style="margin-top:12px">${cards.join('')}</div>${more}`;
   };
 
   /* ---------- Vista: Preguntas ---------- */
-  const typeLabel = (t) => (t === 'multi' ? 'Múltiple' : 'Única');
+  const typeLabel = (t) => (t === 'multi' ? 'Opción múltiple' : 'Opción única');
   const selectMarkup = (path, value, entries, extra = '') => `<select class="input" data-path="${path}" ${extra}>${entries.map(([v, l]) => `<option value="${esc(v)}" ${value === v ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>`;
+  const menuMarkup = (items) => `
+    <span class="menu-wrap">
+      <button class="icon-btn" type="button" data-action="menu" title="Más acciones" aria-haspopup="true">${I.more}</button>
+      <div class="menu" hidden>${items.map((it) => (it === 'hr' ? '<hr>' : `<button type="button" class="${it.danger ? 'is-danger' : ''}" ${it.disabled ? 'disabled' : ''} ${Object.entries(it.data).map(([k, v]) => `data-${k}="${esc(v)}"`).join(' ')}>${it.icon}${esc(it.label)}</button>`)).join('')}</div>
+    </span>`;
 
-  const questionItem = (q, i, total) => {
-    const open = state.open.preguntas.has(i);
+  const questionEditor = (q, i) => {
     const base = `preguntas.${i}`;
     const showImage = q.layout === 'images';
     const showLevel = q.dimension === 'level';
     return `
-      <article class="card item ${open ? 'is-open' : ''}">
-        <div class="item__head" data-action="toggle-item" data-col="preguntas" data-i="${i}">
-          <span class="item__num">${pad2(i + 1)}</span>
-          <div class="item__title">
+      <div class="row-item__editor">
+        <div class="form-grid" style="margin-top:14px">
+          <div class="field"><label>Etiqueta corta</label><input class="input" data-path="${base}.kicker" value="${esc(q.kicker)}" placeholder="Tu etapa"></div>
+          <div class="field"><label>ID interno</label><input class="input input--mono" data-path="${base}.id" value="${esc(q.id)}"><small>No lo cambies si ya hay respuestas: enlaza la pregunta con sus datos.</small></div>
+          <div class="field span-2"><label>Pregunta</label><input class="input" data-path="${base}.title" value="${esc(q.title)}"></div>
+          <div class="field span-2"><label>Texto de ayuda</label><input class="input" data-path="${base}.hint" value="${esc(q.hint)}" placeholder="Opcional"></div>
+          <div class="field"><label>Tipo de respuesta</label>${selectMarkup(`${base}.type`, q.type === 'multi' ? 'multi' : 'single', [['single', 'Una sola opción'], ['multi', 'Varias opciones']], 'data-rerender="preguntas"')}</div>
+          <div class="field"><label>Diseño de las opciones</label>${selectMarkup(`${base}.layout`, q.layout, LAYOUTS.map((l) => [l, LAYOUT_LABELS[l]]), 'data-rerender="preguntas"')}</div>
+          <div class="field"><label>Qué aporta al perfil</label>${selectMarkup(`${base}.dimension`, q.dimension || 'none', DIMENSIONS.map((d) => [d, DIMENSION_HELP[d]]), 'data-rerender="preguntas"')}<small>El motor compara cada dimensión con las etiquetas de los cursos.</small></div>
+          <div class="field"><label>Personaje</label>${selectMarkup(`${base}.mood`, q.mood || 'point', MOODS.map((m) => [m, MOOD_LABELS[m]]))}</div>
+          <div class="field span-2"><label>Globo del personaje</label><input class="input" data-path="${base}.bubble" value="${esc(q.bubble)}" placeholder="Si lo dejas vacío usa el mensaje general"></div>
+          ${q.type === 'multi' ? `<div class="field"><label>Máximo de opciones</label><input class="input" type="number" min="1" max="12" data-path="${base}.max" data-type="number" value="${esc(q.max || 3)}"></div>` : ''}
+        </div>
+        <div class="editor-sub"><h3>Opciones</h3><span class="small muted">Ícono: <code>i:nombre</code>, <code>brand:instagram</code>… o un emoji</span></div>
+        <div class="options-editor ${showImage ? 'has-image' : ''} ${showLevel ? 'has-level' : ''}">
+          <div class="options-editor__head"><span>Ícono</span><span>Texto</span><span>Detalle</span>${showImage ? '<span>Imagen</span>' : ''}${showLevel ? '<span>Nivel</span>' : ''}<span>Valor interno</span><span></span></div>
+          ${q.options.map((o, j) => `
+            <div class="option-row">
+              <span class="icon-field"><span class="icon-preview" aria-hidden="true">${iconMarkup(o.icon)}</span><input class="input input--sm input--icon" data-path="${base}.options.${j}.icon" data-icon-preview value="${esc(o.icon)}" title="Ícono"></span>
+              <input class="input input--sm" data-path="${base}.options.${j}.title" value="${esc(o.title)}" placeholder="Texto de la opción">
+              <input class="input input--sm" data-path="${base}.options.${j}.detail" data-detail value="${esc(o.detail)}" placeholder="Detalle (opcional)">
+              ${showImage ? `<input class="input input--sm input--mono" data-path="${base}.options.${j}.image" value="${esc(o.image)}" placeholder="URL de imagen">` : ''}
+              ${showLevel ? selectMarkup(`${base}.options.${j}.level`, o.level || '', [['', '—'], ...LEVELS.map((l) => [l, LEVEL_LABELS[l]])]).replace('class="input"', 'class="input input--sm"') : ''}
+              <input class="input input--sm input--mono" data-path="${base}.options.${j}.value" value="${esc(o.value)}" title="Valor interno (se guarda en las respuestas)">
+              <div class="option-row__tools">
+                <button class="icon-btn" type="button" data-action="opt-up" data-q="${i}" data-i="${j}" ${j === 0 ? 'disabled' : ''}>${I.up}</button>
+                <button class="icon-btn" type="button" data-action="opt-down" data-q="${i}" data-i="${j}" ${j === q.options.length - 1 ? 'disabled' : ''}>${I.down}</button>
+                <button class="icon-btn icon-btn--danger" type="button" data-action="opt-remove" data-q="${i}" data-i="${j}" ${q.options.length <= 2 ? 'disabled' : ''}>${I.trash}</button>
+              </div>
+            </div>`).join('')}
+        </div>
+        <div class="add-row"><button class="btn btn--line btn--sm" type="button" data-action="opt-add" data-q="${i}">${I.plus} Agregar opción</button></div>
+      </div>`;
+  };
+
+  const questionRow = (q, i, total) => {
+    const open = state.open.preguntas.has(i);
+    return `
+      <article class="row-item ${open ? 'is-open' : ''}">
+        <div class="row-item__main">
+          <span class="row-item__num">${pad2(i + 1)}</span>
+          <div class="row-item__title">
             <strong>${esc(q.title || '(sin título)')}</strong>
-            <span><span class="pill">${typeLabel(q.type)}</span><span class="pill">${esc(LAYOUT_LABELS[q.layout] || q.layout)}</span><span class="pill">${q.options.length} opciones</span>${q.dimension && q.dimension !== 'none' ? `<span class="pill pill--green">${esc(DIMENSION_LABELS[q.dimension] || q.dimension)}</span>` : ''}</span>
+            <span class="row-item__tags"><span class="tag">${esc(LAYOUT_LABELS[q.layout] || q.layout)}</span><span class="tag">${typeLabel(q.type)} · ${q.options.length} opciones</span>${q.dimension && q.dimension !== 'none' ? `<span class="tag tag--green">${esc(DIMENSION_LABELS[q.dimension] || q.dimension)}</span>` : ''}</span>
           </div>
-          <div class="item__tools">
-            <button class="icon-btn" type="button" data-action="q-up" data-i="${i}" title="Subir" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button>
-            <button class="icon-btn" type="button" data-action="q-down" data-i="${i}" title="Bajar" ${i === total - 1 ? 'disabled' : ''}>${ICON.down}</button>
-            <button class="icon-btn icon-btn--danger" type="button" data-action="q-remove" data-i="${i}" title="Eliminar pregunta">${ICON.trash}</button>
-            <span class="icon-btn" aria-hidden="true">${ICON.caret}</span>
+          <div class="row-item__actions">
+            <button class="btn btn--line btn--sm" type="button" data-action="toggle-item" data-col="preguntas" data-i="${i}">${open ? I.x : I.pencil} ${open ? 'Cerrar' : 'Editar'}</button>
+            ${menuMarkup([
+              { label: 'Duplicar', icon: I.copy, data: { action: 'q-duplicate', i } },
+              { label: 'Subir', icon: I.up, data: { action: 'q-up', i }, disabled: i === 0 },
+              { label: 'Bajar', icon: I.down, data: { action: 'q-down', i }, disabled: i === total - 1 },
+              'hr',
+              { label: 'Eliminar', icon: I.trash, data: { action: 'q-remove', i }, danger: true }
+            ])}
           </div>
         </div>
-        <div class="item__body" ${open ? '' : 'hidden'}>
-          <div class="form-grid" style="margin-top:14px">
-            <div class="field"><label>Etiqueta corta</label><input class="input" data-path="${base}.kicker" value="${esc(q.kicker)}" placeholder="Tu etapa"></div>
-            <div class="field"><label>ID interno</label><input class="input input--mono" data-path="${base}.id" value="${esc(q.id)}"><small>No lo cambies si ya hay respuestas: enlaza la pregunta con sus datos.</small></div>
-            <div class="field span-2"><label>Pregunta</label><input class="input" data-path="${base}.title" value="${esc(q.title)}"></div>
-            <div class="field span-2"><label>Texto de ayuda</label><input class="input" data-path="${base}.hint" value="${esc(q.hint)}" placeholder="Opcional"></div>
-            <div class="field"><label>Tipo de respuesta</label>${selectMarkup(`${base}.type`, q.type === 'multi' ? 'multi' : 'single', [['single', 'Una sola opción'], ['multi', 'Varias opciones']], 'data-rerender="preguntas"')}</div>
-            <div class="field"><label>Diseño de las opciones</label>${selectMarkup(`${base}.layout`, q.layout, LAYOUTS.map((l) => [l, LAYOUT_LABELS[l]]), 'data-rerender="preguntas"')}</div>
-            <div class="field"><label>Qué aporta al perfil</label>${selectMarkup(`${base}.dimension`, q.dimension || 'none', DIMENSIONS.map((d) => [d, DIMENSION_LABELS[d]]), 'data-rerender="preguntas"')}<small>El motor de recomendación compara cada dimensión con las etiquetas de los cursos.</small></div>
-            <div class="field"><label>Personaje</label>${selectMarkup(`${base}.mood`, q.mood || 'point', MOODS.map((m) => [m, MOOD_LABELS[m]]))}</div>
-            <div class="field span-2"><label>Globo del personaje</label><input class="input" data-path="${base}.bubble" value="${esc(q.bubble)}" placeholder="Si lo dejas vacío usa el mensaje general"></div>
-            ${q.type === 'multi' ? `<div class="field"><label>Máximo de opciones</label><input class="input" type="number" min="1" max="12" data-path="${base}.max" data-type="number" value="${esc(q.max || 3)}"></div>` : ''}
-          </div>
-          <div class="editor-sub"><h3>Opciones</h3><span class="small muted">Ícono: <code>i:nombre</code> (lucide), <code>brand:instagram</code>… o un emoji</span></div>
-          <div class="options-editor ${showImage ? 'has-image' : ''} ${showLevel ? 'has-level' : ''}">
-            <div class="options-editor__head"><span>Ícono</span><span>Texto</span><span>Detalle</span>${showImage ? '<span>Imagen</span>' : ''}${showLevel ? '<span>Nivel</span>' : ''}<span>Valor interno</span><span></span></div>
-            ${q.options.map((o, j) => `
-              <div class="option-row">
-                <span class="icon-field"><span class="icon-preview" aria-hidden="true">${iconMarkup(o.icon)}</span><input class="input input--sm input--icon" data-path="${base}.options.${j}.icon" data-icon-preview value="${esc(o.icon)}" title="Ícono"></span>
-                <input class="input input--sm" data-path="${base}.options.${j}.title" value="${esc(o.title)}" placeholder="Texto de la opción">
-                <input class="input input--sm" data-path="${base}.options.${j}.detail" data-detail value="${esc(o.detail)}" placeholder="Detalle (opcional)">
-                ${showImage ? `<input class="input input--sm input--mono" data-path="${base}.options.${j}.image" value="${esc(o.image)}" placeholder="URL de imagen">` : ''}
-                ${showLevel ? selectMarkup(`${base}.options.${j}.level`, o.level || '', [['', '—'], ...LEVELS.map((l) => [l, LEVEL_LABELS[l]])]).replace('class="input"', 'class="input input--sm"') : ''}
-                <input class="input input--sm input--mono" data-path="${base}.options.${j}.value" value="${esc(o.value)}" title="Valor interno (se guarda en las respuestas)">
-                <div class="option-row__tools">
-                  <button class="icon-btn" type="button" data-action="opt-up" data-q="${i}" data-i="${j}" ${j === 0 ? 'disabled' : ''}>${ICON.up}</button>
-                  <button class="icon-btn" type="button" data-action="opt-down" data-q="${i}" data-i="${j}" ${j === q.options.length - 1 ? 'disabled' : ''}>${ICON.down}</button>
-                  <button class="icon-btn icon-btn--danger" type="button" data-action="opt-remove" data-q="${i}" data-i="${j}" ${q.options.length <= 2 ? 'disabled' : ''}>${ICON.trash}</button>
-                </div>
-              </div>`).join('')}
-          </div>
-          <div class="add-row"><button class="btn btn--line btn--sm" type="button" data-action="opt-add" data-q="${i}">${ICON.plus} Agregar opción</button></div>
-        </div>
+        ${open ? questionEditor(q, i) : ''}
       </article>`;
   };
 
   const renderPreguntas = () => {
     const qs = state.draft.preguntas;
     view('preguntas').innerHTML = `
-      <div class="view__head">
-        <div><h2>Preguntas</h2><p>Edita el texto, el diseño, las opciones y el orden. Los cambios se publican al guardar y la encuesta los toma al instante.</p></div>
-        <div class="view__tools">
+      <div class="page-head">
+        <div><h2>Preguntas</h2><p>Edita el texto, el diseño y las opciones de cada pregunta. Los cambios se publican al guardar.</p></div>
+        <div class="page-tools">
           <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="preguntas">Restaurar predeterminadas</button>
-          <button class="btn btn--sm" type="button" data-action="q-add">${ICON.plus} Nueva pregunta</button>
+          <button class="btn btn--sm" type="button" data-action="q-add">${I.plus} Nueva pregunta</button>
         </div>
       </div>
       ${state.configExists ? '' : '<div class="help help--warn" style="margin-bottom:14px">La encuesta todavía usa la configuración predeterminada del código. Al guardar por primera vez se publica en Firestore y desde entonces se edita solo desde aquí.</div>'}
-      <div class="stack">${qs.map((q, i) => questionItem(q, i, qs.length)).join('')}</div>
-      <div class="help" style="margin-top:16px">Las opciones de las preguntas marcadas como <b>Áreas de interés</b>, <b>Objetivo</b>, <b>Perfil</b> y <b>Obstáculo</b> aparecen como etiquetas en la pestaña Cursos. Así el motor sabe qué curso recomendar.</div>`;
+      <div class="rows">${qs.map((q, i) => questionRow(q, i, qs.length)).join('')}</div>
+      <p class="small muted" style="margin:14px 0 0">Las opciones de las preguntas de <b>intereses</b>, <b>objetivo</b>, <b>perfil</b> y <b>obstáculo</b> aparecen como etiquetas en Cursos; así el motor sabe qué recomendar.</p>`;
   };
 
   /* ---------- Vista: Cursos ---------- */
@@ -530,63 +613,73 @@
     return q ? q.options.map((o) => ({ value: o.value, title: o.title })) : [];
   };
 
-  const courseItem = (c, i, total) => {
-    const open = state.open.cursos.has(i);
+  const courseEditor = (c, i) => {
     const base = `cursos.${i}`;
+    const classes = Array.isArray(c.classes) ? c.classes : [];
+    return `
+      <div class="row-item__editor">
+        <div class="form-grid form-grid--3" style="margin-top:14px">
+          <div class="field span-2"><label>Nombre del curso</label><input class="input" data-path="${base}.title" value="${esc(c.title)}"></div>
+          <div class="field"><label>ID (slug del club)</label><input class="input input--mono" data-path="${base}.id" value="${esc(c.id)}"><small>Debe coincidir con la URL del curso en el club.</small></div>
+          <div class="field"><label>Categoría</label><input class="input" data-path="${base}.category" value="${esc(c.category)}" placeholder="Cultivos"></div>
+          <div class="field"><label>Nivel (texto)</label><input class="input" data-path="${base}.level" value="${esc(c.level)}" placeholder="Intermedio"></div>
+          <div class="field"><label>Clase destacada (gancho)</label>${selectMarkup(`${base}.featuredClass`, String(c.featuredClass || 1), classes.length ? classes.map((k) => [String(k.n), `Clase ${k.n}${k.free ? ' · gratis' : ''}${k.min ? ` · ${fmtMin(k.min)}` : ''}`]) : [['1', 'Clase 1']], 'data-type="number"')}</div>
+          <div class="field span-2"><label>Portada (URL)</label><input class="input input--mono" data-path="${base}.image" value="${esc(c.image)}" placeholder="https://club.agrotecamerican.com/cursos/…"></div>
+          <div class="field"><label>Enlace del curso</label><input class="input input--mono" data-path="${base}.url" value="${esc(c.url)}" placeholder="https://club.agrotecamerican.com/#/curso/…"></div>
+          <div class="field" style="grid-column:1/-1"><label>Qué logra la persona (resumen)</label><input class="input" data-path="${base}.summary" value="${esc(c.summary)}" placeholder="Una línea que aparece en la tarjeta del resultado"></div>
+        </div>
+        <div class="editor-sub"><h3>Etiquetas para recomendar</h3><span class="small muted">Marca con qué respuestas encaja este curso.</span></div>
+        <div class="tag-groups">
+          ${TAG_GROUPS.map((group) => {
+            const options = tagOptions(group);
+            const selected = c.tags?.[group.key] || [];
+            return `<div class="tag-group"><label>${esc(group.label)}${group.help ? ` <small>${esc(group.help)}</small>` : ''}</label>
+              <div class="chipset">${options.length ? options.map((o) => `<button type="button" class="chip ${selected.includes(o.value) ? 'is-on' : ''}" data-action="c-tag" data-i="${i}" data-group="${group.key}" data-value="${esc(o.value)}">${esc(o.title)}</button>`).join('') : `<span class="small muted">No hay pregunta marcada como "${esc(DIMENSION_HELP[group.dimension] || group.key)}".</span>`}</div></div>`;
+          }).join('')}
+        </div>
+        <div class="editor-sub"><h3>Clases</h3><span class="small muted">Vienen del catálogo del club. Duración en minutos.</span></div>
+        <div class="classes-editor">
+          <div class="classes-editor__head"><span>#</span><span>Título</span><span>Min</span><span>Gratis</span><span></span></div>
+          ${classes.map((k, j) => `
+            <div class="class-row">
+              <input class="input input--sm input--mono" type="number" min="1" data-path="${base}.classes.${j}.n" data-type="number" value="${esc(k.n)}">
+              <input class="input input--sm" data-path="${base}.classes.${j}.title" value="${esc(k.title)}" placeholder="Clase ${k.n}">
+              <input class="input input--sm input--mono" type="number" min="0" data-path="${base}.classes.${j}.min" data-type="number" value="${k.min ?? ''}" placeholder="min">
+              <label class="switch switch--sm"><input type="checkbox" data-path="${base}.classes.${j}.free" ${k.free ? 'checked' : ''}><i></i></label>
+              <button class="icon-btn icon-btn--danger" type="button" data-action="k-remove" data-c="${i}" data-i="${j}" title="Quitar clase">${I.trash}</button>
+            </div>`).join('')}
+        </div>
+        <div class="add-row"><button class="btn btn--line btn--sm" type="button" data-action="k-add" data-c="${i}">${I.plus} Agregar clase</button></div>
+      </div>`;
+  };
+
+  const courseRow = (c, i, total) => {
+    const open = state.open.cursos.has(i);
     const interests = tagOptions(TAG_GROUPS[0]);
     const interestTitles = (c.tags?.interests || []).map((a) => interests.find((o) => o.value === a)?.title || a);
     const classes = Array.isArray(c.classes) ? c.classes : [];
     const totalMin = classes.reduce((a, k) => a + (k.min || 0), 0);
     return `
-      <article class="card item ${open ? 'is-open' : ''} ${c.available === false ? 'is-off' : ''}">
-        <div class="item__head" data-action="toggle-item" data-col="cursos" data-i="${i}">
-          <span class="item__thumb">${c.image ? `<img src="${esc(assetUrl(c.image))}" alt="" loading="lazy">` : 'Sin foto'}</span>
-          <div class="item__title">
+      <article class="row-item ${open ? 'is-open' : ''} ${c.available === false ? 'is-off' : ''}">
+        <div class="row-item__main">
+          <span class="row-item__thumb">${c.image ? `<img src="${esc(assetUrl(c.image))}" alt="" loading="lazy">` : 'Sin foto'}</span>
+          <div class="row-item__title">
             <strong>${esc(c.title || '(sin nombre)')}</strong>
-            <span>${c.category ? `<span class="pill">${esc(c.category)}</span>` : ''}<span class="pill">${classes.length} clases${totalMin ? ` · ${fmtMin(totalMin)}` : ''}</span>${interestTitles.length ? `<span class="pill pill--green">${esc(interestTitles.join(' · '))}</span>` : '<span class="pill pill--orange">Sin áreas: no se recomienda</span>'}</span>
+            <span class="row-item__tags">${c.category ? `<span class="tag">${esc(c.category)}</span>` : ''}<span class="tag">${classes.length} clases${totalMin ? ` · ${fmtMin(totalMin)}` : ''}</span>${interestTitles.length ? `<span class="tag tag--green" title="${esc(interestTitles.join(' · '))}">${interestTitles.length === 1 ? esc(interestTitles[0]) : `${interestTitles.length} áreas`}</span>` : '<span class="tag tag--warn">Sin áreas: no se recomienda</span>'}</span>
           </div>
-          <div class="item__tools">
-            <label class="switch" data-stop><input type="checkbox" data-path="${base}.available" ${c.available !== false ? 'checked' : ''}><i></i><span>${c.available !== false ? 'Disponible' : 'Oculto'}</span></label>
-            <button class="icon-btn" type="button" data-action="c-up" data-i="${i}" title="Subir" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button>
-            <button class="icon-btn" type="button" data-action="c-down" data-i="${i}" title="Bajar" ${i === total - 1 ? 'disabled' : ''}>${ICON.down}</button>
-            <button class="icon-btn icon-btn--danger" type="button" data-action="c-remove" data-i="${i}" title="Eliminar curso">${ICON.trash}</button>
-            <span class="icon-btn" aria-hidden="true">${ICON.caret}</span>
+          <div class="row-item__actions">
+            <label class="switch" data-stop><input type="checkbox" data-path="cursos.${i}.available" ${c.available !== false ? 'checked' : ''}><i></i><span>${c.available !== false ? 'Disponible' : 'Oculto'}</span></label>
+            <button class="btn btn--line btn--sm" type="button" data-action="toggle-item" data-col="cursos" data-i="${i}">${open ? I.x : I.pencil} ${open ? 'Cerrar' : 'Editar'}</button>
+            ${menuMarkup([
+              { label: 'Duplicar', icon: I.copy, data: { action: 'c-duplicate', i } },
+              { label: 'Subir', icon: I.up, data: { action: 'c-up', i }, disabled: i === 0 },
+              { label: 'Bajar', icon: I.down, data: { action: 'c-down', i }, disabled: i === total - 1 },
+              'hr',
+              { label: 'Eliminar', icon: I.trash, data: { action: 'c-remove', i }, danger: true }
+            ])}
           </div>
         </div>
-        <div class="item__body" ${open ? '' : 'hidden'}>
-          <div class="form-grid form-grid--3" style="margin-top:14px">
-            <div class="field span-2"><label>Nombre del curso</label><input class="input" data-path="${base}.title" value="${esc(c.title)}"></div>
-            <div class="field"><label>ID (slug del club)</label><input class="input input--mono" data-path="${base}.id" value="${esc(c.id)}"><small>Debe coincidir con la URL del curso en el club.</small></div>
-            <div class="field"><label>Categoría</label><input class="input" data-path="${base}.category" value="${esc(c.category)}" placeholder="Cultivos"></div>
-            <div class="field"><label>Nivel (texto)</label><input class="input" data-path="${base}.level" value="${esc(c.level)}" placeholder="Intermedio"></div>
-            <div class="field"><label>Clase destacada (gancho)</label>${selectMarkup(`${base}.featuredClass`, String(c.featuredClass || 1), classes.length ? classes.map((k) => [String(k.n), `Clase ${k.n}${k.free ? ' · gratis' : ''}${k.min ? ` · ${fmtMin(k.min)}` : ''}`]) : [['1', 'Clase 1']], 'data-type="number"')}</div>
-            <div class="field span-2"><label>Portada (URL)</label><input class="input input--mono" data-path="${base}.image" value="${esc(c.image)}" placeholder="https://club.agrotecamerican.com/cursos/…"></div>
-            <div class="field"><label>Enlace del curso</label><input class="input input--mono" data-path="${base}.url" value="${esc(c.url)}" placeholder="https://club.agrotecamerican.com/#/curso/…"></div>
-            <div class="field" style="grid-column:1/-1"><label>Qué logra la persona (resumen)</label><input class="input" data-path="${base}.summary" value="${esc(c.summary)}" placeholder="Una línea que aparece en la tarjeta del resultado"></div>
-          </div>
-          <div class="editor-sub"><h3>Etiquetas para recomendar</h3><span class="small muted">Marca con qué respuestas encaja este curso.</span></div>
-          <div class="tag-groups">
-            ${TAG_GROUPS.map((group) => {
-              const options = tagOptions(group);
-              const selected = c.tags?.[group.key] || [];
-              return `<div class="tag-group"><label>${esc(group.label)}${group.help ? ` <small>${esc(group.help)}</small>` : ''}</label>
-                <div class="chipset">${options.length ? options.map((o) => `<button type="button" class="chip ${selected.includes(o.value) ? 'is-on' : ''}" data-action="c-tag" data-i="${i}" data-group="${group.key}" data-value="${esc(o.value)}">${esc(o.title)}</button>`).join('') : `<span class="small muted">No hay pregunta marcada como "${esc(DIMENSION_LABELS[group.dimension] || group.key)}".</span>`}</div></div>`;
-            }).join('')}
-          </div>
-          <div class="editor-sub"><h3>Clases</h3><span class="small muted">Vienen del catálogo del club. Duración en minutos.</span></div>
-          <div class="classes-editor">
-            <div class="classes-editor__head"><span>#</span><span>Título</span><span>Min</span><span>Gratis</span><span></span></div>
-            ${classes.map((k, j) => `
-              <div class="class-row">
-                <input class="input input--sm input--mono" type="number" min="1" data-path="${base}.classes.${j}.n" data-type="number" value="${esc(k.n)}">
-                <input class="input input--sm" data-path="${base}.classes.${j}.title" value="${esc(k.title)}" placeholder="Clase ${k.n}">
-                <input class="input input--sm input--mono" type="number" min="0" data-path="${base}.classes.${j}.min" data-type="number" value="${k.min ?? ''}" placeholder="min">
-                <label class="switch switch--sm"><input type="checkbox" data-path="${base}.classes.${j}.free" ${k.free ? 'checked' : ''}><i></i></label>
-                <button class="icon-btn icon-btn--danger" type="button" data-action="k-remove" data-c="${i}" data-i="${j}" title="Quitar clase">${ICON.trash}</button>
-              </div>`).join('')}
-          </div>
-          <div class="add-row"><button class="btn btn--line btn--sm" type="button" data-action="k-add" data-c="${i}">${ICON.plus} Agregar clase</button></div>
-        </div>
+        ${open ? courseEditor(c, i) : ''}
       </article>`;
   };
 
@@ -601,78 +694,119 @@
     });
     const available = all.filter((c) => c.available !== false).length;
     view('cursos').innerHTML = `
-      <div class="view__head">
-        <div><h2>Cursos</h2><p>Los cursos reales del club con las etiquetas que usa el motor de recomendación. Decide cuáles pueden recomendarse y qué clase es el gancho. ${num(all.length)} cursos · ${num(available)} disponibles.</p></div>
-        <div class="view__tools">
-          <input class="input input--sm" type="search" data-search="cursos" value="${esc(state.search.cursos)}" placeholder="Buscar curso…" style="width:200px">
+      <div class="page-head">
+        <div><h2>Cursos</h2><p>Los cursos reales del club con las etiquetas que usa el motor. ${num(all.length)} cursos · ${num(available)} disponibles.</p></div>
+        <div class="page-tools">
+          <input class="input input--sm input--search" type="search" data-search="cursos" value="${esc(state.search.cursos)}" placeholder="Buscar curso…" style="width:210px">
           <div class="seg" role="group" aria-label="Filtro">
             ${[['all', 'Todos'], ['on', 'Disponibles'], ['off', 'Ocultos']].map(([v, l]) => `<button type="button" class="${state.cursosFilter === v ? 'is-active' : ''}" data-action="cursos-filter" data-value="${v}">${l}</button>`).join('')}
           </div>
-          <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="cursos">Restaurar catálogo del club</button>
-          <button class="btn btn--sm" type="button" data-action="c-add">${ICON.plus} Nuevo curso</button>
+          <button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="cursos">Restaurar catálogo</button>
+          <button class="btn btn--sm" type="button" data-action="c-add">${I.plus} Nuevo curso</button>
         </div>
       </div>
-      ${visible.length ? `<div class="stack">${visible.map(({ c, i }) => courseItem(c, i, all.length)).join('')}</div>` : '<div class="empty"><strong>Sin resultados</strong>Prueba con otro filtro o agrega un curso nuevo.</div>'}`;
+      ${visible.length ? `<div class="rows">${visible.map(({ c, i }) => courseRow(c, i, all.length)).join('')}</div>` : emptyState('Sin resultados', 'Prueba con otro filtro o agrega un curso nuevo.')}`;
   };
 
   /* ---------- Vista: Respuestas ---------- */
   const rowMatches = (row, term) => {
     if (!term) return true;
-    const text = [...state.config.preguntas.map((q) => labelsFor(row, q).join(' ')), courseTitle(row.courseId), row.device, row.id].join(' ').toLowerCase();
+    const text = [...state.config.preguntas.map((q) => labelsFor(row, q).join(' ')), courseTitle(row.courseId), row.email, row.device, row.id].join(' ').toLowerCase();
     return text.includes(term);
+  };
+  const visibleResponses = () => {
+    const term = state.search.respuestas.trim().toLowerCase();
+    return byPeriod(state.responses, state.respFilter.period).filter((r) => (!state.respFilter.course || r.courseId === state.respFilter.course) && rowMatches(r, term));
   };
 
   const renderRespuestas = () => {
-    const qs = state.config.preguntas;
-    const term = state.search.respuestas.trim().toLowerCase();
-    const rows = state.responses.filter((r) => rowMatches(r, term));
+    const rows = visibleResponses();
     const shown = rows.slice(0, state.page * PAGE_SIZE);
+    const courseIds = Array.from(new Set(state.responses.map((r) => r.courseId).filter(Boolean)));
     view('respuestas').innerHTML = `
-      <div class="view__head">
-        <div><h2>Respuestas</h2><p>Cada fila es una encuesta completada. Puedes buscar por cualquier respuesta y exportar todo a Excel.</p></div>
-        <div class="view__tools">
-          <input class="input input--sm" type="search" data-search="respuestas" value="${esc(state.search.respuestas)}" placeholder="Buscar en respuestas…" style="width:220px">
-          <button class="btn btn--line btn--sm" type="button" data-action="reload">Actualizar</button>
-          <button class="btn btn--sm" type="button" data-action="export-csv" ${rows.length ? '' : 'disabled'}>Exportar CSV</button>
+      <div class="page-head">
+        <div><h2>Respuestas</h2><p>Consulta las respuestas individuales y analiza el perfil generado para cada participante.</p></div>
+        <div class="page-tools">
+          <input class="input input--sm input--search" type="search" data-search="respuestas" value="${esc(state.search.respuestas)}" placeholder="Buscar respuestas…" style="width:210px">
+          <div class="seg" role="group" aria-label="Fecha">
+            ${[['all', 'Todo'], ['today', 'Hoy'], ['7d', '7 días'], ['30d', '30 días']].map(([v, l]) => `<button type="button" class="${state.respFilter.period === v ? 'is-active' : ''}" data-action="resp-period" data-value="${v}">${l}</button>`).join('')}
+          </div>
+          <select class="input input--sm" data-filter="course" style="width:220px"><option value="">Todos los cursos</option>${courseIds.map((id) => `<option value="${esc(id)}" ${state.respFilter.course === id ? 'selected' : ''}>${esc(courseTitle(id))}</option>`).join('')}</select>
+          <button class="btn btn--line btn--sm" type="button" data-action="export-csv" ${rows.length ? '' : 'disabled'}>${I.download} Exportar CSV</button>
         </div>
       </div>
       ${rows.length ? `
       <div class="table-wrap">
         <table>
-          <thead><tr>
-            <th>Fecha</th>
-            ${qs.map((q) => `<th title="${esc(q.title)}">${esc(q.kicker || q.id)}</th>`).join('')}
-            <th>Curso sugerido</th><th>Clic</th><th>Entró</th><th>Dispositivo</th><th>Tiempo</th><th></th>
-          </tr></thead>
+          <thead><tr><th>Usuario</th><th>Fecha</th><th>Perfil</th><th>Curso recomendado</th><th>Estado</th></tr></thead>
           <tbody>
-            ${shown.map((r) => `
-              <tr>
-                <td class="nowrap">${esc(fmtDate(r.createdAt))}</td>
-                ${qs.map((q) => `<td>${labelsFor(r, q).map((l) => esc(l)).join(q.type === 'multi' ? '<br>' : ', ') || '<span class="muted">—</span>'}</td>`).join('')}
-                <td>${r.courseId ? `<span class="pill">${esc(courseTitle(r.courseId))}</span>${r.classN ? `<span class="small muted"> clase ${r.classN}</span>` : ''}` : '<span class="muted">—</span>'}</td>
-                <td class="nowrap">${r.clickedClass ? '<span class="pill pill--green">Sí</span>' : '<span class="muted">—</span>'}</td>
-                <td class="nowrap">${r.enteredCourse ? '<span class="pill pill--green">Sí</span>' : '<span class="muted">—</span>'}</td>
-                <td class="nowrap">${r.device === 'mobile' ? 'Celular' : r.device === 'desktop' ? 'Computadora' : '—'}</td>
-                <td class="nowrap">${Number.isFinite(r.durationSec) ? `${r.durationSec}s` : '—'}</td>
-                <td><button class="icon-btn icon-btn--danger" type="button" data-action="r-delete" data-id="${esc(r.id)}" title="Eliminar respuesta">${ICON.trash}</button></td>
-              </tr>`).join('')}
+            ${shown.map((r) => { const st = statusOf(r); const perfil = perfilDe(r); return `
+              <tr data-action="row-open" data-id="${esc(r.id)}" tabindex="0">
+                <td data-label="Usuario">${esc(r.email || 'Anónimo')}<span class="sub">${r.device === 'mobile' ? 'Celular' : r.device === 'desktop' ? 'Computadora' : '—'}${Number.isFinite(r.durationSec) ? ` · ${esc(fmtSec(r.durationSec))}` : ''}</span></td>
+                <td class="nowrap" data-label="Fecha">${esc(fmtDateShort(r.createdAt))}<span class="sub">${esc(fmtTime(r.createdAt))}</span></td>
+                <td data-label="Perfil">${perfil.length ? `${esc(perfil[0])}${perfil[1] ? `<span class="sub">${esc(perfil[1])}</span>` : ''}` : '<span class="muted">—</span>'}</td>
+                <td data-label="Curso recomendado">${r.courseId ? `${esc(courseTitle(r.courseId))}${r.classN ? `<span class="sub">Clase ${r.classN}</span>` : ''}` : '<span class="muted">—</span>'}</td>
+                <td data-label="Estado"><span class="status ${st.cls}">${esc(st.label)}</span></td>
+              </tr>`; }).join('')}
           </tbody>
         </table>
       </div>
       <div class="table-foot">
-        <span>Mostrando ${num(shown.length)} de ${num(rows.length)}${term ? ' que coinciden' : ''}${state.responses.length >= MAX_RESPONSES ? ` (máximo ${num(MAX_RESPONSES)} cargadas)` : ''}</span>
+        <span>Mostrando ${num(shown.length)} de ${num(rows.length)}${state.responses.length >= MAX_RESPONSES ? ` (máximo ${num(MAX_RESPONSES)} cargadas)` : ''}</span>
         ${shown.length < rows.length ? '<button class="btn btn--line btn--sm" type="button" data-action="page-more">Mostrar más</button>' : ''}
-      </div>` : `<div class="empty"><strong>${term ? 'Nada coincide con tu búsqueda' : 'Aún no hay respuestas'}</strong>${term ? 'Prueba con otra palabra.' : 'Comparte la encuesta para empezar a recopilar datos.'}</div>`}`;
+      </div>` : emptyState(state.responses.length ? 'Nada coincide con los filtros' : 'Todavía no hay respuestas', state.responses.length ? 'Prueba con otra palabra, periodo o curso.' : 'Comparte la encuesta para empezar a recopilar datos.', state.responses.length ? '' : `<a class="btn btn--sm" href="../" target="_blank" rel="noopener">Ver encuesta ${I.external}</a>`)}`;
   };
+
+  const openDrawer = (id) => {
+    const r = state.responses.find((x) => x.id === id);
+    if (!r) return;
+    state.drawerId = id;
+    const st = statusOf(r);
+    const course = courseOf(r.courseId);
+    els.drawer.innerHTML = `
+      <div class="drawer-backdrop" data-action="drawer-close"></div>
+      <aside class="drawer" role="dialog" aria-label="Detalle de la respuesta">
+        <div class="drawer__head">
+          <div><h3>${esc(r.email || 'Respuesta anónima')}</h3><p>${esc(fmtDate(r.createdAt))} · ${r.device === 'mobile' ? 'celular' : r.device === 'desktop' ? 'computadora' : 'dispositivo desconocido'}${Number.isFinite(r.durationSec) ? ` · ${esc(fmtSec(r.durationSec))}` : ''}</p></div>
+          <button class="icon-btn" type="button" data-action="drawer-close" aria-label="Cerrar">${I.x}</button>
+        </div>
+        <div class="drawer__body">
+          <div><span class="status ${st.cls}">${esc(st.label)}</span>${r.clickedAt ? `<span class="small muted">clic ${esc(relTime(r.clickedAt))}</span>` : ''}</div>
+          <h4>Recomendación</h4>
+          <dl class="kv">
+            <div><dt>Curso</dt><dd>${esc(courseTitle(r.courseId))}${course?.category ? ` <span class="muted">· ${esc(course.category)}</span>` : ''}</dd></div>
+            <div><dt>Clase</dt><dd>${r.classN ? `Clase ${r.classN}` : '—'}</dd></div>
+            ${r.matches.length ? `<div><dt>Coincidencias</dt><dd>${r.matches.map((m) => `<span class="pill pill--green" style="margin:0 4px 4px 0">${esc(m)}</span>`).join('')}</dd></div>` : ''}
+          </dl>
+          <h4>Respuestas</h4>
+          <dl class="kv">
+            ${state.config.preguntas.map((q) => `<div><dt>${esc(q.kicker || q.id)}</dt><dd>${labelsFor(r, q).map((l) => esc(l)).join('<br>') || '<span class="muted">—</span>'}</dd></div>`).join('')}
+          </dl>
+          <h4>Detalles</h4>
+          <dl class="kv">
+            <div><dt>Cuenta</dt><dd>${r.uid ? `${esc(r.email || '')}<span class="sub muted small">${esc(r.uid)}</span>` : 'Sin sesión'}</dd></div>
+            <div><dt>Entró al curso</dt><dd>${r.enteredCourse ? `Sí${r.enteredAt ? ` · ${esc(fmtDate(r.enteredAt))}` : ''}` : 'No'}</dd></div>
+            <div><dt>Origen</dt><dd>${esc(r.ref || 'directo')}</dd></div>
+            <div><dt>Versión</dt><dd>${esc(r.configVersion || '—')}</dd></div>
+            <div><dt>ID</dt><dd class="small muted">${esc(r.id)}</dd></div>
+          </dl>
+        </div>
+        <div class="drawer__foot">
+          <button class="btn btn--danger btn--sm" type="button" data-action="r-delete" data-id="${esc(r.id)}">${I.trash} Eliminar respuesta</button>
+          <button class="btn btn--line btn--sm" type="button" data-action="drawer-close">Cerrar</button>
+        </div>
+      </aside>`;
+    document.body.style.overflow = 'hidden';
+  };
+  const closeDrawer = () => { state.drawerId = null; els.drawer.innerHTML = ''; document.body.style.overflow = ''; };
 
   const exportCsv = () => {
     const qs = state.config.preguntas;
-    const term = state.search.respuestas.trim().toLowerCase();
-    const rows = state.responses.filter((r) => rowMatches(r, term));
+    const rows = visibleResponses();
     const quote = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
-    const header = ['fecha', 'dispositivo', 'segundos', ...qs.map((q) => q.kicker || q.id), 'curso_sugerido', 'clase', 'clic_clase', 'entro_curso', 'version_config', 'id'];
+    const header = ['fecha', 'usuario', 'dispositivo', 'segundos', ...qs.map((q) => q.kicker || q.id), 'curso_sugerido', 'clase', 'clic_clase', 'entro_curso', 'version_config', 'id'];
     const lines = rows.map((r) => [
-      r.createdAt ? r.createdAt.toISOString() : '', r.device, r.durationSec ?? '',
+      r.createdAt ? r.createdAt.toISOString() : '', r.email || '', r.device, r.durationSec ?? '',
       ...qs.map((q) => labelsFor(r, q).join(' | ')),
       courseTitle(r.courseId), r.classN ?? '', r.clickedClass ? 'si' : 'no', r.enteredCourse ? 'si' : 'no', r.configVersion, r.id
     ].map(quote).join(','));
@@ -694,6 +828,7 @@
       await deleteDoc(doc(db, FB.COLLECTIONS.responses, id));
       state.responses = state.responses.filter((r) => r.id !== id);
       updateTabBadges();
+      closeDrawer();
       toast('Respuesta eliminada.', 'ok');
       renderTab();
     } catch (error) {
@@ -709,65 +844,68 @@
       ${opts.textarea ? `<textarea class="input" data-path="${path}">${esc(value)}</textarea>` : `<input class="input ${opts.mono ? 'input--mono' : ''}" data-path="${path}" ${opts.type ? `type="${opts.type}" data-type="number"` : ''} value="${esc(value)}" placeholder="${esc(opts.placeholder || '')}">`}
       ${opts.help ? `<small>${esc(opts.help)}</small>` : ''}
     </div>`;
-  const textCard = (eyebrow, title, fields) => `<article class="card"><div class="card__head"><div><p class="eyebrow">${esc(eyebrow)}</p><h3>${esc(title)}</h3></div></div><div class="card__body form-grid">${fields}</div></article>`;
+  const accordion = (title, desc, fields, open = false) => `
+    <details class="acc" ${open ? 'open' : ''}>
+      <summary><div><strong>${esc(title)}</strong><span>${esc(desc)}</span></div>${I.chevron}</summary>
+      <div class="acc__body form-grid">${fields}</div>
+    </details>`;
 
   const renderTextos = () => {
     const t = state.draft.textos;
     view('textos').innerHTML = `
-      <div class="view__head">
-        <div><h2>Textos</h2><p>Lo que dice la encuesta, el personaje y la pantalla final. Usa <code>{n}</code> para el número de preguntas y <code>{c}</code> para el número de cursos disponibles.</p></div>
-        <div class="view__tools"><button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="textos">Restaurar predeterminados</button></div>
+      <div class="page-head">
+        <div><h2>Textos</h2><p>Lo que dice la encuesta en cada pantalla. Usa <code>{n}</code> para el número de preguntas y <code>{c}</code> para los cursos disponibles.</p></div>
+        <div class="page-tools"><button class="btn btn--ghost btn--sm" type="button" data-action="restore" data-section="textos">Restaurar predeterminados</button></div>
       </div>
-      <div class="stack">
-        ${textCard('Pantalla 1', 'Bienvenida', `
-          ${textField('Etiqueta superior', 'textos.intro.eyebrow', t.intro.eyebrow)}
-          ${textField('Botón', 'textos.intro.button', t.intro.button)}
-          ${textField('Título (verde oscuro)', 'textos.intro.title', t.intro.title)}
-          ${textField('Título (verde claro)', 'textos.intro.titleAccent', t.intro.titleAccent)}
-          ${textField('Descripción', 'textos.intro.subtitle', t.intro.subtitle, { span: true, textarea: true })}
-          ${textField('Aviso legal', 'textos.intro.legal', t.intro.legal, { span: true })}
-          ${(t.intro.stats || []).slice(0, 3).map((s, i) => `
-            <div class="field"><label>Dato ${i + 1} · ícono</label>${selectMarkup(`textos.intro.stats.${i}.icon`, s.icon, STAT_ICONS.map((ic) => [ic, ic]))}</div>
-            <div class="field"><label>Dato ${i + 1} · texto</label><div style="display:grid;gap:6px"><input class="input input--sm" data-path="textos.intro.stats.${i}.title" value="${esc(s.title)}" placeholder="Título"><input class="input input--sm" data-path="textos.intro.stats.${i}.detail" value="${esc(s.detail)}" placeholder="Detalle"></div></div>`).join('')}`)}
-        ${textCard('Personaje', `${esc(t.personaje.nombre || 'Agro')} · globos de diálogo`, `
-          ${textField('Nombre', 'textos.personaje.nombre', t.personaje.nombre)}
-          ${textField('Al iniciar', 'textos.personaje.intro', t.personaje.intro)}
-          ${textField('Durante las preguntas', 'textos.personaje.pregunta', t.personaje.pregunta)}
-          ${textField('A la mitad', 'textos.personaje.mitad', t.personaje.mitad)}
-          ${textField('Casi al final', 'textos.personaje.casi', t.personaje.casi)}
-          ${textField('Mientras analiza', 'textos.personaje.analizando', t.personaje.analizando)}
-          ${textField('En el resultado', 'textos.personaje.resultado', t.personaje.resultado, { span: true })}`)}
-        ${textCard('Avance', 'Mensajes de ánimo en la barra', `
-          ${textField('A la mitad', 'textos.avance.mitad', t.avance.mitad)}
-          ${textField('Casi al final', 'textos.avance.casi', t.avance.casi)}
-          ${textField('Última pregunta', 'textos.avance.ultima', t.avance.ultima)}`)}
-        ${textCard('Pantalla intermedia', 'Analizando respuestas', `
-          ${textField('Título', 'textos.analizando.title', t.analizando.title)}
-          ${textField('Duración (milisegundos)', 'textos.analizando.durationMs', t.analizando.durationMs, { type: 'number' })}
-          ${(t.analizando.steps || []).slice(0, 3).map((s, i) => textField(`Paso ${i + 1}`, `textos.analizando.steps.${i}`, s)).join('')}`)}
-        ${textCard('Pantalla final', 'Resultado', `
-          ${textField('Etiqueta superior', 'textos.final.eyebrow', t.final.eyebrow)}
-          ${textField('Etiqueta de la tarjeta del curso', 'textos.final.courseEyebrow', t.final.courseEyebrow)}
-          ${textField('Título (verde oscuro)', 'textos.final.title', t.final.title)}
-          ${textField('Título (verde claro)', 'textos.final.titleAccent', t.final.titleAccent)}
-          ${textField('Descripción', 'textos.final.subtitle', t.final.subtitle, { span: true, textarea: true })}
-          ${textField('Inicio de la explicación', 'textos.final.whyPrefix', t.final.whyPrefix, { help: 'Se completa con las coincidencias de la persona.' })}
-          ${textField('Etiqueta de la clase', 'textos.final.classEyebrow', t.final.classEyebrow)}
-          ${textField('Texto bajo la etiqueta de la clase', 'textos.final.classHint', t.final.classHint, { span: true })}
-          ${textField('Botón principal', 'textos.final.button', t.final.button)}
-          ${textField('Botón secundario', 'textos.final.secondary', t.final.secondary)}
-          ${textField('Enlace del botón secundario', 'textos.final.secondaryUrl', t.final.secondaryUrl, { mono: true })}
-          ${textField('Texto "responder de nuevo"', 'textos.final.again', t.final.again)}
-          ${textField('Mensaje si no hay cursos', 'textos.final.emptyCourses', t.final.emptyCourses, { span: true })}`)}
-        ${textCard('Navegación', 'Botones, enlaces y club', `
-          ${textField('URL del club', 'clubUrl', state.draft.clubUrl, { mono: true, help: 'Las clases se abren en {club}/#/curso/{id}/clase/{n}.' })}
-          ${textField('"Responder después"', 'textos.nav.later', t.nav.later)}
-          ${textField('Enlace de "Responder después"', 'textos.nav.laterUrl', t.nav.laterUrl, { mono: true })}
-          ${textField('Botón atrás', 'textos.nav.back', t.nav.back)}
-          ${textField('Botón continuar', 'textos.nav.next', t.nav.next)}
-          ${textField('Botón en la última pregunta', 'textos.nav.finish', t.nav.finish)}
-          ${textField('Pista de teclado', 'textos.nav.hint', t.nav.hint)}`)}
-      </div>`;
+      ${accordion('Pantalla de bienvenida', 'Título, subtítulo, texto introductorio y los tres datos de confianza', `
+        ${textField('Etiqueta superior', 'textos.intro.eyebrow', t.intro.eyebrow)}
+        ${textField('Aviso legal', 'textos.intro.legal', t.intro.legal)}
+        ${textField('Título (verde oscuro)', 'textos.intro.title', t.intro.title)}
+        ${textField('Título (verde claro)', 'textos.intro.titleAccent', t.intro.titleAccent)}
+        ${textField('Texto introductorio', 'textos.intro.subtitle', t.intro.subtitle, { span: true, textarea: true })}
+        ${(t.intro.stats || []).slice(0, 3).map((s, i) => `
+          <div class="field"><label>Dato ${i + 1} · ícono</label>${selectMarkup(`textos.intro.stats.${i}.icon`, s.icon, STAT_ICONS.map((ic) => [ic, ic]))}</div>
+          <div class="field"><label>Dato ${i + 1} · texto</label><div style="display:grid;gap:6px"><input class="input input--sm" data-path="textos.intro.stats.${i}.title" value="${esc(s.title)}" placeholder="Título"><input class="input input--sm" data-path="textos.intro.stats.${i}.detail" value="${esc(s.detail)}" placeholder="Detalle"></div></div>`).join('')}`, true)}
+      ${accordion('Durante la encuesta', 'Mensajes de avance y globos del personaje', `
+        ${textField('Nombre del personaje', 'textos.personaje.nombre', t.personaje.nombre)}
+        ${textField('Personaje al iniciar', 'textos.personaje.intro', t.personaje.intro)}
+        ${textField('Personaje durante las preguntas', 'textos.personaje.pregunta', t.personaje.pregunta)}
+        ${textField('Personaje a la mitad', 'textos.personaje.mitad', t.personaje.mitad)}
+        ${textField('Personaje casi al final', 'textos.personaje.casi', t.personaje.casi)}
+        ${textField('Personaje en el resultado', 'textos.personaje.resultado', t.personaje.resultado)}
+        ${textField('Avance · a la mitad', 'textos.avance.mitad', t.avance.mitad)}
+        ${textField('Avance · casi al final', 'textos.avance.casi', t.avance.casi)}
+        ${textField('Avance · última pregunta', 'textos.avance.ultima', t.avance.ultima)}`)}
+      ${accordion('Pantalla de análisis', 'Lo que se ve mientras se calcula la recomendación', `
+        ${textField('Título', 'textos.analizando.title', t.analizando.title)}
+        ${textField('Personaje mientras analiza', 'textos.personaje.analizando', t.personaje.analizando)}
+        ${(t.analizando.steps || []).slice(0, 3).map((s, i) => textField(`Paso ${i + 1}`, `textos.analizando.steps.${i}`, s)).join('')}
+        ${textField('Duración (milisegundos)', 'textos.analizando.durationMs', t.analizando.durationMs, { type: 'number' })}`)}
+      ${accordion('Pantalla de resultados', 'Etiqueta, título, descripción y texto de la recomendación', `
+        ${textField('Etiqueta superior', 'textos.final.eyebrow', t.final.eyebrow)}
+        ${textField('Etiqueta de la tarjeta del curso', 'textos.final.courseEyebrow', t.final.courseEyebrow)}
+        ${textField('Título (verde oscuro)', 'textos.final.title', t.final.title)}
+        ${textField('Título (verde claro)', 'textos.final.titleAccent', t.final.titleAccent)}
+        ${textField('Descripción', 'textos.final.subtitle', t.final.subtitle, { span: true, textarea: true })}
+        ${textField('Inicio de la explicación', 'textos.final.whyPrefix', t.final.whyPrefix, { help: 'Se completa con las coincidencias de la persona.' })}
+        ${textField('Mensaje si no hay cursos', 'textos.final.emptyCourses', t.final.emptyCourses)}`)}
+      ${accordion('Clase recomendada', 'Bloque "Empieza con esta clase"', `
+        ${textField('Título del bloque', 'textos.final.classEyebrow', t.final.classEyebrow)}
+        ${textField('Texto descriptivo', 'textos.final.classHint', t.final.classHint)}`)}
+      ${accordion('Botones', 'Textos de los botones en todas las pantallas', `
+        ${textField('Empezar (bienvenida)', 'textos.intro.button', t.intro.button)}
+        ${textField('Continuar', 'textos.nav.next', t.nav.next)}
+        ${textField('Última pregunta', 'textos.nav.finish', t.nav.finish)}
+        ${textField('Atrás', 'textos.nav.back', t.nav.back)}
+        ${textField('Botón principal del resultado', 'textos.final.button', t.final.button)}
+        ${textField('Botón secundario del resultado', 'textos.final.secondary', t.final.secondary)}
+        ${textField('Responder de nuevo', 'textos.final.again', t.final.again)}
+        ${textField('Responder después', 'textos.nav.later', t.nav.later)}
+        ${textField('Pista de teclado', 'textos.nav.hint', t.nav.hint)}`)}
+      ${accordion('Enlaces', 'Club, catálogo y destino de "Responder después"', `
+        ${textField('URL del club (destino de la clase)', 'clubUrl', state.draft.clubUrl, { mono: true, help: 'Las clases se abren en {club}/#/curso/{id}/clase/{n}.' })}
+        ${textField('Catálogo (botón secundario)', 'textos.final.secondaryUrl', t.final.secondaryUrl, { mono: true })}
+        ${textField('Destino de "Responder después"', 'textos.nav.laterUrl', t.nav.laterUrl, { mono: true, help: '../ lleva al inicio del sitio.' })}`)}`;
   };
 
   /* ---------- Render general ---------- */
@@ -789,22 +927,36 @@
     render();
     window.scrollTo({ top: 0 });
   };
+  const closeMenus = () => $$('.menu').forEach((m) => { m.hidden = true; });
 
   /* ---------- Acciones ---------- */
   const actions = {
     period: ({ value }) => { state.period = value; renderTab(); },
+    'resp-period': ({ value }) => { state.respFilter.period = value; state.page = 1; renderTab(); },
+    'toggle-interests': () => { state.showAllInterests = !state.showAllInterests; renderTab(); },
     reload: () => loadAll(),
     'export-csv': () => exportCsv(),
     'page-more': () => { state.page += 1; renderTab(); },
     'cursos-filter': ({ value }) => { state.cursosFilter = value; renderTab(); },
     'toggle-item': ({ col, i }) => { const set = state.open[col]; const index = Number(i); set.has(index) ? set.delete(index) : set.add(index); renderTab(); },
+    menu: (_, button) => { const menu = button.nextElementSibling; const wasHidden = menu.hidden; closeMenus(); menu.hidden = !wasHidden; },
+    'row-open': ({ id }) => openDrawer(id),
+    'drawer-close': () => closeDrawer(),
     'q-add': () => {
       state.draft.preguntas.push({ id: `pregunta-${uid()}`, dimension: 'none', kicker: 'Nueva', title: 'Nueva pregunta', hint: '', type: 'single', max: 3, layout: 'cards', mood: 'point', bubble: '', options: [
         { value: 'opcion-1', icon: 'i:sparkles', title: 'Opción 1', detail: '', image: '' }, { value: 'opcion-2', icon: 'i:sparkles', title: 'Opción 2', detail: '', image: '' }
       ] });
       state.open.preguntas = new Set([state.draft.preguntas.length - 1]);
       markDirty(); renderTab();
-      view('preguntas').querySelector('.item.is-open')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      view('preguntas').querySelector('.row-item.is-open')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+    'q-duplicate': ({ i }) => {
+      const copy = clone(state.draft.preguntas[Number(i)]);
+      copy.id = `${copy.id}-copia`;
+      copy.title = `${copy.title} (copia)`;
+      state.draft.preguntas.splice(Number(i) + 1, 0, copy);
+      state.open.preguntas = new Set([Number(i) + 1]);
+      markDirty(); renderTab();
     },
     'q-remove': ({ i }) => {
       const q = state.draft.preguntas[Number(i)];
@@ -814,8 +966,8 @@
       state.open.preguntas = new Set();
       markDirty(); renderTab();
     },
-    'q-up': ({ i }) => { move(state.draft.preguntas, Number(i), Number(i) - 1); state.open.preguntas = new Set([Number(i) - 1]); markDirty(); renderTab(); },
-    'q-down': ({ i }) => { move(state.draft.preguntas, Number(i), Number(i) + 1); state.open.preguntas = new Set([Number(i) + 1]); markDirty(); renderTab(); },
+    'q-up': ({ i }) => { move(state.draft.preguntas, Number(i), Number(i) - 1); state.open.preguntas = new Set(); markDirty(); renderTab(); },
+    'q-down': ({ i }) => { move(state.draft.preguntas, Number(i), Number(i) + 1); state.open.preguntas = new Set(); markDirty(); renderTab(); },
     'opt-add': ({ q }) => {
       const question = state.draft.preguntas[Number(q)];
       question.options.push({ value: `opcion-${question.options.length + 1}-${uid()}`, icon: 'i:sparkles', title: '', detail: '', image: '' });
@@ -831,6 +983,14 @@
       state.cursosFilter = 'all'; state.search.cursos = '';
       markDirty(); renderTab();
       $$('[data-path="cursos.0.title"]')[0]?.focus();
+    },
+    'c-duplicate': ({ i }) => {
+      const copy = clone(state.draft.cursos[Number(i)]);
+      copy.id = `${copy.id}-copia`;
+      copy.title = `${copy.title} (copia)`;
+      state.draft.cursos.splice(Number(i) + 1, 0, copy);
+      state.open.cursos = new Set([Number(i) + 1]);
+      markDirty(); renderTab();
     },
     'c-remove': ({ i }) => {
       const c = state.draft.cursos[Number(i)];
@@ -861,22 +1021,33 @@
     restore: ({ section }) => {
       if (!window.confirm(`¿Restaurar ${section} a los valores predeterminados? Se aplicará al guardar.`)) return;
       state.draft[section] = clone(DEFAULTS[section]);
-      if (section === 'preguntas') state.open.preguntas = new Set([0]);
-      if (section === 'cursos') state.open.cursos = new Set();
+      state.open.preguntas = new Set();
+      state.open.cursos = new Set();
       markDirty(); renderTab();
     },
     'r-delete': ({ id }) => deleteResponse(id)
   };
 
-  els.content.addEventListener('click', (event) => {
+  const handleAction = (event) => {
     const target = event.target.closest('[data-action]');
-    if (!target || !els.content.contains(target)) return;
+    if (!target) return;
     if (event.target.closest('[data-stop]')) return;
+    if (target.tagName === 'TR' && event.target.closest('a, button, input, select')) return;
     event.preventDefault();
+    if (target.dataset.action !== 'menu') closeMenus();
     actions[target.dataset.action]?.(target.dataset, target);
-  });
+  };
+  els.content.addEventListener('click', handleAction);
+  els.drawer.addEventListener('click', handleAction);
+  els.content.addEventListener('keydown', (event) => { if (event.key === 'Enter' && event.target.matches('tr[data-action="row-open"]')) { event.preventDefault(); openDrawer(event.target.dataset.id); } });
+  document.addEventListener('click', (event) => { if (!event.target.closest('.menu-wrap')) closeMenus(); });
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') { closeMenus(); if (state.drawerId) closeDrawer(); } });
 
   let searchTimer = 0;
+  els.content.addEventListener('change', (event) => {
+    const el = event.target;
+    if (el.dataset.filter === 'course') { state.respFilter.course = el.value; state.page = 1; renderTab(); }
+  });
   els.content.addEventListener('input', (event) => {
     const el = event.target;
     if (el.dataset.search) {
@@ -898,10 +1069,10 @@
     if (el.dataset.type === 'number') value = el.value === '' ? null : Number(value);
     setPath(state.draft, path, value);
     markDirty();
-    if (el.type === 'checkbox' && el.closest('.item__tools')) {
+    if (el.type === 'checkbox' && el.closest('.row-item__actions')) {
       const label = el.closest('.switch')?.querySelector('span');
       if (label) label.textContent = el.checked ? 'Disponible' : 'Oculto';
-      el.closest('.item')?.classList.toggle('is-off', !el.checked);
+      el.closest('.row-item')?.classList.toggle('is-off', !el.checked);
     }
     if (el.dataset.iconPreview !== undefined) { const preview = el.closest('.icon-field')?.querySelector('.icon-preview'); if (preview) preview.innerHTML = iconMarkup(el.value); }
     if (el.dataset.rerender) renderTab();
