@@ -127,6 +127,7 @@
   let pageLock = null;
   let keepLauncherOnScreen = () => {};
   let keepPanelOnScreen = () => {};
+  let heroVisibleOnMobile = false;
 
   if (!state.messages.length) {
     state.messages.push({ role: 'assistant', text: config.welcome, time: timeNow() });
@@ -137,6 +138,7 @@
 
   initLauncherDrag();
   initPanelDrag();
+  initMobileHeroVisibility();
   launcher.addEventListener('click', (event) => {
     if (suppressLauncherClick) {
       event.preventDefault();
@@ -160,9 +162,28 @@
   document.addEventListener('visibilitychange', syncVisibility);
   reducedMotion.addEventListener?.('change', () => { if (reducedMotion.matches) setPaused(true); });
   mobileViewport.addEventListener?.('change', (event) => {
+    syncMobileHeroVisibility();
     if (!state.open) return;
     if (event.matches) lockPageOnMobile(); else unlockPage();
   });
+
+  function syncMobileHeroVisibility() {
+    launcher.classList.toggle('is-mobile-hero-hidden', mobileViewport.matches && heroVisibleOnMobile && !state.open);
+  }
+
+  function initMobileHeroVisibility() {
+    const hero = document.querySelector('.ag3-hero');
+    if (!hero) return;
+    const rect = hero.getBoundingClientRect();
+    heroVisibleOnMobile = rect.bottom > 80 && rect.top < window.innerHeight;
+    syncMobileHeroVisibility();
+    if (!('IntersectionObserver' in window)) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      heroVisibleOnMobile = entry.isIntersecting;
+      syncMobileHeroVisibility();
+    }, { rootMargin: '-80px 0px 0px', threshold: 0.05 });
+    observer.observe(hero);
+  }
 
   function avatarMarkup(extraClass) {
     const image = config.character.src
