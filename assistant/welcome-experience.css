@@ -81,7 +81,7 @@
 .agx-cookie__copy a { color:#efbd46;font-weight:800;text-decoration:underline;text-underline-offset:2px; }
 .agx-cookie__accept { flex:0 0 auto;min-width:116px;min-height:44px;border:0;border-radius:999px;color:#17382f;background:#efbd46;font:850 .84rem/1 "Hanken Grotesk",system-ui,sans-serif;cursor:pointer;transition:transform .18s ease; }
 .agx-cookie__accept:hover { transform:translateY(-2px); }
-@keyframes agxPaneIn { from { opacity:0;transform:translateX(10px); } to { opacity:1;transform:none; } }
+@keyframes agxPaneIn { from { transform:translateX(7px); } to { transform:none; } }
 @keyframes agxCheckIn { from { transform:scale(.7);opacity:.3; } to { transform:scale(1);opacity:1; } }
 @keyframes agxWelcomeHello { 0%,62%,100%{transform:translateX(-50%) rotate(0) scale(1)}69%{transform:translateX(-50%) rotate(-3deg) scale(1.015)}77%{transform:translateX(-50%) rotate(3deg) scale(1.015)}84%{transform:translateX(-50%) rotate(0) scale(1)} }
 @keyframes agxMascotThink { 0%,100%{transform:translateX(-50%) rotate(0)}42%{transform:translateX(-50%) rotate(0)}48%{transform:translateX(-50%) rotate(-2deg)}55%{transform:translateX(-50%) rotate(2deg)}62%{transform:translateX(-50%) rotate(0)} }

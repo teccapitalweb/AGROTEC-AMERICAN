@@ -162,7 +162,9 @@
 
   function questionMarkup(question) {
     const values = answerValues(question.id);
-    const isMulti = question.type === 'multi';
+    const hint = question.id === 'areas'
+      ? 'Elige el tema que más te interesa en este momento.'
+      : question.hint;
     const options = question.options.map((option) => {
       const selected = values.includes(option.value);
       const image = question.id === 'areas' && option.image
@@ -184,13 +186,11 @@
         </div>
         <p class="agx-welcome__eyebrow">${escapeHtml(question.kicker)}</p>
         <h2 class="agx-welcome__question" id="agx-welcome-title" tabindex="-1">${escapeHtml(question.title)}</h2>
-        <p class="agx-welcome__hint">${escapeHtml(question.hint)}${isMulti ? ` <b>${values.length}/${question.max || 3}</b>` : ''}</p>
+        <p class="agx-welcome__hint">${escapeHtml(hint)}</p>
         <div class="agx-options${question.id === 'areas' ? ' agx-options--topics' : ''}">${options}</div>
         <div class="agx-welcome__actions agx-welcome__actions--steps">
           <button class="agx-welcome__button agx-welcome__button--secondary" type="button" data-agx-back>${step ? 'Atrás' : 'Volver'}</button>
-          ${isMulti
-            ? `<button class="agx-welcome__button agx-welcome__button--primary" type="button" data-agx-next ${values.length ? '' : 'disabled'}>${step === questions.length - 1 ? 'Ver mi resultado' : 'Continuar'}</button>`
-            : '<span class="agx-welcome__autonext">Elige una respuesta y avanzamos automáticamente</span>'}
+          <span class="agx-welcome__autonext">Elige una respuesta y avanzamos automáticamente</span>
         </div>
       </div>`;
   }
@@ -298,10 +298,6 @@
       if (step === 0) screen = 'intro'; else step -= 1;
       render(); return;
     }
-    if (event.target.closest('[data-agx-next]')) {
-      if (!answerValues(questions[step].id).length) return;
-      goForward(); return;
-    }
     if (event.target.closest('[data-agx-restart]')) {
       Object.keys(answers).forEach((key) => delete answers[key]);
       screen = 'question'; step = 0; render(); return;
@@ -315,26 +311,19 @@
     if (!optionButton) return;
     const question = questions[step];
     const value = optionButton.dataset.agxOption;
-    if (question.type === 'multi') {
-      const selected = answerValues(question.id);
-      answers[question.id] = selected.includes(value)
-        ? selected.filter((item) => item !== value)
-        : selected.length < (question.max || 3) ? [...selected, value] : selected;
-    } else {
-      answers[question.id] = value;
-    }
-    const restoreKeyboardFocus = event.detail === 0;
-    render({ focus: false });
-    if (restoreKeyboardFocus) view.querySelector(`[data-agx-option="${CSS.escape(value)}"]`)?.focus({ preventScroll: true });
-    if (question.type !== 'multi') {
-      clearTimeout(advanceTimer);
-      card.classList.add('is-advancing');
-      view.querySelectorAll('[data-agx-option]').forEach((button) => { button.disabled = true; });
-      advanceTimer = window.setTimeout(() => {
-        card.classList.remove('is-advancing');
-        if (!welcome.hidden && screen === 'question') goForward();
-      }, 420);
-    }
+    answers[question.id] = value;
+    clearTimeout(advanceTimer);
+    view.querySelectorAll('[data-agx-option]').forEach((button) => {
+      const selected = button === optionButton;
+      button.classList.toggle('is-selected', selected);
+      button.setAttribute('aria-pressed', String(selected));
+      button.disabled = true;
+    });
+    card.classList.add('is-advancing');
+    advanceTimer = window.setTimeout(() => {
+      card.classList.remove('is-advancing');
+      if (!welcome.hidden && screen === 'question') goForward();
+    }, 260);
   });
 
   document.addEventListener('keydown', (event) => {
