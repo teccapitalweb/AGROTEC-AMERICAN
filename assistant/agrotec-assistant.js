@@ -71,6 +71,7 @@
   const root = document.createElement('div');
   root.dataset.agxRoot = '';
   root.dataset.agxState = 'idle';
+  root.dataset.agxCharacter = 'robot';
   root.dataset.agxMotion = state.paused ? 'paused' : 'running';
   root.style.setProperty('--agx-primary', config.colors.primary);
   root.style.setProperty('--agx-primary-dark', config.colors.primaryDark);
@@ -157,6 +158,11 @@
     if (!value) return;
     input.value = '';
     handleInput(value);
+  });
+  input.addEventListener('input', syncInputMotion);
+  input.addEventListener('focus', syncInputMotion);
+  input.addEventListener('blur', () => {
+    if (root.dataset.agxState === 'listening') root.dataset.agxState = 'idle';
   });
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape' && state.open) close(); });
   document.addEventListener('visibilitychange', syncVisibility);
@@ -282,7 +288,14 @@
   function wave() {
     if (state.paused || document.hidden) return;
     root.dataset.agxState = 'wave';
-    setTimeout(() => { if (root.dataset.agxState === 'wave') root.dataset.agxState = 'idle'; }, 2500);
+    setTimeout(() => {
+      if (root.dataset.agxState === 'wave') root.dataset.agxState = input.value.trim() ? 'listening' : 'idle';
+    }, 2500);
+  }
+
+  function syncInputMotion() {
+    if (state.paused || !typingEl.hidden || ['waiting', 'response'].includes(root.dataset.agxState)) return;
+    root.dataset.agxState = input.value.trim() ? 'listening' : 'idle';
   }
 
   function setPaused(value) {
@@ -615,7 +628,9 @@
   function reply(text, extra = {}) {
     root.dataset.agxState = 'response';
     addMessage('assistant', text, extra);
-    setTimeout(() => { if (root.dataset.agxState === 'response') root.dataset.agxState = 'idle'; }, 650);
+    setTimeout(() => {
+      if (root.dataset.agxState === 'response') root.dataset.agxState = input.value.trim() ? 'listening' : 'idle';
+    }, 900);
   }
 
   function searchCourses(query) {

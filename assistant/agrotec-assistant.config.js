@@ -16,9 +16,9 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
     ink: '#24372f'
   },
   character: {
-    src: 'assistant/assets/agro-mascot-orange-clean-v5.webp',
-    blinkSrc: 'assistant/assets/agro-mascot-orange-blink-v5.webp',
-    alt: 'Agro, la guía agricultora de AgroTec América con overol naranja',
+    src: 'assistant/assets/agro-robot-v6.png',
+    blinkSrc: '',
+    alt: 'Agro, el robot agricultor de AgroTec América con sombrero y una planta',
     placeholder: 'A'
   },
   catalog: {

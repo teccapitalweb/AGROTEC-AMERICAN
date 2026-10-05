@@ -7,9 +7,7 @@ Componente frontend aislado y reutilizable. No modifica autenticación, pagos, m
 - `agrotec-assistant.config.js`: marca, paleta, personaje, selectores de datos y contacto humano.
 - `agrotec-assistant.css`: estilos limitados al atributo `data-agx-root` y clases `agx-*`.
 - `agrotec-assistant.js`: interfaz, estado de sesión, accesibilidad, lectura del catálogo y respuestas guiadas.
-- `assets/agro-mascot-orange-clean-v5.webp`: personaje optimizado para la web, con overol naranja y transparencia.
-- `assets/agro-mascot-orange-blink-v5.webp`: segundo fotograma optimizado del mismo personaje con los ojos cerrados.
-- Los PNG originales se conservan como fuentes maestras; la página pública usa los WebP ligeros.
+- `assets/agro-robot-v6.png`: robot agricultor verde con sombrero y maceta, sobre fondo transparente.
 
 ## Estado actual
 
@@ -28,16 +26,15 @@ Componente frontend aislado y reutilizable. No modifica autenticación, pagos, m
 - La mascota del panel abierto sirve como agarradera para mover todo el chatbot y conserva esa posición por separado.
 - En móvil, la escena cerrada usa una escala compacta y el chat abierto bloquea el fondo con una capa tenue para conservar el punto de lectura.
 - Las flechas del teclado también mueven la escena y la tecla `Inicio` restaura su posición original.
-- El personaje tiene parpadeo doble, respiración, saludo, espera y respuesta.
-- La ropa naranja mejora el contraste sobre la fotografía verde del campo.
-- Los fotogramas no usan halo ni sombra de imagen; el recorte útil evita residuos laterales durante el parpadeo.
+- El robot usa movimientos distintos para reposo, saludo, hover, escucha mientras el usuario escribe, espera y respuesta.
+- Las animaciones combinan inclinación, giro, balance, squash-and-stretch y desplazamiento lateral para sentirse como un muñeco de caricatura, no como una simple flotación vertical.
 - El pie del panel ofrece acceso al asesor y reinicio de conversación.
 
 ## Movimiento del personaje
 
-La versión actual alterna dos ilustraciones alineadas —ojos abiertos y ojos cerrados— para crear el parpadeo. El resto del movimiento se crea con CSS: respiración/flotación suave, inclinación al saludar, espera y pulso al responder. Los tres mensajes iniciales aparecen de forma secuencial. Además, el lanzador cerrado puede arrastrarse con mouse o gesto táctil sin abrir accidentalmente el chat; el movimiento queda limitado a la ventana.
+La versión actual anima una ilustración transparente mediante CSS. En reposo el robot balancea el peso; al pasar el puntero se inclina para saludar; mientras el usuario escribe presta atención; durante la espera procesa con giros laterales; y al responder hace una celebración breve con rebote y recuperación. Los tres mensajes iniciales aparecen de forma secuencial. Además, el lanzador cerrado puede arrastrarse con mouse o gesto táctil sin abrir accidentalmente el chat; el movimiento queda limitado a la ventana.
 
-La secuencia de ojos y el movimiento corporal se detienen con el control de pausa, al ocultar la pestaña y cuando el sistema solicita movimiento reducido.
+El movimiento se detiene con el control de pausa, al ocultar la pestaña y cuando el sistema solicita movimiento reducido.
 
 Esto no es todavía animación articulada de brazos, ojos o boca. Para una segunda versión con ese nivel de detalle conviene crear un sprite o un archivo Rive/Lottie diseñado por capas y revisar cada estado antes de sustituir el PNG.
 
