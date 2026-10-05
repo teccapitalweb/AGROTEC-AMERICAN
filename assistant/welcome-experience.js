@@ -238,7 +238,14 @@
     if (focus) requestAnimationFrame(() => view.querySelector('button:not([disabled]), a[href]')?.focus({ preventScroll: true }));
   }
 
-  function openWelcome() {
+  function resetRoute() {
+    Object.keys(answers).forEach((key) => delete answers[key]);
+    screen = 'intro';
+    step = 0;
+  }
+
+  function openWelcome({ restart = false } = {}) {
+    if (restart) resetRoute();
     lastFocus = document.activeElement;
     welcome.hidden = false;
     document.body.classList.add('agx-welcome-open');
@@ -305,6 +312,18 @@
     if (escapeKey(event) && !welcome.hidden) closeWelcome();
     else keepFocusInside(event);
   });
+
+  // Todos los accesos a la ruta del index abren este mismo cuadro. La URL de
+  // /encuesta/ permanece como respaldo si JavaScript no está disponible.
+  document.addEventListener('click', (event) => {
+    const link = event.target.closest('a[href]');
+    if (!link) return;
+    const href = (link.getAttribute('href') || '').replace(/^\.\//, '');
+    if (!/^encuesta\/?(?:[?#].*)?$/.test(href)) return;
+    event.preventDefault();
+    openWelcome({ restart: true });
+  });
+  window.agrotecOpenRoute = () => openWelcome({ restart: true });
 
   let cookiesAccepted = false;
   try { cookiesAccepted = localStorage.getItem(cookieKey) === 'accepted'; } catch {}

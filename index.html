@@ -451,12 +451,12 @@ button{font-family:inherit;cursor:pointer;}
 </style>
 <link rel="stylesheet" href="landing-v3.css?v=20261005-robot">
 <link rel="stylesheet" href="assistant/agrotec-assistant.css?v=20261005-knowledge">
-<link rel="stylesheet" href="assistant/welcome-experience.css?v=20261005-inline">
+<link rel="stylesheet" href="assistant/welcome-experience.css?v=20261005-inline2">
 <script src="landing-v3.js" defer></script>
 <script src="assistant/agrotec-assistant.config.js?v=20261005-knowledge" defer></script>
 <script src="assistant/agrotec-assistant.js?v=20261005-knowledge" defer></script>
-<script src="encuesta/encuesta-defaults.js?v=20261005-inline" defer></script>
-<script src="assistant/welcome-experience.js?v=20261005-inline" defer></script>
+<script src="encuesta/encuesta-defaults.js?v=20261005-inline2" defer></script>
+<script src="assistant/welcome-experience.js?v=20261005-inline2" defer></script>
 </head>
 <body>
 
@@ -544,7 +544,7 @@ button{font-family:inherit;cursor:pointer;}
   <nav class="ag3-mobile" id="ag3-mobile" data-ag3-mobile aria-label="Menú móvil">
     <a href="#ag3-historia">Nuestra visión</a>
     <a href="#catalogo-real">Cursos</a>
-    <a href="encuesta/">Encuentra tu ruta</a>
+    <a href="encuesta/" data-agx-route-open>Encuentra tu ruta</a>
     <a href="#plataforma">Plataforma</a>
     <a href="#membresia">Membresía</a>
     <a href="https://club.agrotecamerican.com/#/login">Entrar al portal</a>
@@ -559,7 +559,7 @@ button{font-family:inherit;cursor:pointer;}
           <p>Capacitación técnica, herramientas digitales y una comunidad hecha para quienes producen, asesoran y construyen el futuro agrícola de México.</p>
           <div class="ag3-hero__actions">
             <button class="ag3-btn ag3-btn--gold" type="button" onclick="document.getElementById('modalVIP').style.display='flex'">Conocer la membresía <svg class="ico"><use href="#i-arrow"/></svg></button>
-            <a class="ag3-btn ag3-btn--route" href="encuesta/">Que Agro me recomiende <svg class="ico"><use href="#i-arrow"/></svg></a>
+            <a class="ag3-btn ag3-btn--route" href="encuesta/" data-agx-route-open>Que Agro me recomiende <svg class="ico"><use href="#i-arrow"/></svg></a>
             <a class="ag3-btn ag3-btn--line" href="#catalogo-real">Explorar cursos</a>
           </div>
           <div class="ag3-hero__proof" aria-label="Resumen del catálogo">
@@ -751,7 +751,7 @@ button{font-family:inherit;cursor:pointer;}
     <div class="ag3-wrap">
       <div class="ag3-footer__grid">
         <div class="ag3-footer__brand"><img src="img/brand/logo-horizontal-ui.webp" alt="AgroTec América" loading="lazy" decoding="async" width="480" height="192"><p>Formación, herramientas y comunidad para profesionalizar el campo latinoamericano.</p></div>
-        <div><h3>Explora</h3><ul><li><a href="encuesta/">Encuentra tu ruta</a></li><li><a href="#catalogo-real">Cursos</a></li><li><a href="#plataforma">Plataforma</a></li><li><a href="#membresia">Membresía</a></li></ul></div>
+        <div><h3>Explora</h3><ul><li><a href="encuesta/" data-agx-route-open>Encuentra tu ruta</a></li><li><a href="#catalogo-real">Cursos</a></li><li><a href="#plataforma">Plataforma</a></li><li><a href="#membresia">Membresía</a></li></ul></div>
         <div><h3>Tu cuenta</h3><ul><li><a href="https://club.agrotecamerican.com/#/login">Iniciar sesión</a></li><li><a href="https://club.agrotecamerican.com/#/cursos">Ir al catálogo</a></li><li><a href="privacidad.html">Privacidad</a></li></ul></div>
         <div><h3>Contacto</h3><ul><li><a class="ag3-footer__wa" href="https://wa.me/5212361066811?text=Hola%2C%20vi%20la%20p%C3%A1gina%20de%20AgroTec%20Am%C3%A9rica%20y%20quiero%20informaci%C3%B3n%20sobre%20AgroClub%20MX" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.149-.67.149-.198.297-.767.966-.94 1.164-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479s1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.076 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.29.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.981.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884a9.82 9.82 0 0 1 6.988 2.895 9.825 9.825 0 0 1 2.893 6.99c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>WhatsApp</a></li><li><a href="https://www.instagram.com/agrotec_american" target="_blank" rel="noopener">Instagram</a></li><li><a href="https://www.facebook.com/share/1JWXU1Lcy1/" target="_blank" rel="noopener">Facebook</a></li></ul></div>
       </div>
