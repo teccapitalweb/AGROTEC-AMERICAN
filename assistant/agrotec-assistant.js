@@ -9,7 +9,7 @@
   const panelPositionKey = `${config.id}-assistant-panel-position`;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileViewport = window.matchMedia('(max-width: 680px)');
-  const stopwords = new Set(['quiero','curso','cursos','sobre','para','como','algo','una','uno','unos','unas','del','las','los','que','con','por','me','interesa','busco','aprender','capacitacion']);
+  const stopwords = new Set(['quiero','curso','cursos','sobre','para','como','algo','una','uno','unos','unas','del','las','los','que','con','por','me','interesa','busco','aprender','capacitacion','cultivo','cultivos','campo','produccion','producir','tema','pregunta']);
   const conceptGroups = {
     basics: {
       prompt: 'Elige un concepto básico del campo:',
@@ -26,9 +26,25 @@
     production: {
       prompt: '¿Sobre qué parte de la producción tienes curiosidad?',
       items: ['plagas', 'vivero', 'inocuidad', 'invernadero', 'ia-agricultura']
+    },
+    soil: {
+      prompt: '¿Qué quieres entender sobre suelo y nutrición?',
+      items: ['ph', 'conductividad', 'salinidad', 'npk', 'micronutrientes', 'materiaOrganica', 'compactacion']
+    },
+    field: {
+      prompt: 'Elige una decisión práctica del cultivo:',
+      items: ['goteo', 'calidadAgua', 'mip', 'enfermedades', 'malezas', 'agroquimicos', 'poscosecha']
+    },
+    business: {
+      prompt: '¿Qué tema de negocio agrícola quieres revisar?',
+      items: ['costos', 'puntoEquilibrio', 'valorAgregado', 'exportacion', 'trazabilidad', 'bpa']
+    },
+    crops: {
+      prompt: 'Elige un cultivo para comenzar:',
+      items: ['maiz', 'cacao', 'papaya', 'berries', 'nopal', 'pitahaya', 'hongos', 'chile', 'tomatillo', 'frutales']
     }
   };
-  const concepts = {
+  const coreConcepts = {
     agricultura: {
       label: 'Agricultura',
       aliases: ['agricultura'],
@@ -144,6 +160,48 @@
       courseQueries: ['IA en Agricultura', 'Agronomía para No Agrónomos']
     }
   };
+  const concepts = Object.freeze({
+    ...coreConcepts,
+    ...(window.AGROTEC_ASSISTANT_KNOWLEDGE || {})
+  });
+
+  const guidanceProfiles = [
+    {
+      pattern: /dosis|cuanto aplicar|cuantos kilos|mezcla|compatib|producto aplicar|que le echo/,
+      answer: 'Para definir una dosis responsable hacen falta producto y formulación exactos, cultivo, etapa, objetivo, superficie o volumen, equipo y etiqueta vigente. Sin esos datos una cifra podría dañar el cultivo, dejar residuos o poner en riesgo a quien aplica. Lo útil es: confirmar el diagnóstico, leer la etiqueta autorizada, calibrar el equipo, calcular el área real y registrar el resultado.',
+      courseQueries: ['Agronomía para No Agrónomos', 'Inocuidad Alimentaria']
+    },
+    {
+      pattern: /amarill|mancha|marchit|seca|pudric|hojas.*(cafe|negr|blanc)|planta.*enferm/,
+      answer: 'Ese síntoma puede venir de agua, raíces, nutrición, clima, plagas o enfermedad; el color por sí solo no confirma la causa. Revisa si el patrón aparece en hojas nuevas o viejas, si está en bordes o entre nervaduras, cómo se distribuye en el lote y qué cambió antes del problema. Después inspecciona raíces y envés de hojas y compara plantas sanas contra afectadas.',
+      courseQueries: ['Diseño de Programas Nutricionales', 'Bioinsumos', 'Agronomía para No Agrónomos']
+    },
+    {
+      pattern: /mejorar.*(rendimiento|produccion|cosecha)|aumentar.*(rendimiento|produccion)|produce poco/,
+      answer: 'Para mejorar rendimiento conviene encontrar primero el factor que realmente limita: establecimiento, agua, raíces, nutrición, sanidad, clima, polinización o cosecha. Mide una línea base, elige una sola intervención prioritaria y compara una franja tratada contra otra sin cambio; así sabrás qué práctica sí generó resultado y si pagó su costo.',
+      courseQueries: ['Agronomía para No Agrónomos', 'Diseño de Programas Nutricionales']
+    },
+    {
+      pattern: /negocio|vender|mercado|precio|ganancia|rentab|emprender/,
+      answer: 'Una decisión de negocio agrícola debe conectar cliente, producto vendible, calendario, merma y costo completo. Empieza por validar quién compra, qué especificación exige, cuánto volumen recibe y cuándo paga; después calcula costo por unidad comercializable y prueba escenarios de precio y rendimiento antes de invertir.',
+      courseQueries: ['Contabilidad Agrícola', 'Exportación Agrícola']
+    },
+    {
+      pattern: /riego|agua|humedad|sequia|encharc/,
+      answer: 'El riego se decide con tres preguntas: cuánto puede almacenar la zona de raíces, cuánto está consumiendo el cultivo y qué tan uniforme aplica el sistema. Revisa textura y profundidad radicular, clima, humedad antes y después del riego, caudal y drenaje. Regar por costumbre o solo por apariencia puede alternar déficit y exceso.',
+      courseQueries: ['Fertirrigación', 'Hidroponía para Todos']
+    },
+    {
+      pattern: /fertili|nutri|deficien|abono/,
+      answer: 'La nutrición funciona mejor como balance que como una lista de productos. Integra demanda del cultivo y etapa, análisis de suelo o sustrato, aportes del agua, rendimiento esperado y eficiencia de aplicación. Antes de corregir una supuesta deficiencia también revisa raíces, pH, salinidad y humedad, porque pueden bloquear nutrientes aunque estén presentes.',
+      courseQueries: ['Diseño de Programas Nutricionales', 'Fertirrigación']
+    },
+    {
+      pattern: /plaga|insecto|gusano|pulgon|mosca|acaro/,
+      answer: 'Primero identifica el organismo y confirma que explique el daño. Después mide incidencia o población, etapa del cultivo y presencia de enemigos naturales. Con esa información se elige una combinación de prevención, manejo cultural, control biológico y, si está justificado, un producto autorizado aplicado conforme a su etiqueta.',
+      courseQueries: ['Bioinsumos', 'Biofábricas', 'Agronomía para No Agrónomos']
+    }
+  ];
 
   const safeRead = () => {
     try { return JSON.parse(sessionStorage.getItem(stateKey) || '{}'); } catch { return {}; }
@@ -703,6 +761,10 @@
       { label: 'Agua y nutrición', value: 'conceptos:water' },
       { label: 'Producción sustentable', value: 'conceptos:sustainable' },
       { label: 'Cultivos y manejo', value: 'conceptos:production' },
+      { label: 'Suelo y diagnóstico', value: 'conceptos:soil' },
+      { label: 'Decisiones de campo', value: 'conceptos:field' },
+      { label: 'Negocio agrícola', value: 'conceptos:business' },
+      { label: 'Cultivos específicos', value: 'conceptos:crops' },
       { label: 'Escribir mi pregunta', value: 'preguntar-concepto' },
       { label: 'Volver al menú', value: 'inicio' }
     ]);
@@ -724,7 +786,7 @@
     const buttonKey = String(value).startsWith('concepto:') ? String(value).slice('concepto:'.length) : '';
     if (buttonKey && concepts[buttonKey]) return buttonKey;
     const normalized = normalize(value);
-    const asksForMeaning = /(^|\s)(que es|que significa|para que sirve|explicame|define|definicion|como funciona|cuentame sobre|hablame de)(\s|$)/.test(normalized);
+    const asksForMeaning = /(^|\s)(que es|que significa|para que sirve|explicame|define|definicion|como funciona|como afecta|como influye|como mejorar|como manejar|como producir|por que|cual es|cuales son|que necesito|que diferencia|cuentame sobre|hablame de)(\s|$)/.test(normalized);
     const aliases = Object.entries(concepts).flatMap(([key, concept]) => concept.aliases.map((alias) => ({ key, alias: normalize(alias) }))).sort((a, b) => b.alias.length - a.alias.length);
     const exact = aliases.find(({ alias }) => normalized === alias);
     if (exact) return exact.key;
@@ -764,15 +826,51 @@
     if (!concept) { showConceptHub(); return; }
     state.flow = 'home'; save();
     const recommendations = findNamedCourses(concept.courseQueries || [concept.label]);
+    const explanation = [concept.definition, concept.practical].filter(Boolean).join('\n\nEn la práctica: ');
     const text = recommendations.length
-      ? `${concept.definition}\n\nPara llevar este tema a la práctica, en AgroTec contamos con estos cursos relacionados:`
-      : `${concept.definition}\n\nPuedo ayudarte a buscar una capacitación relacionada en el catálogo de AgroTec.`;
+      ? `${explanation}\n\nPara llevar este tema a la práctica, en AgroTec contamos con estos cursos relacionados:`
+      : `${explanation}\n\nPuedo ayudarte a convertir este tema en una ruta de aprendizaje.`;
     reply(text, recommendations.length ? { kind: 'courses', items: recommendations } : {});
     showQuick([
       { label: 'Explorar otro concepto', value: 'conceptos' },
       { label: 'Buscar otro curso', value: 'buscar-curso' },
       { label: 'Descubrir mi ruta', value: 'encuesta' },
       { label: 'Volver al menú', value: 'inicio' }
+    ]);
+  }
+
+  function answerWithGuidance(value) {
+    const normalized = normalize(value);
+    const profile = guidanceProfiles.find((item) => item.pattern.test(normalized));
+    const recommendations = profile ? findNamedCourses(profile.courseQueries || [], 2) : [];
+    if (profile) {
+      const text = recommendations.length
+        ? `${profile.answer}\n\nPara profundizar y llevarlo a la práctica, estas capacitaciones de AgroTec se relacionan con tu pregunta:`
+        : `${profile.answer}\n\nSi me dices el cultivo, etapa y qué observas, puedo ayudarte a ordenar mejor el diagnóstico.`;
+      reply(text, recommendations.length ? { kind: 'courses', items: recommendations } : {});
+      showQuick([
+        { label: 'Hacer otra pregunta', value: 'duda' },
+        { label: 'Explorar conceptos', value: 'conceptos' },
+        { label: 'Descubrir mi ruta', value: 'encuesta' },
+        { label: 'Hablar con un asesor', value: 'humano' }
+      ]);
+      return true;
+    }
+    return false;
+  }
+
+  function answerOpenQuestion(value) {
+    const recommendations = rankCourses([value], 2);
+    const text = recommendations.length
+      ? 'Tu pregunta se relaciona con temas que sí trabajamos en AgroTec. Para responderla bien conviene separar el objetivo, las condiciones actuales, lo que ya mediste y el cambio que quieres lograr. Estas capacitaciones pueden darte una base útil y después puedo ayudarte a precisar la duda:'
+      : 'Buena pregunta. Para darte una orientación útil sin inventar una receta, empezaría por cuatro datos: qué cultivo o proyecto tienes, en qué etapa está, qué observas o quieres lograr y qué cambió recientemente. Con ese contexto puedo explicarte el principio, ayudarte a ordenar posibles causas y proponerte el siguiente paso.';
+    reply(text, recommendations.length ? { kind: 'courses', items: recommendations } : {});
+    state.flow = 'question'; save();
+    showQuick([
+      { label: 'Explorar temas agrícolas', value: 'conceptos' },
+      { label: 'Buscar un curso', value: 'buscar-curso' },
+      { label: 'Descubrir mi ruta', value: 'encuesta' },
+      { label: 'Hablar con un asesor', value: 'humano' }
     ]);
   }
 
@@ -806,6 +904,17 @@
     setWaiting(false);
 
     const normalized = normalize(value);
+    if (/^(hola|holi|buenos dias|buenas tardes|buenas noches|hey|que tal)$/.test(normalized)) {
+      state.flow = 'home'; save();
+      reply('¡Hola! Soy Agro 🌱 Puedo explicarte temas del campo con palabras claras, ayudarte a resolver una duda, buscar cursos reales o preparar una ruta personalizada. ¿Qué te gustaría hacer?');
+      showHomeActions();
+      return;
+    }
+    if (/^(gracias|muchas gracias|perfecto|excelente|me ayudo|entendido)$/.test(normalized)) {
+      reply('¡Con gusto! Me alegra ayudarte. Podemos profundizar en el tema, buscar una capacitación relacionada o preparar tu ruta personalizada.');
+      showHomeActions();
+      return;
+    }
     if (value === 'inicio') {
       state.flow = 'home'; save();
       reply('¿Qué te gustaría consultar ahora?');
@@ -840,12 +949,19 @@
       return;
     }
     if (value === 'membresia' || /membresia|agroclub|plan/.test(normalized)) { explainMembership(); return; }
+    if (/cuantos cursos|cantidad de cursos|que puedo aprender|que temas tienen|catalogo/.test(normalized)) {
+      const catalog = readCatalog();
+      const areas = [...new Set(catalog.map((course) => course.area).filter(Boolean))];
+      reply(`AgroTec tiene ${catalog.length || 23} capacitaciones visibles en su catálogo. Encontrarás temas de cultivos, nutrición y suelos, producción sustentable, agroindustria, inocuidad, exportación, negocio agrícola y tecnología. ${areas.length ? `En esta página aparecen áreas como ${areas.slice(0, 5).join(', ')}.` : ''}`);
+      showQuick([{ label: 'Buscar por tema', value: 'buscar-curso' }, { label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Ver conceptos', value: 'conceptos' }]);
+      return;
+    }
     if (/en vivo|curso vivo|sesion vivo/.test(normalized)) {
       reply('La página confirma que AgroClub incluye sesiones en vivo, además de cursos en línea a tu ritmo. No publica aquí un calendario ni permite verificar si una actividad en vivo específica requiere inscripción adicional. Para ese dato conviene consultar a un asesor.');
       showQuick([{ label: 'Conocer la membresía', value: 'membresia' }, { label: 'Consultar por WhatsApp', value: 'humano' }]);
       return;
     }
-    if (value === 'proximos' || /proximo|fecha|cuando|inicia/.test(normalized)) {
+    if (value === 'proximos' || /proximo curso|proximos cursos|proximas fechas|fecha del curso|cuando inicia el curso|cuando empieza el curso/.test(normalized)) {
       reply('Esta landing no publica un calendario verificable de próximas fechas. No voy a inventarlo. Puedo ayudarte a explorar el catálogo grabado o abrir WhatsApp para preguntar por cursos en vivo.');
       showQuick([{ label: 'Explorar catálogo', value: 'buscar-curso' }, { label: 'Consultar por WhatsApp', value: 'humano' }]);
       return;
@@ -861,21 +977,15 @@
       showQuick([{ label: 'Buscar un curso', value: 'buscar-curso' }, { label: 'Hablar con un asesor', value: 'humano' }]);
       return;
     }
-    if (/precio|cuesta|costo|compar/.test(normalized)) { explainMembership(true); return; }
+    if (/^(precio|precios|cuanto cuesta|cuanto vale|comparar planes)$|(?:precio|costo|cuesta).*(?:membresia|plan|agroclub)|(?:membresia|plan|agroclub).*(?:precio|costo|cuesta)/.test(normalized)) { explainMembership(true); return; }
     if (/acceso|entrar|login|cuenta|contrasena/.test(normalized)) {
       reply('Puedes entrar desde “Quiero entrar” en la parte superior. El asistente no modifica tu cuenta, inicio de sesión ni pagos.');
       return;
     }
-    if (state.flow === 'search' || /curso|aprender|cultivo|agricultura|berries|amaranto|flor|nutricion|hierba|cacao|papaya|hidropon|bioinsumo|girasol|fertir|hongos|vivero|plantula|nopal|maiz|pitahaya|orquidea/.test(normalized)) { searchCourses(value); return; }
+    if (state.flow === 'search' || /curso|capacitacion|quiero aprender|quiero estudiar|que puedo estudiar|recomiendame/.test(normalized)) { searchCourses(value); return; }
 
-    if (state.flow === 'concepts' || /que es|que significa|para que sirve|explicame|como funciona/.test(normalized)) {
-      reply('Todavía no tengo una definición verificada para ese término. Puedo explicarte los principales conceptos agrícolas de mi guía o buscar un curso relacionado sin inventarte una respuesta.');
-      showQuick([{ label: 'Ver conceptos disponibles', value: 'conceptos' }, { label: 'Buscar un curso', value: 'buscar-curso' }, { label: 'Preguntar a un asesor', value: 'humano' }]);
-      return;
-    }
-
-    reply('No tengo una respuesta verificada para esa consulta. Puedo recomendarte una ruta, buscar un curso por tema, explicar la membresía o abrir WhatsApp para atención humana.');
-    showHomeActions();
+    if (answerWithGuidance(value)) return;
+    answerOpenQuestion(value);
   }
 
   function setWaiting(waiting) {

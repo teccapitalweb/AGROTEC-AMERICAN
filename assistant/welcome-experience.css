@@ -26,6 +26,8 @@
 .agx-welcome__features li { padding:7px 11px;border:1px solid rgba(40,83,69,.12);border-radius:999px;color:#456057;background:rgba(201,220,198,.28);font-size:.78rem;font-weight:700; }
 .agx-welcome__actions { display:flex;flex-wrap:wrap;gap:11px; }
 .agx-welcome__actions--steps { justify-content:space-between;margin-top:24px; }
+.agx-welcome__autonext { align-self:center;max-width:250px;color:#728078;font-size:.76rem;font-weight:750;line-height:1.3;text-align:right; }
+.agx-welcome__card.is-advancing .agx-option.is-selected { transform:scale(.985);box-shadow:0 0 0 4px rgba(108,157,82,.15),0 12px 26px rgba(54,96,65,.14); }
 .agx-welcome__actions--result { margin-top:18px; }
 .agx-welcome__button { min-height:48px;padding:0 24px;border:1px solid #285345;border-radius:999px;font:800 .9rem/1 "Hanken Grotesk",system-ui,sans-serif;cursor:pointer;transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,opacity .18s ease; }
 .agx-welcome__button:hover:not(:disabled) { transform:translateY(-2px); }
@@ -98,7 +100,8 @@
   .agx-options { grid-template-columns:1fr;max-height:320px; }
   .agx-option { min-height:58px; }
   .agx-options--topics .agx-option { min-height:66px; }
-  .agx-welcome__actions--steps { display:grid;grid-template-columns:.7fr 1.3fr; }
+  .agx-welcome__actions--steps { display:grid;grid-template-columns:.7fr 1.3fr;align-items:center; }
+  .agx-welcome__autonext { max-width:175px;font-size:.68rem; }
   .agx-welcome__actions--result,.agx-welcome__pane--intro .agx-welcome__actions { display:grid;grid-template-columns:1fr; }
   .agx-welcome__button { width:100%; }
   .agx-course { grid-template-columns:108px 1fr; }

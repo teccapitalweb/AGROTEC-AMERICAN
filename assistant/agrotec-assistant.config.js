@@ -49,6 +49,6 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
     disclosure: 'Este botón abre WhatsApp. No transfiere automáticamente la conversación ni confirma que una persona esté conectada.'
   },
   storage: {
-    sessionKey: 'agrotec-assistant-v3'
+    sessionKey: 'agrotec-assistant-v4'
   }
 });

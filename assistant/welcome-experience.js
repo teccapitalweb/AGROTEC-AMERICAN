@@ -13,6 +13,7 @@
   const answers = {};
   let screen = 'intro';
   let step = 0;
+  let advanceTimer = 0;
 
   const iconByValue = {
     student: '🎓', graduate: '🌱', worker: '🚜', business: '📈', specialist: '🔬', hobby: '✨',
@@ -187,9 +188,17 @@
         <div class="agx-options${question.id === 'areas' ? ' agx-options--topics' : ''}">${options}</div>
         <div class="agx-welcome__actions agx-welcome__actions--steps">
           <button class="agx-welcome__button agx-welcome__button--secondary" type="button" data-agx-back>${step ? 'Atrás' : 'Volver'}</button>
-          <button class="agx-welcome__button agx-welcome__button--primary" type="button" data-agx-next ${values.length ? '' : 'disabled'}>${step === questions.length - 1 ? 'Ver mi resultado' : 'Continuar'}</button>
+          ${isMulti
+            ? `<button class="agx-welcome__button agx-welcome__button--primary" type="button" data-agx-next ${values.length ? '' : 'disabled'}>${step === questions.length - 1 ? 'Ver mi resultado' : 'Continuar'}</button>`
+            : '<span class="agx-welcome__autonext">Elige una respuesta y avanzamos automáticamente</span>'}
         </div>
       </div>`;
+  }
+
+  function goForward() {
+    if (step === questions.length - 1) screen = 'result';
+    else step += 1;
+    render();
   }
 
   function resultMarkup() {
@@ -239,6 +248,9 @@
   }
 
   function resetRoute() {
+    clearTimeout(advanceTimer);
+    advanceTimer = 0;
+    card.classList.remove('is-advancing');
     Object.keys(answers).forEach((key) => delete answers[key]);
     screen = 'intro';
     step = 0;
@@ -257,6 +269,9 @@
   }
 
   function closeWelcome() {
+    clearTimeout(advanceTimer);
+    advanceTimer = 0;
+    card.classList.remove('is-advancing');
     welcome.classList.remove('is-open');
     document.body.classList.remove('agx-welcome-open');
     setTimeout(() => { welcome.hidden = true; }, 270);
@@ -277,13 +292,15 @@
     if (event.target.closest('[data-agx-welcome-close]')) { closeWelcome(); return; }
     if (event.target.closest('[data-agx-start]')) { screen = 'question'; step = 0; render(); return; }
     if (event.target.closest('[data-agx-back]')) {
+      clearTimeout(advanceTimer);
+      advanceTimer = 0;
+      card.classList.remove('is-advancing');
       if (step === 0) screen = 'intro'; else step -= 1;
       render(); return;
     }
     if (event.target.closest('[data-agx-next]')) {
       if (!answerValues(questions[step].id).length) return;
-      if (step === questions.length - 1) screen = 'result'; else step += 1;
-      render(); return;
+      goForward(); return;
     }
     if (event.target.closest('[data-agx-restart]')) {
       Object.keys(answers).forEach((key) => delete answers[key]);
@@ -303,10 +320,21 @@
       answers[question.id] = selected.includes(value)
         ? selected.filter((item) => item !== value)
         : selected.length < (question.max || 3) ? [...selected, value] : selected;
-    } else answers[question.id] = value;
+    } else {
+      answers[question.id] = value;
+    }
     const restoreKeyboardFocus = event.detail === 0;
     render({ focus: false });
     if (restoreKeyboardFocus) view.querySelector(`[data-agx-option="${CSS.escape(value)}"]`)?.focus({ preventScroll: true });
+    if (question.type !== 'multi') {
+      clearTimeout(advanceTimer);
+      card.classList.add('is-advancing');
+      view.querySelectorAll('[data-agx-option]').forEach((button) => { button.disabled = true; });
+      advanceTimer = window.setTimeout(() => {
+        card.classList.remove('is-advancing');
+        if (!welcome.hidden && screen === 'question') goForward();
+      }, 420);
+    }
   });
 
   document.addEventListener('keydown', (event) => {
