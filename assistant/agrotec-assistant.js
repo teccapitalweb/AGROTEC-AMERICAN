@@ -10,6 +10,140 @@
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   const mobileViewport = window.matchMedia('(max-width: 680px)');
   const stopwords = new Set(['quiero','curso','cursos','sobre','para','como','algo','una','uno','unos','unas','del','las','los','que','con','por','me','interesa','busco','aprender','capacitacion']);
+  const conceptGroups = {
+    basics: {
+      prompt: 'Elige un concepto básico del campo:',
+      items: ['agricultura', 'agronomia', 'suelo', 'riego', 'fotosintesis']
+    },
+    water: {
+      prompt: '¿Qué tema de agua y nutrición quieres entender?',
+      items: ['fertirriego', 'hidroponia', 'nutricion-vegetal', 'fertilizante']
+    },
+    sustainable: {
+      prompt: 'Elige un tema de producción sustentable:',
+      items: ['agricultura-organica', 'bioinsumos', 'biofabricas', 'lombricomposta', 'polinizadores']
+    },
+    production: {
+      prompt: '¿Sobre qué parte de la producción tienes curiosidad?',
+      items: ['plagas', 'vivero', 'inocuidad', 'invernadero', 'ia-agricultura']
+    }
+  };
+  const concepts = {
+    agricultura: {
+      label: 'Agricultura',
+      aliases: ['agricultura'],
+      definition: 'La agricultura es el conjunto de conocimientos y actividades para cultivar la tierra y obtener alimentos, fibras y otras materias primas. Incluye decisiones sobre suelo, agua, nutrición, sanidad, cosecha y comercialización.',
+      courseQueries: ['Agronomía para No Agrónomos', 'Agricultura Orgánica']
+    },
+    agronomia: {
+      label: 'Agronomía',
+      aliases: ['agronomia'],
+      definition: 'La agronomía es la disciplina que aplica ciencia y tecnología a la producción agrícola. Estudia cómo manejar cultivos, suelo, agua, nutrición y sanidad para producir mejor y de forma responsable.',
+      courseQueries: ['Agronomía para No Agrónomos', 'Diseño de Programas Nutricionales']
+    },
+    fertirriego: {
+      label: 'Fertirriego',
+      aliases: ['fertirriego', 'fertirrigacion'],
+      definition: 'El fertirriego o fertirrigación consiste en aplicar nutrientes disueltos por medio del sistema de riego. Permite ajustar agua y fertilización a la etapa del cultivo, siempre con un buen manejo de dosis, calidad del agua y uniformidad.',
+      courseQueries: ['Fertirrigación', 'Diseño de Programas Nutricionales']
+    },
+    hidroponia: {
+      label: 'Hidroponía',
+      aliases: ['hidroponia', 'cultivo sin suelo'],
+      definition: 'La hidroponía es una forma de producir plantas sin suelo agrícola: las raíces reciben agua, oxígeno y nutrientes mediante una solución nutritiva, a veces con sustratos inertes como soporte.',
+      courseQueries: ['Hidroponía para Todos', 'Diseño de Programas Nutricionales']
+    },
+    'agricultura-organica': {
+      label: 'Agricultura orgánica',
+      aliases: ['agricultura organica', 'produccion organica'],
+      definition: 'La agricultura orgánica es un sistema de producción que prioriza la salud del suelo, la biodiversidad y los procesos ecológicos, con prácticas e insumos permitidos por su normativa y evitando sustancias no autorizadas.',
+      courseQueries: ['Agricultura Orgánica', 'Bioinsumos', 'Lombricomposta']
+    },
+    bioinsumos: {
+      label: 'Bioinsumos',
+      aliases: ['bioinsumo', 'bioinsumos', 'insumos biologicos'],
+      definition: 'Los bioinsumos son productos de origen biológico o natural empleados para nutrir plantas, estimular su desarrollo o apoyar el manejo de plagas y enfermedades. Su uso correcto depende del organismo, formulación y objetivo.',
+      courseQueries: ['Bioinsumos', 'Biofábricas']
+    },
+    biofabricas: {
+      label: 'Biofábricas',
+      aliases: ['biofabrica', 'biofabricas'],
+      definition: 'Una biofábrica agrícola es una unidad donde se elaboran y controlan insumos biológicos, como microorganismos benéficos o preparados orgánicos. Requiere procesos definidos, higiene, trazabilidad y control de calidad.',
+      courseQueries: ['Biofábricas', 'Bioinsumos']
+    },
+    'nutricion-vegetal': {
+      label: 'Nutrición vegetal',
+      aliases: ['nutricion vegetal', 'nutricion de cultivos'],
+      definition: 'La nutrición vegetal estudia los elementos que una planta necesita y cómo los absorbe y utiliza. Un programa nutricional considera cultivo, etapa, suelo o sustrato, agua, rendimiento esperado y análisis disponibles.',
+      courseQueries: ['Diseño de Programas Nutricionales', 'Fertirrigación']
+    },
+    suelo: {
+      label: 'Suelo agrícola',
+      aliases: ['suelo agricola', 'fertilidad del suelo', 'suelo'],
+      definition: 'El suelo agrícola es un sistema vivo que sostiene las raíces y almacena agua y nutrientes. Su textura, estructura, materia orgánica, pH y actividad biológica influyen en el desarrollo del cultivo.',
+      courseQueries: ['Agronomía para No Agrónomos', 'Lombricomposta', 'Diseño de Programas Nutricionales']
+    },
+    riego: {
+      label: 'Riego',
+      aliases: ['sistema de riego', 'riego agricola', 'riego'],
+      definition: 'El riego es el suministro planificado de agua al cultivo cuando la lluvia no cubre sus necesidades. Un buen manejo define cuánto, cuándo y cómo regar según el suelo, el clima, la etapa y el sistema instalado.',
+      courseQueries: ['Fertirrigación', 'Hidroponía para Todos']
+    },
+    fertilizante: {
+      label: 'Fertilizantes',
+      aliases: ['fertilizante', 'fertilizantes', 'fertilizacion'],
+      definition: 'Un fertilizante aporta uno o más nutrientes para el crecimiento vegetal. Elegir fuente y dosis requiere considerar análisis, demanda del cultivo, eficiencia de aplicación y posibles pérdidas; más fertilizante no siempre significa más rendimiento.',
+      courseQueries: ['Diseño de Programas Nutricionales', 'Fertirrigación', 'Bioinsumos']
+    },
+    lombricomposta: {
+      label: 'Lombricomposta',
+      aliases: ['lombricomposta', 'vermicomposta', 'composta de lombriz'],
+      definition: 'La lombricomposta es el material estabilizado que resulta de transformar residuos orgánicos con ayuda de lombrices y microorganismos. Puede aportar materia orgánica y mejorar propiedades del suelo o sustrato.',
+      courseQueries: ['Lombricomposta', 'Agricultura Orgánica']
+    },
+    polinizadores: {
+      label: 'Polinizadores',
+      aliases: ['polinizador', 'polinizadores', 'polinizacion'],
+      definition: 'Los polinizadores transportan polen entre flores y favorecen la formación de frutos y semillas. Abejas, otros insectos, aves y murciélagos cumplen esta función; proteger hábitat y reducir riesgos de plaguicidas ayuda a conservarlos.',
+      courseQueries: ['Polinizadores', 'Agricultura Orgánica']
+    },
+    plagas: {
+      label: 'Manejo de plagas',
+      aliases: ['manejo integrado de plagas', 'control de plagas', 'plaga', 'plagas'],
+      definition: 'Una plaga es un organismo que causa pérdidas inaceptables en un cultivo. El manejo integrado combina monitoreo, prevención y controles culturales, biológicos, físicos y, cuando se justifica, químicos.',
+      courseQueries: ['Bioinsumos', 'Agronomía para No Agrónomos']
+    },
+    vivero: {
+      label: 'Viveros y plántulas',
+      aliases: ['produccion de plantulas', 'plantulas', 'viveros', 'vivero'],
+      definition: 'Un vivero es un espacio controlado para germinar, propagar y cuidar plantas antes de llevarlas a su sitio definitivo. La sanidad, el sustrato, el riego, la nutrición y la aclimatación determinan la calidad de la plántula.',
+      courseQueries: ['Manejo de Viveros', 'Producción de Plántulas']
+    },
+    inocuidad: {
+      label: 'Inocuidad alimentaria',
+      aliases: ['inocuidad alimentaria', 'inocuidad'],
+      definition: 'La inocuidad alimentaria reúne prácticas para prevenir peligros biológicos, químicos y físicos que podrían dañar al consumidor. En campo incluye higiene, agua, manejo de insumos, trazabilidad y buenas prácticas agrícolas.',
+      courseQueries: ['Inocuidad Alimentaria', 'Exportación Agrícola']
+    },
+    invernadero: {
+      label: 'Invernadero',
+      aliases: ['agricultura protegida', 'invernaderos', 'invernadero'],
+      definition: 'Un invernadero es una estructura que protege el cultivo y permite modificar parte de su ambiente, como temperatura, humedad, radiación o ventilación. El resultado depende del diseño, clima local y manejo.',
+      courseQueries: ['Hidroponía para Todos', 'Producción de Plántulas', 'Manejo de Viveros']
+    },
+    fotosintesis: {
+      label: 'Fotosíntesis',
+      aliases: ['fotosintesis'],
+      definition: 'La fotosíntesis es el proceso mediante el cual las plantas usan luz, agua y dióxido de carbono para producir azúcares y liberar oxígeno. Es la base de su crecimiento, aunque también depende de temperatura, nutrición y disponibilidad de agua.',
+      courseQueries: ['Agronomía para No Agrónomos', 'Diseño de Programas Nutricionales']
+    },
+    'ia-agricultura': {
+      label: 'IA en agricultura',
+      aliases: ['inteligencia artificial en agricultura', 'ia en agricultura', 'agricultura de precision'],
+      definition: 'La inteligencia artificial en agricultura analiza datos e imágenes para apoyar decisiones como detectar anomalías, estimar rendimientos o ajustar labores. Complementa el criterio técnico: necesita datos adecuados y validación en campo.',
+      courseQueries: ['IA en Agricultura', 'Agronomía para No Agrónomos']
+    }
+  };
 
   const safeRead = () => {
     try { return JSON.parse(sessionStorage.getItem(stateKey) || '{}'); } catch { return {}; }
@@ -43,7 +177,7 @@
 
   function readCatalog() {
     try {
-      return [...document.querySelectorAll(config.catalog.cardSelector)].map((card) => {
+      const featured = [...document.querySelectorAll(config.catalog.cardSelector)].map((card) => {
         const meta = [...card.querySelectorAll(config.catalog.metaSelector)].map((node) => node.textContent.trim()).filter(Boolean);
         const link = card.querySelector(config.catalog.linkSelector);
         return {
@@ -55,6 +189,22 @@
           href: link?.href || ''
         };
       }).filter((course) => course.title);
+      const areaLabels = { cultivos: 'Cultivos', tecnicas: 'Técnicas', gestion: 'Gestión' };
+      const fullCatalogUrl = 'https://club.agrotecamerican.com/#/cursos';
+      const complete = [...document.querySelectorAll('.curso')].map((card) => ({
+        title: card.querySelector('h3')?.textContent.trim() || '',
+        area: areaLabels[card.dataset.cat] || 'AgroTec',
+        level: '',
+        detail: card.querySelector('.curso__desc')?.textContent.trim() || '',
+        modality: config.catalog.modality || '',
+        href: fullCatalogUrl
+      })).filter((course) => course.title);
+      const unique = new Map();
+      [...featured, ...complete].forEach((course) => {
+        const key = normalize(course.title);
+        if (!unique.has(key) || !unique.get(key).href.includes('/curso/')) unique.set(key, course);
+      });
+      return [...unique.values()];
     } catch { return []; }
   }
 
@@ -541,10 +691,96 @@
     });
   }
 
+  function conceptOptions(keys) {
+    return keys.map((key) => ({ label: concepts[key].label, value: `concepto:${key}` }));
+  }
+
+  function showConceptHub() {
+    state.flow = 'concepts'; save();
+    reply('Puedo explicarte conceptos agrícolas con palabras claras y después recomendarte cursos relacionados. ¿Por dónde empezamos?');
+    showQuick([
+      { label: 'Conceptos básicos', value: 'conceptos:basics' },
+      { label: 'Agua y nutrición', value: 'conceptos:water' },
+      { label: 'Producción sustentable', value: 'conceptos:sustainable' },
+      { label: 'Cultivos y manejo', value: 'conceptos:production' },
+      { label: 'Escribir mi pregunta', value: 'preguntar-concepto' },
+      { label: 'Volver al menú', value: 'inicio' }
+    ]);
+  }
+
+  function showConceptGroup(groupKey) {
+    const group = conceptGroups[groupKey];
+    if (!group) { showConceptHub(); return; }
+    state.flow = 'concepts'; save();
+    reply(group.prompt);
+    showQuick([
+      ...conceptOptions(group.items),
+      { label: 'Ver otras categorías', value: 'conceptos' },
+      { label: 'Volver al menú', value: 'inicio' }
+    ]);
+  }
+
+  function findConcept(value) {
+    const buttonKey = String(value).startsWith('concepto:') ? String(value).slice('concepto:'.length) : '';
+    if (buttonKey && concepts[buttonKey]) return buttonKey;
+    const normalized = normalize(value);
+    const asksForMeaning = /(^|\s)(que es|que significa|para que sirve|explicame|define|definicion|como funciona|cuentame sobre|hablame de)(\s|$)/.test(normalized);
+    const aliases = Object.entries(concepts).flatMap(([key, concept]) => concept.aliases.map((alias) => ({ key, alias: normalize(alias) }))).sort((a, b) => b.alias.length - a.alias.length);
+    const exact = aliases.find(({ alias }) => normalized === alias);
+    if (exact) return exact.key;
+    if (!asksForMeaning) return '';
+    return aliases.find(({ alias }) => normalized.includes(alias))?.key || '';
+  }
+
+  function rankCourses(searchTerms, limit = 3) {
+    const catalog = readCatalog();
+    const wantedPhrases = searchTerms.map(normalize).filter(Boolean);
+    const wantedTokens = [...new Set(wantedPhrases.flatMap(tokens))];
+    return catalog.map((course, index) => {
+      const haystack = normalize(`${course.title} ${course.area} ${course.detail}`);
+      const title = normalize(course.title);
+      const phraseScore = wantedPhrases.reduce((total, phrase) => total + (title === phrase ? 20 : title.includes(phrase) || phrase.includes(title) ? 10 : haystack.includes(phrase) ? 6 : 0), 0);
+      const tokenScore = wantedTokens.reduce((total, token) => total + (title.includes(token) ? 3 : haystack.includes(token) ? 1 : 0), 0);
+      return { course, score: phraseScore + tokenScore, index };
+    }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || a.index - b.index).slice(0, limit).map((item) => item.course);
+  }
+
+  function findNamedCourses(names, limit = 3) {
+    const catalog = readCatalog();
+    const selected = [];
+    names.forEach((name) => {
+      const wanted = normalize(name);
+      const match = catalog.find((course) => {
+        const title = normalize(course.title);
+        return title === wanted || title.includes(wanted) || wanted.includes(title);
+      });
+      if (match && !selected.some((course) => normalize(course.title) === normalize(match.title))) selected.push(match);
+    });
+    return selected.slice(0, limit);
+  }
+
+  function answerConcept(key) {
+    const concept = concepts[key];
+    if (!concept) { showConceptHub(); return; }
+    state.flow = 'home'; save();
+    const recommendations = findNamedCourses(concept.courseQueries || [concept.label]);
+    const text = recommendations.length
+      ? `${concept.definition}\n\nPara llevar este tema a la práctica, en AgroTec contamos con estos cursos relacionados:`
+      : `${concept.definition}\n\nPuedo ayudarte a buscar una capacitación relacionada en el catálogo de AgroTec.`;
+    reply(text, recommendations.length ? { kind: 'courses', items: recommendations } : {});
+    showQuick([
+      { label: 'Explorar otro concepto', value: 'conceptos' },
+      { label: 'Buscar otro curso', value: 'buscar-curso' },
+      { label: 'Descubrir mi ruta', value: 'encuesta' },
+      { label: 'Volver al menú', value: 'inicio' }
+    ]);
+  }
+
   function showHomeActions() {
     showQuick([
       { label: 'Descubrir mi ruta', value: 'encuesta' },
       { label: 'Buscar por tema', value: 'buscar-curso' },
+      { label: 'Aprender conceptos', value: 'conceptos' },
       { label: 'Conocer la membresía', value: 'membresia' },
       { label: 'Ver próximos cursos', value: 'proximos' },
       { label: 'Resolver una duda', value: 'duda' },
@@ -579,8 +815,24 @@
     if (value === 'buscar-curso') {
       state.flow = 'search'; save();
       reply('¿Sobre qué cultivo, actividad o tema te gustaría aprender?');
+      showQuick([{ label: 'Fertirriego', value: 'fertirriego' }, { label: 'Hidroponía', value: 'hidroponía' }, { label: 'Bioinsumos', value: 'bioinsumos' }, { label: 'Ver conceptos', value: 'conceptos' }]);
       return;
     }
+    if (value === 'conceptos') {
+      showConceptHub();
+      return;
+    }
+    if (value.startsWith('conceptos:')) {
+      showConceptGroup(value.split(':')[1]);
+      return;
+    }
+    if (value === 'preguntar-concepto') {
+      state.flow = 'concepts'; save();
+      reply('Escribe tu pregunta, por ejemplo: “¿Qué es el fertirriego?” o “¿Para qué sirven los bioinsumos?”.');
+      return;
+    }
+    const conceptKey = findConcept(value);
+    if (conceptKey) { answerConcept(conceptKey); return; }
     if (value === 'encuesta' || /encuesta|diagnostico|diagnóstico|recomiend|ruta|perfil/.test(normalized)) {
       state.flow = 'home'; save();
       reply('Te acompaño con una entrevista breve: son 7 preguntas de opción múltiple y no te pide nombre ni teléfono. Al terminar verás un curso y una primera clase recomendados.', { kind: 'survey' });
@@ -614,7 +866,13 @@
       reply('Puedes entrar desde “Quiero entrar” en la parte superior. El asistente no modifica tu cuenta, inicio de sesión ni pagos.');
       return;
     }
-    if (state.flow === 'search' || /curso|aprender|cultivo|agricultura|berries|amaranto|flor|nutricion|hierba/.test(normalized)) { searchCourses(value); return; }
+    if (state.flow === 'search' || /curso|aprender|cultivo|agricultura|berries|amaranto|flor|nutricion|hierba|cacao|papaya|hidropon|bioinsumo|girasol|fertir|hongos|vivero|plantula|nopal|maiz|pitahaya|orquidea/.test(normalized)) { searchCourses(value); return; }
+
+    if (state.flow === 'concepts' || /que es|que significa|para que sirve|explicame|como funciona/.test(normalized)) {
+      reply('Todavía no tengo una definición verificada para ese término. Puedo explicarte los principales conceptos agrícolas de mi guía o buscar un curso relacionado sin inventarte una respuesta.');
+      showQuick([{ label: 'Ver conceptos disponibles', value: 'conceptos' }, { label: 'Buscar un curso', value: 'buscar-curso' }, { label: 'Preguntar a un asesor', value: 'humano' }]);
+      return;
+    }
 
     reply('No tengo una respuesta verificada para esa consulta. Puedo recomendarte una ruta, buscar un curso por tema, explicar la membresía o abrir WhatsApp para atención humana.');
     showHomeActions();
@@ -641,15 +899,9 @@
       showQuick([{ label: 'Hablar con un asesor', value: 'humano' }]);
       return;
     }
-    const wanted = tokens(query);
-    const ranked = catalog.map((course) => {
-      const haystack = normalize(`${course.title} ${course.area} ${course.level}`);
-      const score = wanted.reduce((total, token) => total + (haystack.includes(token) ? 2 : 0), 0);
-      return { course, score };
-    }).sort((a, b) => b.score - a.score);
-    const matches = ranked.filter((item) => item.score > 0).slice(0, 3).map((item) => item.course);
+    const matches = rankCourses([query]);
     const selected = matches.length ? matches : catalog.slice(0, 3);
-    const intro = matches.length ? 'Encontré estas opciones relacionadas en el catálogo visible:' : 'No encontré una coincidencia exacta. Estas son algunas opciones disponibles en el catálogo visible:';
+    const intro = matches.length ? 'Encontré estas opciones relacionadas en el catálogo de AgroTec:' : 'No encontré una coincidencia exacta. Estas son algunas opciones del catálogo de AgroTec:';
     reply(intro, { kind: 'courses', items: selected });
     showQuick([{ label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Buscar otro tema', value: 'buscar-curso' }, { label: 'Conocer la membresía', value: 'membresia' }, { label: 'Hablar con un asesor', value: 'humano' }]);
   }

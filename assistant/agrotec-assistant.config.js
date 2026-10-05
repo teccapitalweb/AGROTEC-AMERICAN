@@ -3,7 +3,7 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
   brandName: 'AgroTec América',
   assistantName: 'Agro',
   assistantLabel: 'Asistente virtual',
-  welcome: 'Hola, soy Agro. Puedo recomendarte una ruta en 7 preguntas o ayudarte a buscar un tema.',
+  welcome: 'Hola, soy Agro. Puedo explicarte conceptos del campo, recomendarte cursos o encontrar tu ruta ideal en 7 preguntas.',
   closedLabel: 'Encuentra tu ruta',
   tone: 'cálido, directo y profesional',
   colors: {
@@ -49,6 +49,6 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
     disclosure: 'Este botón abre WhatsApp. No transfiere automáticamente la conversación ni confirma que una persona esté conectada.'
   },
   storage: {
-    sessionKey: 'agrotec-assistant-v2'
+    sessionKey: 'agrotec-assistant-v3'
   }
 });
