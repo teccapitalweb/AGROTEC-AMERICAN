@@ -284,6 +284,21 @@
     object-position: center 17%;
     clip-path: circle(46% at 50% 50%);
   }
+  [data-agx-character="robot"] .agx-avatar--launcher .agx-avatar__art img {
+    left: -13%;
+    bottom: -7%;
+    width: 126%;
+    height: 126%;
+    object-fit: contain;
+    object-position: center bottom;
+    clip-path: none;
+  }
+  [data-agx-character="robot"] .agx-avatar--launcher::after {
+    right: 12px;
+    bottom: 3px;
+    left: 12px;
+    height: 7px;
+  }
   .agx-prompts, .agx-launcher__hint { display: none; }
 }
 
