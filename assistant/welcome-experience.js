@@ -182,7 +182,7 @@
           <i><em style="width:${progress}%"></em></i>
         </div>
         <p class="agx-welcome__eyebrow">${escapeHtml(question.kicker)}</p>
-        <h2 class="agx-welcome__question" id="agx-welcome-title">${escapeHtml(question.title)}</h2>
+        <h2 class="agx-welcome__question" id="agx-welcome-title" tabindex="-1">${escapeHtml(question.title)}</h2>
         <p class="agx-welcome__hint">${escapeHtml(question.hint)}${isMulti ? ` <b>${values.length}/${question.max || 3}</b>` : ''}</p>
         <div class="agx-options${question.id === 'areas' ? ' agx-options--topics' : ''}">${options}</div>
         <div class="agx-welcome__actions agx-welcome__actions--steps">
@@ -202,7 +202,7 @@
     return `
       <div class="agx-welcome__pane agx-welcome__pane--result">
         <p class="agx-welcome__eyebrow">Tu ruta está lista</p>
-        <h2 class="agx-welcome__title" id="agx-welcome-title">Tienes un estilo <span>${escapeHtml(learning.name)}</span>.</h2>
+        <h2 class="agx-welcome__title" id="agx-welcome-title" tabindex="-1">Tienes un estilo <span>${escapeHtml(learning.name)}</span>.</h2>
         <div class="agx-profile">
           <div class="agx-profile__celebration" aria-hidden="true">✨</div>
           <p class="agx-profile__flower"><strong>Esto dice algo muy bueno de ti:</strong> ${escapeHtml(learning.flower)}</p>
@@ -235,7 +235,7 @@
     card.dataset.step = String(step);
     view.innerHTML = screen === 'intro' ? introMarkup() : screen === 'result' ? resultMarkup() : questionMarkup(questions[step]);
     welcome.scrollTop = 0;
-    if (focus) requestAnimationFrame(() => view.querySelector('button:not([disabled]), a[href]')?.focus({ preventScroll: true }));
+    if (focus) requestAnimationFrame(() => view.querySelector('#agx-welcome-title')?.focus({ preventScroll: true }));
   }
 
   function resetRoute() {
@@ -304,8 +304,9 @@
         ? selected.filter((item) => item !== value)
         : selected.length < (question.max || 3) ? [...selected, value] : selected;
     } else answers[question.id] = value;
+    const restoreKeyboardFocus = event.detail === 0;
     render({ focus: false });
-    view.querySelector(`[data-agx-option="${CSS.escape(value)}"]`)?.focus({ preventScroll: true });
+    if (restoreKeyboardFocus) view.querySelector(`[data-agx-option="${CSS.escape(value)}"]`)?.focus({ preventScroll: true });
   });
 
   document.addEventListener('keydown', (event) => {
