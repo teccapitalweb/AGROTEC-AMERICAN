@@ -804,13 +804,15 @@
     const catalog = readCatalog();
     const wantedPhrases = searchTerms.map(normalize).filter(Boolean);
     const wantedTokens = [...new Set(wantedPhrases.flatMap(tokens))];
-    return catalog.map((course, index) => {
+    const ranked = catalog.map((course, index) => {
       const haystack = normalize(`${course.title} ${course.area} ${course.detail}`);
       const title = normalize(course.title);
       const phraseScore = wantedPhrases.reduce((total, phrase) => total + (title === phrase ? 20 : title.includes(phrase) || phrase.includes(title) ? 10 : haystack.includes(phrase) ? 6 : 0), 0);
       const tokenScore = wantedTokens.reduce((total, token) => total + (title.includes(token) ? 3 : haystack.includes(token) ? 1 : 0), 0);
       return { course, score: phraseScore + tokenScore, index };
-    }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || a.index - b.index).slice(0, limit).map((item) => item.course);
+    }).filter((item) => item.score > 0).sort((a, b) => b.score - a.score || a.index - b.index);
+    const bestScore = ranked[0]?.score || 0;
+    return ranked.filter((item) => item.score >= bestScore * 0.6).slice(0, limit).map((item) => item.course);
   }
 
   function findNamedCourses(names, limit = 3) {
@@ -947,7 +949,7 @@
     if (value === 'buscar-curso') {
       state.flow = 'search'; save();
       reply('¿Sobre qué cultivo, actividad o tema te gustaría aprender?');
-      showQuick([{ label: 'Fertirriego', value: 'fertirriego' }, { label: 'Hidroponía', value: 'hidroponía' }, { label: 'Bioinsumos', value: 'bioinsumos' }, { label: 'Ver conceptos', value: 'conceptos' }]);
+      showQuick([{ label: 'Agricultura Orgánica', value: 'agricultura organica' }, { label: 'Cultivo de berries', value: 'cultivo de berries' }, { label: 'Manejo de la cebolla', value: 'manejo de la cebolla' }, { label: 'Ver conceptos', value: 'conceptos' }]);
       return;
     }
     if (value === 'conceptos') {
@@ -963,6 +965,7 @@
       reply('Escribe tu pregunta, por ejemplo: “¿Qué es el fertirriego?” o “¿Para qué sirven los bioinsumos?”.');
       return;
     }
+    if (state.flow === 'search') { searchCourses(value); return; }
     const conceptKey = findConcept(value);
     if (conceptKey) { answerConcept(conceptKey); return; }
     if (value === 'clases-gratis' || /(?:curso|clase|video).*(?:gratis|gratuit|sin pagar)|(?:gratis|gratuit|sin pagar).*(?:curso|clase|video)|^(?:gratis|gratuito|gratuita)$/.test(normalized)) {
@@ -1011,7 +1014,7 @@
       reply('Puedes entrar desde “Quiero entrar” en la parte superior. El asistente no modifica tu cuenta, inicio de sesión ni pagos.');
       return;
     }
-    if (state.flow === 'search' || /curso|capacitacion|quiero aprender|quiero estudiar|que puedo estudiar|recomiendame/.test(normalized)) { searchCourses(value); return; }
+    if (/curso|capacitacion|quiero aprender|quiero estudiar|que puedo estudiar|recomiendame/.test(normalized)) { searchCourses(value); return; }
 
     if (answerWithGuidance(value)) return;
     answerOpenQuestion(value);
