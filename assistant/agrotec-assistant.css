@@ -155,6 +155,7 @@
 .agx-course { display: grid; gap: 4px; padding: 10px; border: 1px solid #dbe3d6; border-radius: 10px; background: #fff; }
 .agx-course strong { color: var(--agx-primary-dark); font-size: .76rem; }
 .agx-course span { color: var(--agx-muted); font-size: .66rem; }
+.agx-course .agx-course__access { justify-self: start; padding: 4px 8px; border-radius: 999px; color: #285345; background: #edf5e9; font-size: .62rem; font-weight: 800; }
 .agx-course a { justify-self: start; margin-top: 3px; padding: 7px 9px; }
 
 .agx-survey {

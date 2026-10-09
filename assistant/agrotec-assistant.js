@@ -235,6 +235,20 @@
 
   function readCatalog() {
     try {
+      const current = window.AGROTEC_ENCUESTA_DEFAULTS?.cursos;
+      if (Array.isArray(current) && current.length) {
+        return current.filter((course) => course.available !== false && course.title && course.url).map((course) => ({
+          title: course.title,
+          area: course.category || '',
+          level: course.level || '',
+          detail: course.summary || '',
+          modality: config.catalog.modality || '',
+          href: course.url,
+          totalClasses: Array.isArray(course.classes) ? course.classes.length : 0,
+          freeClasses: Array.isArray(course.classes) ? course.classes.filter((lesson) => lesson.free === true).length : 0
+        }));
+      }
+      // Si la fuente actual no carga, solo usar los cursos visibles; nunca el catálogo legacy oculto.
       const featured = [...document.querySelectorAll(config.catalog.cardSelector)].map((card) => {
         const meta = [...card.querySelectorAll(config.catalog.metaSelector)].map((node) => node.textContent.trim()).filter(Boolean);
         const link = card.querySelector(config.catalog.linkSelector);
@@ -247,22 +261,7 @@
           href: link?.href || ''
         };
       }).filter((course) => course.title);
-      const areaLabels = { cultivos: 'Cultivos', tecnicas: 'Técnicas', gestion: 'Gestión' };
-      const fullCatalogUrl = 'https://club.agrotecamerican.com/#/cursos';
-      const complete = [...document.querySelectorAll('.curso')].map((card) => ({
-        title: card.querySelector('h3')?.textContent.trim() || '',
-        area: areaLabels[card.dataset.cat] || 'AgroTec',
-        level: '',
-        detail: card.querySelector('.curso__desc')?.textContent.trim() || '',
-        modality: config.catalog.modality || '',
-        href: fullCatalogUrl
-      })).filter((course) => course.title);
-      const unique = new Map();
-      [...featured, ...complete].forEach((course) => {
-        const key = normalize(course.title);
-        if (!unique.has(key) || !unique.get(key).href.includes('/curso/')) unique.set(key, course);
-      });
-      return [...unique.values()];
+      return featured;
     } catch { return []; }
   }
 
@@ -337,6 +336,8 @@
   let keepLauncherOnScreen = () => {};
   let keepPanelOnScreen = () => {};
   let heroVisibleOnMobile = false;
+  let replyPending = false;
+  let conversationEpoch = 0;
 
   if (!state.messages.length) {
     state.messages.push({ role: 'assistant', text: config.welcome, time: timeNow() });
@@ -724,7 +725,12 @@
   }
 
   function courseCards(items) {
-    return `<div class="agx-course-list">${items.map((course) => `<article class="agx-course"><strong>${escapeHtml(course.title)}</strong><span>${escapeHtml([course.area, course.level, course.modality, course.detail].filter(Boolean).join(' · '))}</span>${course.href ? `<a href="${escapeHtml(course.href)}">Ver curso</a>` : ''}</article>`).join('')}</div>`;
+    return `<div class="agx-course-list">${items.map((course) => {
+      const access = course.totalClasses
+        ? course.freeClasses > 0 ? `${course.freeClasses} de ${course.totalClasses} clases gratis · resto VIP` : 'Clases con acceso VIP'
+        : '';
+      return `<article class="agx-course"><strong>${escapeHtml(course.title)}</strong><span>${escapeHtml([course.area, course.level, course.detail].filter(Boolean).join(' · '))}</span>${access ? `<span class="agx-course__access">${escapeHtml(access)}</span>` : ''}${course.href ? `<a href="${escapeHtml(course.href)}">Ver curso</a>` : ''}</article>`;
+    }).join('')}</div>`;
   }
 
   function surveyCard() {
@@ -877,16 +883,17 @@
   function showHomeActions() {
     showQuick([
       { label: 'Descubrir mi ruta', value: 'encuesta' },
+      { label: 'Probar clases gratis', value: 'clases-gratis' },
       { label: 'Buscar por tema', value: 'buscar-curso' },
-      { label: 'Aprender conceptos', value: 'conceptos' },
-      { label: 'Conocer la membresía', value: 'membresia' },
-      { label: 'Ver próximos cursos', value: 'proximos' },
       { label: 'Resolver una duda', value: 'duda' },
-      { label: 'Hablar con un asesor', value: 'humano' }
+      { label: 'Más opciones', value: 'mas-opciones' }
     ]);
   }
 
   function resetConversation() {
+    conversationEpoch += 1;
+    replyPending = false;
+    setWaiting(false);
     state.messages = [{ role: 'assistant', text: config.welcome, time: timeNow() }];
     state.flow = 'home';
     save();
@@ -897,10 +904,15 @@
   }
 
   async function handleInput(value, displayValue = value) {
+    if (replyPending) return;
+    replyPending = true;
+    const epoch = conversationEpoch;
     addMessage('user', displayValue);
     quickEl.innerHTML = '';
     setWaiting(true);
     await new Promise((resolve) => setTimeout(resolve, 380));
+    if (epoch !== conversationEpoch) return;
+    replyPending = false;
     setWaiting(false);
 
     const normalized = normalize(value);
@@ -919,6 +931,17 @@
       state.flow = 'home'; save();
       reply('¿Qué te gustaría consultar ahora?');
       showHomeActions();
+      return;
+    }
+    if (value === 'mas-opciones') {
+      reply('También puedo explicarte conceptos, mostrarte los planes o ayudarte a contactar a una persona.');
+      showQuick([
+        { label: 'Aprender conceptos', value: 'conceptos' },
+        { label: 'Conocer la membresía', value: 'membresia' },
+        { label: 'Ver próximos cursos', value: 'proximos' },
+        { label: 'Hablar con un asesor', value: 'humano' },
+        { label: 'Volver al menú', value: 'inicio' }
+      ]);
       return;
     }
     if (value === 'buscar-curso') {
@@ -942,17 +965,24 @@
     }
     const conceptKey = findConcept(value);
     if (conceptKey) { answerConcept(conceptKey); return; }
+    if (value === 'clases-gratis' || /(?:curso|clase|video).*(?:gratis|gratuit|sin pagar)|(?:gratis|gratuit|sin pagar).*(?:curso|clase|video)|^(?:gratis|gratuito|gratuita)$/.test(normalized)) {
+      explainFreeAccess();
+      return;
+    }
     if (value === 'encuesta' || /encuesta|diagnostico|diagnóstico|recomiend|ruta|perfil/.test(normalized)) {
       state.flow = 'home'; save();
       reply('Te acompaño con una entrevista breve: son 7 preguntas de opción múltiple y no te pide nombre ni teléfono. Al terminar verás un curso y una primera clase recomendados.', { kind: 'survey' });
       showQuick([{ label: 'Buscar por tema', value: 'buscar-curso' }, { label: 'Conocer la membresía', value: 'membresia' }]);
       return;
     }
-    if (value === 'membresia' || /membresia|agroclub|plan/.test(normalized)) { explainMembership(); return; }
+    if (/^(precio|precios|cuanto cuesta|cuanto vale|comparar planes)$|(?:precio|costo|cuesta).*(?:membresia|plan|agroclub|vip)|(?:membresia|plan|agroclub|vip).*(?:precio|costo|cuesta)/.test(normalized)) { explainMembership(true); return; }
+    if (value === 'membresia' || /membresia|agroclub|plan|vip/.test(normalized)) { explainMembership(); return; }
     if (/cuantos cursos|cantidad de cursos|que puedo aprender|que temas tienen|catalogo/.test(normalized)) {
       const catalog = readCatalog();
       const areas = [...new Set(catalog.map((course) => course.area).filter(Boolean))];
-      reply(`AgroTec tiene ${catalog.length || 23} capacitaciones visibles en su catálogo. Encontrarás temas de cultivos, nutrición y suelos, producción sustentable, agroindustria, inocuidad, exportación, negocio agrícola y tecnología. ${areas.length ? `En esta página aparecen áreas como ${areas.slice(0, 5).join(', ')}.` : ''}`);
+      reply(catalog.length
+        ? `El catálogo actual de AgroClub tiene ${catalog.length} cursos. Encontrarás estas áreas: ${areas.join(', ')}.`
+        : 'No pude comprobar el catálogo en este momento. Abre el club para ver la lista actualizada o consulta a un asesor.');
       showQuick([{ label: 'Buscar por tema', value: 'buscar-curso' }, { label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Ver conceptos', value: 'conceptos' }]);
       return;
     }
@@ -977,7 +1007,6 @@
       showQuick([{ label: 'Buscar un curso', value: 'buscar-curso' }, { label: 'Hablar con un asesor', value: 'humano' }]);
       return;
     }
-    if (/^(precio|precios|cuanto cuesta|cuanto vale|comparar planes)$|(?:precio|costo|cuesta).*(?:membresia|plan|agroclub)|(?:membresia|plan|agroclub).*(?:precio|costo|cuesta)/.test(normalized)) { explainMembership(true); return; }
     if (/acceso|entrar|login|cuenta|contrasena/.test(normalized)) {
       reply('Puedes entrar desde “Quiero entrar” en la parte superior. El asistente no modifica tu cuenta, inicio de sesión ni pagos.');
       return;
@@ -1010,9 +1039,8 @@
       return;
     }
     const matches = rankCourses([query]);
-    const selected = matches.length ? matches : catalog.slice(0, 3);
-    const intro = matches.length ? 'Encontré estas opciones relacionadas en el catálogo de AgroTec:' : 'No encontré una coincidencia exacta. Estas son algunas opciones del catálogo de AgroTec:';
-    reply(intro, { kind: 'courses', items: selected });
+    const intro = matches.length ? 'Encontré estas opciones relacionadas en el catálogo actual de AgroClub:' : 'No encontré un curso de ese tema en el catálogo actual. No te mostraré cursos antiguos o sin relación; puedes probar otro tema o consultar a un asesor.';
+    reply(intro, matches.length ? { kind: 'courses', items: matches } : {});
     showQuick([{ label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Buscar otro tema', value: 'buscar-curso' }, { label: 'Conocer la membresía', value: 'membresia' }, { label: 'Hablar con un asesor', value: 'humano' }]);
   }
 
@@ -1027,6 +1055,20 @@
     const summary = plans.map((plan) => `${plan.label}: ${plan.price}${plan.description ? ` — ${plan.description}` : ''}`).join('\n\n');
     reply(`${compare ? 'Comparación con los datos publicados en esta página:' : 'AgroClub incluye el catálogo de cursos en línea a tu ritmo, materiales, sesiones en vivo, herramientas y comunidad. La landing no publica un calendario de actividades en vivo.'}\n\n${summary}`);
     showQuick([{ label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Buscar por tema', value: 'buscar-curso' }, { label: '¿Cómo obtengo certificado?', value: '¿Cómo obtengo mi certificado?' }, { label: 'Hablar con un asesor', value: 'humano' }]);
+  }
+
+  function explainFreeAccess() {
+    const catalog = readCatalog();
+    const free = catalog.filter((course) => course.freeClasses > 0);
+    if (!free.length) {
+      reply('No pude confirmar ahora qué clases son gratuitas. Revisa el acceso directamente en el club o consúltalo con un asesor.');
+      showQuick([{ label: 'Buscar por tema', value: 'buscar-curso' }, { label: 'Hablar con un asesor', value: 'humano' }]);
+      return;
+    }
+    const featured = free[0];
+    const otherFree = free.length > 1;
+    reply(`${featured.title} tiene ${featured.freeClasses} de ${featured.totalClasses} clases gratuitas. ${featured.totalClasses > featured.freeClasses ? 'Las restantes requieren VIP.' : ''} ${otherFree ? 'También hay clases gratuitas en otros cursos; revisa sus fichas para confirmar el acceso.' : 'En los demás cursos, las clases requieren VIP desde la primera.'}`, { kind: 'courses', items: [featured] });
+    showQuick([{ label: 'Descubrir mi ruta', value: 'encuesta' }, { label: 'Conocer la membresía', value: 'membresia' }, { label: 'Buscar otro curso', value: 'buscar-curso' }]);
   }
 
   function offerHuman() {

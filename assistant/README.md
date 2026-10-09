@@ -12,7 +12,10 @@ Componente frontend aislado y reutilizable. No modifica autenticación, pagos, m
 ## Estado actual
 
 - Funciona como prototipo guiado, no como IA conectada.
-- Lee cursos y planes directamente de la landing para no duplicar precios ni contenido.
+- Lee los 23 cursos reales y el acceso gratuito/VIP de `encuesta/encuesta-defaults.js`; solo si esa fuente no carga usa las tarjetas actuales visibles de la landing. Nunca recomienda el catálogo legacy oculto.
+- Lee los precios de las tarjetas de planes publicadas en la landing para no duplicarlos.
+- Explica que solo Agricultura Orgánica tiene clases gratuitas y enlaza cada recomendación a la ficha real del club. Si un tema no existe en el catálogo, lo dice sin mostrar cursos antiguos o sin relación.
+- El menú inicial del chat muestra cinco acciones prioritarias y agrupa las secundarias en «Más opciones» para que ocupe menos espacio en móvil.
 - No solicita ni transmite datos personales.
 - El enlace de atención humana abre WhatsApp; no transfiere la conversación.
 - Respeta movimiento reducido, pausa manual y pestaña oculta.
