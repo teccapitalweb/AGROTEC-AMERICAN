@@ -372,7 +372,7 @@ body { background: var(--ag3-cream); }
 .js .ag3-reveal.is-visible { opacity: 1; transform: none; }
 
 @media (max-width: 1080px) {
-  .ag3-nav__links, .ag3-nav__login { display: none; }
+  .ag3-nav__links { display: none; }
   .ag3-brand__descriptor { display: none; }
   .ag3-menu-btn { display: grid; place-items: center; }
   .ag3-mobile { position: fixed; z-index: 1190; top: 98px; left: 15px; right: 15px; padding: 18px; border: 1px solid var(--ag3-line); border-radius: 28px; background: rgba(255,253,247,.98); box-shadow: var(--ag3-shadow); }
@@ -396,7 +396,6 @@ body { background: var(--ag3-cream); }
   .ag3-nav__inner { width: calc(100% - 20px); min-height: 60px; padding-left: 14px; }
   .ag3-brand img { width: 108px; height: auto; }
   .ag3-nav__actions { margin-left: auto; }
-  .ag3-nav__actions > .ag3-btn { display: none; }
   .ag3-hero { min-height: 0; align-items: start; background-position: 58% center; }
   .ag3-hero__content { width: calc(100% - 28px); margin: 0 auto; padding: 126px 0 128px; }
   .ag3-hero__copy h1 { font-size: clamp(2.65rem, 11.8vw, 3.35rem); overflow-wrap: anywhere; }
@@ -448,4 +447,33 @@ body { background: var(--ag3-cream); }
   .js .ag3-reveal { opacity: 1; transform: none; transition: none; }
   .ag3-course, .ag3-btn, .ag3-collage__image img { transition: none; }
   .ag3-wa__icon::before { animation: none; }
+}
+
+/* ============================================================
+   PULIDO RESPONSIVE (AGROTEC-RESP-FIX-07) — solo CSS
+   ============================================================ */
+
+/* B) Anclas bajo la barra fija: el encabezado de la sección queda
+   visible al saltar (p. ej. "Quiero ser miembro" -> #membresia). */
+html { scroll-padding-top: 110px; }
+
+/* C) Inputs propios (modal login/registro): font-size >= 16px en
+   movil para evitar el zoom automatico de iOS al enfocar. */
+@media (max-width: 768px) {
+  #loginEmail, #loginPass, #regNombre, #regEmail, #regWhatsapp, #regPass { font-size: 16px !important; }
+}
+
+/* D) Login visible en la barra tambien en tablet (768-1080px):
+   dos acciones claras. En telefonos (<=767px) la barra queda solo
+   con la hamburguesa (se ocultan login y boton dorado). */
+@media (max-width: 767px) {
+  .ag3-nav__login { display: none; }
+  .ag3-nav__actions > .ag3-btn { display: none; }
+}
+
+/* A) Flotantes (mascota del asistente + WhatsApp) no deben tapar el
+   copyright del footer en movil: se reserva espacio bajo el contenido
+   del footer para que la ultima linea quede por encima de los flotantes. */
+@media (max-width: 767px) {
+  .ag3-footer { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
 }
