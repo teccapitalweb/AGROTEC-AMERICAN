@@ -16,7 +16,7 @@ window.AGROTEC_ASSISTANT_CONFIG = Object.freeze({
     ink: '#24372f'
   },
   character: {
-    src: 'assistant/assets/agro-robot-v6.png',
+    src: 'assistant/assets/agro-robot-v6.webp',
     blinkSrc: '',
     alt: 'Agro, el robot agricultor de AgroTec América con sombrero y una planta',
     placeholder: 'A'

@@ -7,7 +7,7 @@ Componente frontend aislado y reutilizable. No modifica autenticación, pagos, m
 - `agrotec-assistant.config.js`: marca, paleta, personaje, selectores de datos y contacto humano.
 - `agrotec-assistant.css`: estilos limitados al atributo `data-agx-root` y clases `agx-*`.
 - `agrotec-assistant.js`: interfaz, estado de sesión, accesibilidad, lectura del catálogo y respuestas guiadas.
-- `assets/agro-robot-v6.png`: robot agricultor verde con sombrero y maceta, sobre fondo transparente.
+- `assets/agro-robot-v6.webp`: robot agricultor verde con sombrero y maceta sobre fondo transparente (optimizado para carga ultrarrápida; versión fuente .png conservada).
 
 ## Estado actual
 

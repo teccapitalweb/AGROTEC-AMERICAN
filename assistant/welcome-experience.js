@@ -5,7 +5,7 @@
 
   const cookieKey = 'agrotec-cookie-notice-v1';
   const escapeKey = (event) => event.key === 'Escape' || event.key === 'Esc';
-  const mascot = 'assistant/assets/agro-robot-v6.png';
+  const mascot = 'assistant/assets/agro-robot-v6.webp';
   const defaults = window.AGROTEC_ENCUESTA_DEFAULTS || { preguntas: [], cursos: [] };
   const wantedQuestions = ['stage', 'experience', 'areas', 'goal', 'need', 'format', 'time'];
   const questions = wantedQuestions.map((id) => defaults.preguntas.find((question) => question.id === id)).filter(Boolean);
