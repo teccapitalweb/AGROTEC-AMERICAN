@@ -14,7 +14,13 @@
 <meta property="og:description" content="23 cursos y 103 clases para aprender, aplicar y tomar mejores decisiones en el campo. Únete a AgroClub MX desde $200 MXN/mes.">
 <meta property="og:image" content="https://agrotecamerican.com/img/v3/hero-agrotec-fields-v4.jpg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="icon" href="img/logo.jpg">
+<link rel="icon" href="img/brand/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#17382f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="AgroTec">
+<link rel="apple-touch-icon" href="img/brand/icon-192.png">
 <link rel="preload" as="image" href="img/v3/hero-agrotec-v3.webp" type="image/webp" fetchpriority="high">
 
 <script type="application/ld+json">
@@ -449,10 +455,10 @@ button{font-family:inherit;cursor:pointer;}
 .wa svg{width:28px;height:28px;fill:currentColor;stroke:none;}
 @media(min-width:940px){.wa{right:26px;bottom:26px;}}
 </style>
-<link rel="stylesheet" href="landing-v3.css?v=20261019-catalogo23">
+<link rel="stylesheet" href="landing-v3.css?v=20261019-roi-pwa">
 <link rel="stylesheet" href="assistant/agrotec-assistant.css?v=20261009-catalogo-real">
 <link rel="stylesheet" href="assistant/welcome-experience.css?v=20261005-inline5">
-<script src="landing-v3.js?v=20261019-catalogo23" defer></script>
+<script src="landing-v3.js?v=20261019-roi-pwa" defer></script>
 <script src="assistant/agrotec-knowledge.js?v=20261005-knowledge2" defer></script>
 <script src="encuesta/encuesta-defaults.js?v=20261005-inline5" defer></script>
 <script src="assistant/agrotec-assistant.config.js?v=20261019-webp" defer></script>
@@ -998,6 +1004,97 @@ button{font-family:inherit;cursor:pointer;}
             <div class="ag3-feature"><span class="ag3-feature__icon"><svg class="ico"><use href="#i-award"/></svg></span><div><b>Certificados verificables</b><span>Evalúa lo aprendido y acredita tu avance con folio.</span></div></div>
           </div>
           <a class="ag3-btn ag3-btn--line" style="margin-top:28px" href="https://club.agrotecamerican.com/#/herramientas">Conocer las herramientas <svg class="ico"><use href="#i-arrow"/></svg></a>
+        </div>
+      </div>
+    </section>
+
+        <!-- ═══════════════════ CALCULADORA DE IMPACTO Y RETORNO ═══════════════════ -->
+    <section class="ag3-roi-calc" id="calculadora-impacto" aria-label="Calculadora de Retorno de Inversión Agrícola">
+      <div class="ag3-wrap">
+        <div class="ag3-roi__head ag3-reveal">
+          <span class="ag3-kicker">Economía del campo real</span>
+          <h2 class="ag3-section-title">¿Cuánto vale una buena decisión técnica en tu campo?</h2>
+          <p class="ag3-roi__subtitle">Una dosificación incorrecta de fertilizantes, un suelo salino desatendido o un retraso en plagas causan pérdidas de miles de pesos por ciclo. Calcula el riesgo evitable en tu propia superficie:</p>
+        </div>
+
+        <div class="ag3-roi__box ag3-reveal">
+          <div class="ag3-roi__inputs">
+            <label class="ag3-roi__label" id="labelCrop">1. Selecciona tu tipo de producción:</label>
+            <div class="ag3-roi__crop-grid" role="radiogroup" aria-labelledby="labelCrop">
+              <button type="button" class="ag3-roi__crop is-active" data-crop="hortalizas" data-risk="28000" role="radio" aria-checked="true">
+                <span class="ag3-roi__icon" aria-hidden="true">🍅</span>
+                <span class="ag3-roi__crop-text">
+                  <b>Hortalizas</b>
+                  <small>Jitomate, cebolla, etc.</small>
+                </span>
+              </button>
+              <button type="button" class="ag3-roi__crop" data-crop="frutales" data-risk="36000" role="radio" aria-checked="false">
+                <span class="ag3-roi__icon" aria-hidden="true">🍓</span>
+                <span class="ag3-roi__crop-text">
+                  <b>Frutales y Berries</b>
+                  <small>Frambuesa, piña, cacao</small>
+                </span>
+              </button>
+              <button type="button" class="ag3-roi__crop" data-crop="granos" data-risk="8500" role="radio" aria-checked="false">
+                <span class="ag3-roi__icon" aria-hidden="true">🌽</span>
+                <span class="ag3-roi__crop-text">
+                  <b>Granos Básicos</b>
+                  <small>Maíz, frijol, amaranto</small>
+                </span>
+              </button>
+              <button type="button" class="ag3-roi__crop" data-crop="flores" data-risk="32000" role="radio" aria-checked="false">
+                <span class="ag3-roi__icon" aria-hidden="true">🌻</span>
+                <span class="ag3-roi__crop-text">
+                  <b>Flores y Ornato</b>
+                  <small>Lilis, girasol, gladiolas</small>
+                </span>
+              </button>
+            </div>
+
+            <div class="ag3-roi__slider-wrap">
+              <div class="ag3-roi__slider-head">
+                <label for="ag3RoiHa" class="ag3-roi__label">2. Superficie cultivada:</label>
+                <span class="ag3-roi__ha-val" id="ag3RoiHaVal">2 Hectáreas</span>
+              </div>
+              <input type="range" id="ag3RoiHa" min="1" max="20" value="2" step="1" aria-label="Superficie cultivada en hectáreas">
+              <div class="ag3-roi__slider-ticks" aria-hidden="true">
+                <span>1 ha</span>
+                <span>5 ha</span>
+                <span>10 ha</span>
+                <span>15 ha</span>
+                <span>20+ ha</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ag3-roi__results">
+            <div class="ag3-roi__results-card">
+              <span class="ag3-roi__badge">Riesgo evitable estimado por ciclo</span>
+              <div class="ag3-roi__risk-amount" id="ag3RoiLoss">$56,000 <small>MXN</small></div>
+              <p class="ag3-roi__risk-desc">Estimación de mermas típicas por desbalance nutricional, salinidad o plagas en tu cultivo sin manejo técnico actualizado.</p>
+
+              <div class="ag3-roi__divider"></div>
+
+              <div class="ag3-roi__comparison">
+                <div class="ag3-roi__compare-item">
+                  <span>Inversión AgroClub</span>
+                  <strong>$200 <small>MXN/mes</small></strong>
+                </div>
+                <div class="ag3-roi__compare-item ag3-roi__compare-item--save">
+                  <span>Retorno en prevención</span>
+                  <strong id="ag3RoiMultiple">23x</strong>
+                </div>
+              </div>
+
+              <div class="ag3-roi__verdict" id="ag3RoiVerdict">
+                💡 Prevenir apenas el 10% de estas mermas protege <strong>$5,600 MXN</strong>, pagando más de 2 años completos de tu membresía.
+              </div>
+
+              <a href="#membresia" class="ag3-btn ag3-btn--gold" style="width:100%;justify-content:center;">
+                Proteger mi producción por $200 MXN <svg class="ico"><use href="#i-arrow"/></svg>
+              </a>
+            </div>
+          </div>
         </div>
       </div>
     </section>

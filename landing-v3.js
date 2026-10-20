@@ -182,4 +182,66 @@ document.addEventListener('DOMContentLoaded', () => {
 
   updateCourseVisibility();
 
+
+  // ── Calculadora de Impacto Agro (ROI) ─────────────────────────────────
+  const cropButtons = document.querySelectorAll('.ag3-roi__crop');
+  const haSlider = document.getElementById('ag3RoiHa');
+  const haVal = document.getElementById('ag3RoiHaVal');
+  const lossEl = document.getElementById('ag3RoiLoss');
+  const multipleEl = document.getElementById('ag3RoiMultiple');
+  const verdictEl = document.getElementById('ag3RoiVerdict');
+
+  let currentRiskPerHa = 28000;
+  let currentCropName = 'Hortalizas';
+
+  const updateRoiCalc = () => {
+    const ha = parseInt(haSlider?.value || '2', 10);
+    if (haVal) haVal.textContent = `${ha} ${ha === 1 ? 'Hectárea' : 'Hectáreas'}`;
+
+    const totalRisk = currentRiskPerHa * ha;
+    const annualMembership = 2400; // $200 x 12
+    const multiple = Math.max(1, Math.round(totalRisk / annualMembership));
+    const savedTenPercent = Math.round(totalRisk * 0.10);
+
+    if (lossEl) lossEl.innerHTML = `$${totalRisk.toLocaleString('es-MX')} <small>MXN</small>`;
+    if (multipleEl) multipleEl.textContent = `${multiple}x`;
+
+    if (verdictEl) {
+      const yearsPaid = (savedTenPercent / annualMembership).toFixed(1);
+      verdictEl.innerHTML = `💡 Prevenir apenas el 10% de estas mermas protege <strong>$${savedTenPercent.toLocaleString('es-MX')} MXN</strong>, pagando más de ${yearsPaid} años de tu membresía.`;
+    }
+  };
+
+  cropButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      cropButtons.forEach((b) => {
+        b.classList.remove('is-active');
+        b.setAttribute('aria-checked', 'false');
+      });
+      btn.classList.add('is-active');
+      btn.setAttribute('aria-checked', 'true');
+      currentRiskPerHa = parseInt(btn.dataset.risk || '28000', 10);
+      currentCropName = btn.querySelector('b')?.textContent || 'Cultivo';
+      updateRoiCalc();
+      window.trackAgroEvent?.('roi_crop_selected', { crop: currentCropName, riskPerHa: currentRiskPerHa });
+    });
+  });
+
+  haSlider?.addEventListener('input', () => {
+    updateRoiCalc();
+  });
+
+  haSlider?.addEventListener('change', () => {
+    window.trackAgroEvent?.('roi_slider_change', { hectares: haSlider.value, crop: currentCropName });
+  });
+
+  updateRoiCalc();
+
+  // ── Registro de Service Worker para PWA Móvil ─────────────────────────
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
 });
