@@ -449,10 +449,10 @@ button{font-family:inherit;cursor:pointer;}
 .wa svg{width:28px;height:28px;fill:currentColor;stroke:none;}
 @media(min-width:940px){.wa{right:26px;bottom:26px;}}
 </style>
-<link rel="stylesheet" href="landing-v3.css?v=20261005-robot">
+<link rel="stylesheet" href="landing-v3.css?v=20261019-catalogo23">
 <link rel="stylesheet" href="assistant/agrotec-assistant.css?v=20261009-catalogo-real">
 <link rel="stylesheet" href="assistant/welcome-experience.css?v=20261005-inline5">
-<script src="landing-v3.js?v=20261019-telemetry" defer></script>
+<script src="landing-v3.js?v=20261019-catalogo23" defer></script>
 <script src="assistant/agrotec-knowledge.js?v=20261005-knowledge2" defer></script>
 <script src="encuesta/encuesta-defaults.js?v=20261005-inline5" defer></script>
 <script src="assistant/agrotec-assistant.config.js?v=20261019-webp" defer></script>
@@ -625,54 +625,359 @@ button{font-family:inherit;cursor:pointer;}
       </div>
     </section>
 
-    <section class="ag3-catalog" id="catalogo-real">
+        <section class="ag3-catalog" id="catalogo-real">
       <div class="ag3-wrap">
         <div class="ag3-catalog__top">
           <div class="ag3-reveal">
-            <span class="ag3-kicker">Catálogo actual</span>
-            <h2 class="ag3-section-title">Cursos que sí encontrarás dentro del portal.</h2>
+            <span class="ag3-kicker">Catálogo completo · 23 cursos</span>
+            <h2 class="ag3-section-title">El conocimiento técnico que tu campo necesita.</h2>
+            <p class="ag3-catalog__subtitle">Explora los 23 cursos y 103 clases especializadas para resolver problemas reales en parcela, invernadero y agronegocio.</p>
           </div>
-          <a class="ag3-btn ag3-btn--line" href="https://club.agrotecamerican.com/#/cursos">Ver los 23 cursos <svg class="ico"><use href="#i-arrow"/></svg></a>
+          <div class="ag3-catalog__top-actions">
+            <a class="ag3-btn ag3-btn--line" href="https://club.agrotecamerican.com/#/cursos">Entrar al portal <svg class="ico"><use href="#i-arrow"/></svg></a>
+          </div>
         </div>
+
+        <!-- Banner de Prueba Gratuita -->
+        <div class="ag3-free-trial-banner ag3-reveal">
+          <div class="ag3-free-trial__info">
+            <span class="ag3-free-trial__badge">🌟 Prueba abierta sin costo</span>
+            <h3>Pruébalo gratis hoy: Curso de Agricultura Orgánica</h3>
+            <p>Accede a las <strong>4 primeras clases abiertas</strong> (más de 6 horas de capacitación técnica) para comprobar la calidad pedagógica y el enfoque práctico antes de unirte al club.</p>
+          </div>
+          <a class="ag3-btn ag3-btn--gold" href="https://club.agrotecamerican.com/#/curso/agricultura-organica">
+            Ver clases gratis <svg class="ico"><use href="#i-arrow"/></svg>
+          </a>
+        </div>
+
+        <!-- Buscador y Filtros -->
+        <div class="ag3-catalog__controls ag3-reveal">
+          <div class="ag3-search-bar">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="search" id="ag3CourseSearch" placeholder="Busca tu cultivo o tema (ej. Jitomate, Cacao, Berries, Suelos, Piña...)" aria-label="Buscar curso por cultivo o tema">
+            <button type="button" id="ag3SearchClear" class="ag3-search-clear" aria-label="Limpiar búsqueda" hidden>&times;</button>
+          </div>
+          <div class="ag3-filter-chips" role="tablist" aria-label="Filtrar cursos">
+            <button class="ag3-chip is-active" type="button" data-cat="all">Todos (23)</button>
+            <button class="ag3-chip" type="button" data-cat="Cultivos">Cultivos (10)</button>
+            <button class="ag3-chip" type="button" data-cat="Nutrición y suelos">Nutrición y Suelos (3)</button>
+            <button class="ag3-chip" type="button" data-cat="Ornamentales">Ornamentales (6)</button>
+            <button class="ag3-chip" type="button" data-cat="Agroindustria">Agroindustria (2)</button>
+            <button class="ag3-chip" type="button" data-cat="Sanidad y Gestión">Sanidad y Gestión (2)</button>
+            <button class="ag3-chip ag3-chip--free" type="button" data-cat="gratis">🌟 Clases Gratis (1)</button>
+          </div>
+          <div class="ag3-catalog__status">
+            <span id="ag3CourseCount">Mostrando 6 de 23 cursos destacados</span>
+          </div>
+        </div>
+
+        <!-- Grid con los 23 cursos reales -->
         <div class="ag3-courses">
-          <article class="ag3-course ag3-reveal">
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="true" data-keywords="agricultura orgánica diseñar un manejo orgánico verificable, partiendo del suelo y cerrando con registros. organic soil crops">
             <a href="https://club.agrotecamerican.com/#/curso/agricultura-organica" aria-label="Ver Agricultura Orgánica">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-agricultura-organica-card.webp" alt="Portada del curso Agricultura Orgánica" loading="lazy" decoding="async" width="960" height="540"></div>
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-agricultura-organica.webp" alt="Portada del curso Agricultura Orgánica" loading="lazy" decoding="async" width="960" height="540">
+                <span class="ag3-course__badge ag3-course__badge--free">🌟 4 Clases Gratis</span>
+              </div>
             </a>
-            <div class="ag3-course__body"><div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div><h3>Agricultura Orgánica</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Agricultura Orgánica</h3>
+              <p class="ag3-course__summary">Diseñar un manejo orgánico verificable, partiendo del suelo y cerrando con registros.</p>
+              <div class="ag3-course__foot"><span>5 clases (4 gratis)</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
           </article>
-          <article class="ag3-course ag3-reveal">
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="cultivo de berries organizar decisiones de establecimiento, riego, sanidad y cosecha de berries. crops protected">
             <a href="https://club.agrotecamerican.com/#/curso/cultivo-de-berries" aria-label="Ver Cultivo de berries">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-cultivo-de-berries-card.webp" alt="Portada del curso Cultivo de berries" loading="lazy" decoding="async" width="960" height="540"></div>
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-cultivo-de-berries.webp" alt="Portada del curso Cultivo de berries" loading="lazy" decoding="async" width="960" height="540">
+              </div>
             </a>
-            <div class="ag3-course__body"><div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div><h3>Cultivo de berries</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Cultivo de berries</h3>
+              <p class="ag3-course__summary">Organizar decisiones de establecimiento, riego, sanidad y cosecha de berries.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
           </article>
-          <article class="ag3-course ag3-reveal">
+          <article class="ag3-course ag3-reveal" data-category="Ornamentales" data-free="false" data-keywords="cultivo de flor de lilis para corte planear un cultivo de lirios de corte con foco en calidad comercial. ornamental protected">
             <a href="https://club.agrotecamerican.com/#/curso/cultivo-de-flor-de-lilis-para-corte" aria-label="Ver Cultivo de Flor de Lilis para Corte">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-cultivo-de-flor-de-lilis-para-corte-card.webp" alt="Portada del curso Cultivo de Flor de Lilis para Corte" loading="lazy" decoding="async" width="960" height="540"></div>
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-cultivo-de-flor-de-lilis-para-corte.webp" alt="Portada del curso Cultivo de Flor de Lilis para Corte" loading="lazy" decoding="async" width="960" height="540">
+              </div>
             </a>
-            <div class="ag3-course__body"><div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div><h3>Cultivo de Flor de Lilis para Corte</h3><div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div>
+              <h3>Cultivo de Flor de Lilis para Corte</h3>
+              <p class="ag3-course__summary">Planear un cultivo de lirios de corte con foco en calidad comercial.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
           </article>
-          <article class="ag3-course ag3-reveal">
+          <article class="ag3-course ag3-reveal" data-category="Agroindustria" data-free="false" data-keywords="derivados dulces de amaranto transformar amaranto en productos dulces con control de calidad e inocuidad. agroindustry business">
             <a href="https://club.agrotecamerican.com/#/curso/derivados-dulces-de-amaranto" aria-label="Ver Derivados Dulces de Amaranto">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-derivados-dulces-de-amaranto-card.webp" alt="Portada del curso Derivados Dulces de Amaranto" loading="lazy" decoding="async" width="960" height="540"></div>
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-derivados-dulces-de-amaranto.webp" alt="Portada del curso Derivados Dulces de Amaranto" loading="lazy" decoding="async" width="960" height="540">
+              </div>
             </a>
-            <div class="ag3-course__body"><div class="ag3-course__meta"><span>Agroindustria</span><span>Intermedio</span></div><h3>Derivados Dulces de Amaranto</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Agroindustria</span><span>Intermedio</span></div>
+              <h3>Derivados Dulces de Amaranto</h3>
+              <p class="ag3-course__summary">Transformar amaranto en productos dulces con control de calidad e inocuidad.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
           </article>
-          <article class="ag3-course ag3-reveal">
-            <a href="https://club.agrotecamerican.com/#/curso/diseno-de-programas-nutricionales-en-diferentes-cultivos" aria-label="Ver Diseño de Programas Nutricionales">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-diseno-de-programas-nutricionales-en-diferentes-cultivos-card.webp" alt="Portada del curso Diseño de Programas Nutricionales" loading="lazy" decoding="async" width="960" height="540"></div>
+          <article class="ag3-course ag3-reveal" data-category="Nutrición y suelos" data-free="false" data-keywords="diseño de programas nutricionales en diferentes cultivos construir programas de nutrición ajustados a cultivo, etapa y análisis. soil crops protected">
+            <a href="https://club.agrotecamerican.com/#/curso/diseno-de-programas-nutricionales-en-diferentes-cultivos" aria-label="Ver Diseño de Programas Nutricionales en Diferentes Cultivos">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-diseno-de-programas-nutricionales-en-diferentes-cultivos.webp" alt="Portada del curso Diseño de Programas Nutricionales en Diferentes Cultivos" loading="lazy" decoding="async" width="960" height="540">
+              </div>
             </a>
-            <div class="ag3-course__body"><div class="ag3-course__meta"><span>Nutrición y suelos</span><span>Intermedio</span></div><h3>Diseño de Programas Nutricionales en Diferentes Cultivos</h3><div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Nutrición y suelos</span><span>Intermedio</span></div>
+              <h3>Diseño de Programas Nutricionales en Diferentes Cultivos</h3>
+              <p class="ag3-course__summary">Construir programas de nutrición ajustados a cultivo, etapa y análisis.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
           </article>
-          <article class="ag3-course ag3-reveal">
-            <a href="https://club.agrotecamerican.com/#/curso/especializado-en-el-cultivo-de-hierbas-aromaticas" aria-label="Ver Cultivo de Hierbas Aromáticas">
-              <div class="ag3-course__media"><img src="img/cursos-real/curso-especializado-en-el-cultivo-de-hierbas-aromaticas-card.webp" alt="Portada del curso Cultivo de Hierbas Aromáticas" loading="lazy" decoding="async" width="960" height="540"></div>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="especializado en el cultivo de hierbas aromáticas producir hierbas aromáticas con calidad sensorial e inocuidad. crops organic agroindustry">
+            <a href="https://club.agrotecamerican.com/#/curso/especializado-en-el-cultivo-de-hierbas-aromaticas" aria-label="Ver Especializado en el Cultivo de Hierbas Aromáticas">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-especializado-en-el-cultivo-de-hierbas-aromaticas.webp" alt="Portada del curso Especializado en el Cultivo de Hierbas Aromáticas" loading="lazy" decoding="async" width="960" height="540">
+              </div>
             </a>
-            <div class="ag3-course__body"><div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div><h3>Especializado en el Cultivo de Hierbas Aromáticas</h3><div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div></div>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Especializado en el Cultivo de Hierbas Aromáticas</h3>
+              <p class="ag3-course__summary">Producir hierbas aromáticas con calidad sensorial e inocuidad.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Ornamentales" data-free="false" data-keywords="floración y cuajado en frutales tropicales interpretar floración, polinización y amarre de fruto sin soluciones universales. crops health soil">
+            <a href="https://club.agrotecamerican.com/#/curso/floracion-y-cuajado-en-frutales-tropicales" aria-label="Ver Floración y Cuajado en Frutales Tropicales">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-floracion-y-cuajado-en-frutales-tropicales.webp" alt="Portada del curso Floración y Cuajado en Frutales Tropicales" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div>
+              <h3>Floración y Cuajado en Frutales Tropicales</h3>
+              <p class="ag3-course__summary">Interpretar floración, polinización y amarre de fruto sin soluciones universales.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="huertos verticales y semiurbanos diseñar huertos pequeños seguros, sostenibles y fáciles de mantener. crops organic protected">
+            <a href="https://club.agrotecamerican.com/#/curso/huertos-verticales-y-semiurbanos" aria-label="Ver Huertos Verticales y Semiurbanos">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-huertos-verticales-y-semiurbanos.webp" alt="Portada del curso Huertos Verticales y Semiurbanos" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Huertos Verticales y Semiurbanos</h3>
+              <p class="ag3-course__summary">Diseñar huertos pequeños seguros, sostenibles y fáciles de mantener.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Sanidad y Gestión" data-free="false" data-keywords="inocuidad y calidad en empaque y exportación agrícola entender la cadena de empaque y exportación con trazabilidad y control preventivo. business agroindustry health">
+            <a href="https://club.agrotecamerican.com/#/curso/inocuidad-y-calidad-en-empaque-y-exportacion-agricola" aria-label="Ver Inocuidad y Calidad en Empaque y Exportación Agrícola">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-inocuidad-y-calidad-en-empaque-y-exportacion-agricola.webp" alt="Portada del curso Inocuidad y Calidad en Empaque y Exportación Agrícola" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Gestión</span><span>Intermedio</span></div>
+              <h3>Inocuidad y Calidad en Empaque y Exportación Agrícola</h3>
+              <p class="ag3-course__summary">Entender la cadena de empaque y exportación con trazabilidad y control preventivo.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo agronómico de hortalizas en invernadero controlar el ambiente y el cultivo protegido con datos. protected crops">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-agronomico-de-hortalizas-en-invernadero" aria-label="Ver Manejo Agronómico de Hortalizas en Invernadero">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-agronomico-de-hortalizas-en-invernadero.webp" alt="Portada del curso Manejo Agronómico de Hortalizas en Invernadero" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo Agronómico de Hortalizas en Invernadero</h3>
+              <p class="ag3-course__summary">Controlar el ambiente y el cultivo protegido con datos.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo agronómico de la cebolla planear establecimiento, bulbo, sanidad y curado de cebolla. crops soil health">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-agronomico-de-la-cebolla" aria-label="Ver Manejo Agronómico de la Cebolla">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-agronomico-de-la-cebolla.webp" alt="Portada del curso Manejo Agronómico de la Cebolla" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo Agronómico de la Cebolla</h3>
+              <p class="ag3-course__summary">Planear establecimiento, bulbo, sanidad y curado de cebolla.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo agronómico del cultivo de piña organizar el manejo de piña desde material de siembra hasta poscosecha. crops soil">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-agronomico-del-cultivo-de-pina" aria-label="Ver Manejo Agronómico del Cultivo de Piña">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-agronomico-del-cultivo-de-pina.webp" alt="Portada del curso Manejo Agronómico del Cultivo de Piña" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo Agronómico del Cultivo de Piña</h3>
+              <p class="ag3-course__summary">Organizar el manejo de piña desde material de siembra hasta poscosecha.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo de cultivo de jitomate en invernadero tomar decisiones de jitomate protegido desde trasplante hasta corte. protected crops health">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-de-cultivo-de-jitomate-en-invernadero" aria-label="Ver Manejo de Cultivo de Jitomate en Invernadero">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-de-cultivo-de-jitomate-en-invernadero.webp" alt="Portada del curso Manejo de Cultivo de Jitomate en Invernadero" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo de Cultivo de Jitomate en Invernadero</h3>
+              <p class="ag3-course__summary">Tomar decisiones de jitomate protegido desde trasplante hasta corte.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Nutrición y suelos" data-free="false" data-keywords="manejo de suelos sódicos salinos distinguir salinidad de sodicidad y diseñar una corrección basada en análisis. soil">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-de-suelos-sodicos-salinos" aria-label="Ver Manejo de Suelos Sódicos Salinos">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-de-suelos-sodicos-salinos.webp" alt="Portada del curso Manejo de Suelos Sódicos Salinos" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Nutrición y suelos</span><span>Intermedio</span></div>
+              <h3>Manejo de Suelos Sódicos Salinos</h3>
+              <p class="ag3-course__summary">Distinguir salinidad de sodicidad y diseñar una corrección basada en análisis.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo integral de frambuesa conducir frambuesa con atención a cañas, sanidad y fruta delicada. crops health protected">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-integral-de-frambuesa" aria-label="Ver Manejo Integral de Frambuesa">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-integral-de-frambuesa.webp" alt="Portada del curso Manejo Integral de Frambuesa" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo Integral de Frambuesa</h3>
+              <p class="ag3-course__summary">Conducir frambuesa con atención a cañas, sanidad y fruta delicada.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo integral de granos básicos organizar granos básicos con diagnóstico, manejo integrado y almacenamiento. crops soil health">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-integral-de-granos-basicos" aria-label="Ver Manejo Integral de Granos Básicos">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-integral-de-granos-basicos.webp" alt="Portada del curso Manejo Integral de Granos Básicos" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo Integral de Granos Básicos</h3>
+              <p class="ag3-course__summary">Organizar granos básicos con diagnóstico, manejo integrado y almacenamiento.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Cultivos" data-free="false" data-keywords="manejo integral del cultivo de cacao seguir el cacao del vivero a la fermentación y secado de calidad. crops agroindustry organic">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-integral-del-cultivo-de-cacao" aria-label="Ver Manejo Integral del Cultivo de Cacao">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-integral-del-cultivo-de-cacao.webp" alt="Portada del curso Manejo Integral del Cultivo de Cacao" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Cultivos</span><span>Intermedio</span></div>
+              <h3>Manejo Integral del Cultivo de Cacao</h3>
+              <p class="ag3-course__summary">Seguir el cacao del vivero a la fermentación y secado de calidad.</p>
+              <div class="ag3-course__foot"><span>6 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Ornamentales" data-free="false" data-keywords="manejo y nutrición de suculentas mantener suculentas sanas con luz, sustrato y riego apropiados. ornamental soil">
+            <a href="https://club.agrotecamerican.com/#/curso/manejo-y-nutricion-de-suculentas" aria-label="Ver Manejo y Nutrición de Suculentas">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-manejo-y-nutricion-de-suculentas.webp" alt="Portada del curso Manejo y Nutrición de Suculentas" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div>
+              <h3>Manejo y Nutrición de Suculentas</h3>
+              <p class="ag3-course__summary">Mantener suculentas sanas con luz, sustrato y riego apropiados.</p>
+              <div class="ag3-course__foot"><span>3 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Ornamentales" data-free="false" data-keywords="producción rentable de girasoles para corte y ornato planear girasol ornamental con calidad de tallo y cosecha escalonada. ornamental crops business">
+            <a href="https://club.agrotecamerican.com/#/curso/produccion-rentable-de-girasoles-para-corte-y-ornato" aria-label="Ver Producción Rentable de Girasoles para Corte y Ornato">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-produccion-rentable-de-girasoles-para-corte-y-ornato.webp" alt="Portada del curso Producción Rentable de Girasoles para Corte y Ornato" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div>
+              <h3>Producción Rentable de Girasoles para Corte y Ornato</h3>
+              <p class="ag3-course__summary">Planear girasol ornamental con calidad de tallo y cosecha escalonada.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Ornamentales" data-free="false" data-keywords="producción y manejo comercial de gladiolas producir gladiola de corte desde cormo hasta clasificación comercial. ornamental business">
+            <a href="https://club.agrotecamerican.com/#/curso/produccion-y-manejo-comercial-de-gladiolas" aria-label="Ver Producción y Manejo Comercial de Gladiolas">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-produccion-y-manejo-comercial-de-gladiolas.webp" alt="Portada del curso Producción y Manejo Comercial de Gladiolas" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div>
+              <h3>Producción y Manejo Comercial de Gladiolas</h3>
+              <p class="ag3-course__summary">Producir gladiola de corte desde cormo hasta clasificación comercial.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Agroindustria" data-free="false" data-keywords="productos a base de maíces de colores valorar maíces pigmentados con procesos estables e identidad de origen. agroindustry business crops">
+            <a href="https://club.agrotecamerican.com/#/curso/productos-a-base-de-maices-de-colores" aria-label="Ver Productos a Base de Maíces de Colores">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-productos-a-base-de-maices-de-colores.webp" alt="Portada del curso Productos a Base de Maíces de Colores" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Agroindustria</span><span>Intermedio</span></div>
+              <h3>Productos a Base de Maíces de Colores</h3>
+              <p class="ag3-course__summary">Valorar maíces pigmentados con procesos estables e identidad de origen.</p>
+              <div class="ag3-course__foot"><span>4 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Ornamentales" data-free="false" data-keywords="técnicas de reproducción y mejora genética en suculentas comparar propagación y selección de suculentas con registros. ornamental">
+            <a href="https://club.agrotecamerican.com/#/curso/tecnicas-de-reproduccion-y-mejora-genetica-en-suculentas" aria-label="Ver Técnicas de Reproducción y Mejora Genética en Suculentas">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-tecnicas-de-reproduccion-y-mejora-genetica-en-suculentas.webp" alt="Portada del curso Técnicas de Reproducción y Mejora Genética en Suculentas" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Ornamentales</span><span>Intermedio</span></div>
+              <h3>Técnicas de Reproducción y Mejora Genética en Suculentas</h3>
+              <p class="ag3-course__summary">Comparar propagación y selección de suculentas con registros.</p>
+              <div class="ag3-course__foot"><span>3 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
+          </article>
+          <article class="ag3-course ag3-reveal" data-category="Sanidad y Gestión" data-free="false" data-keywords="uso responsable de agroquímicos decidir si usar un producto y aplicarlo sólo conforme a etiqueta y regulación vigente. health organic crops">
+            <a href="https://club.agrotecamerican.com/#/curso/uso-responsable-de-agroquimicos" aria-label="Ver Uso Responsable de Agroquímicos">
+              <div class="ag3-course__media">
+                <img src="img/cursos-real/curso-uso-responsable-de-agroquimicos.webp" alt="Portada del curso Uso Responsable de Agroquímicos" loading="lazy" decoding="async" width="960" height="540">
+              </div>
+            </a>
+            <div class="ag3-course__body">
+              <div class="ag3-course__meta"><span>Sanidad</span><span>Intermedio</span></div>
+              <h3>Uso Responsable de Agroquímicos</h3>
+              <p class="ag3-course__summary">Decidir si usar un producto y aplicarlo sólo conforme a etiqueta y regulación vigente.</p>
+              <div class="ag3-course__foot"><span>5 clases</span><span class="ag3-course__arrow"><svg class="ico"><use href="#i-arrow"/></svg></span></div>
+            </div>
           </article>
         </div>
-        <div class="ag3-catalog__foot"><a class="ag3-btn ag3-btn--gold" href="https://club.agrotecamerican.com/#/cursos">Explorar catálogo completo <svg class="ico"><use href="#i-arrow"/></svg></a></div>
+
+        <div class="ag3-catalog__foot">
+          <button class="ag3-btn ag3-btn--line" type="button" id="ag3ToggleAllCourses">Ver los 23 cursos del catálogo</button>
+        </div>
       </div>
     </section>
 

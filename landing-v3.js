@@ -93,4 +93,93 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   });
+
+  // ── Filtro y Buscador Dinámico del Catálogo V3 ────────────────────────
+  const searchInput = document.getElementById('ag3CourseSearch');
+  const searchClear = document.getElementById('ag3SearchClear');
+  const countEl = document.getElementById('ag3CourseCount');
+  const chips = document.querySelectorAll('.ag3-chip');
+  const courseCards = document.querySelectorAll('.ag3-courses .ag3-course');
+  const toggleBtn = document.getElementById('ag3ToggleAllCourses');
+
+  let activeCat = 'all';
+  let searchTerm = '';
+  let isExpanded = false;
+
+  const updateCourseVisibility = () => {
+    let visibleCount = 0;
+    const term = searchTerm.trim().toLowerCase();
+
+    courseCards.forEach((card, idx) => {
+      const cat = card.dataset.category || '';
+      const hasFree = card.dataset.free === 'true';
+      const keywords = (card.dataset.keywords || '') + ' ' + (card.querySelector('h3')?.textContent || '').toLowerCase();
+
+      let matchesCat = (activeCat === 'all');
+      if (activeCat === 'gratis') matchesCat = hasFree;
+      else if (activeCat !== 'all') matchesCat = (cat === activeCat);
+
+      const matchesSearch = !term || keywords.includes(term);
+      const passesFilter = matchesCat && matchesSearch;
+
+      const shouldShow = passesFilter && (isExpanded || activeCat !== 'all' || term !== '' || idx < 6);
+
+      card.hidden = !shouldShow;
+      if (passesFilter) visibleCount++;
+    });
+
+    if (countEl) {
+      if (term || activeCat !== 'all') {
+        countEl.textContent = `Mostrando ${visibleCount} de ${courseCards.length} cursos encontrados`;
+      } else {
+        countEl.textContent = isExpanded ? `Mostrando los ${courseCards.length} cursos del catálogo` : `Mostrando 6 de ${courseCards.length} cursos destacados`;
+      }
+    }
+
+    if (toggleBtn) {
+      if (term || activeCat !== 'all') {
+        toggleBtn.hidden = true;
+      } else {
+        toggleBtn.hidden = false;
+        toggleBtn.textContent = isExpanded ? 'Ver menos cursos' : `Ver los ${courseCards.length} cursos del catálogo`;
+      }
+    }
+
+    if (searchClear) {
+      searchClear.hidden = !term;
+    }
+  };
+
+  searchInput?.addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    updateCourseVisibility();
+  });
+
+  searchClear?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    searchTerm = '';
+    updateCourseVisibility();
+    searchInput?.focus();
+  });
+
+  chips?.forEach((chip) => {
+    chip.addEventListener('click', () => {
+      chips.forEach((c) => c.classList.remove('is-active'));
+      chip.classList.add('is-active');
+      activeCat = chip.dataset.cat || 'all';
+      updateCourseVisibility();
+      window.trackAgroEvent?.('catalog_filter', { category: activeCat });
+    });
+  });
+
+  toggleBtn?.addEventListener('click', () => {
+    isExpanded = !isExpanded;
+    updateCourseVisibility();
+    if (!isExpanded) {
+      document.getElementById('catalogo-real')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+
+  updateCourseVisibility();
+
 });

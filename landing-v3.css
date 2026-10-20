@@ -422,7 +422,7 @@ body { background: var(--ag3-cream); }
   .ag3-catalog__top { display: block; }
   .ag3-catalog__top > .ag3-btn { margin-top: 25px; }
   .ag3-courses { grid-template-columns: 1fr; }
-  .ag3-course:nth-child(n+5) { display: none; }
+  /* Controlado dinámicamente por landing-v3.js */
   .ag3-platform__media { min-height: 480px; border-radius: 70px 20px 70px 20px; }
   .ag3-membership { padding: 84px 0; }
   .ag3-plans { grid-template-columns: 1fr; }
@@ -476,4 +476,197 @@ html { scroll-padding-top: 110px; }
    del footer para que la ultima linea quede por encima de los flotantes. */
 @media (max-width: 767px) {
   .ag3-footer { padding-bottom: calc(150px + env(safe-area-inset-bottom)); }
+}
+
+
+/* ══════════════════════════════════════════════════════════════════
+   CATÁLOGO INTERACTIVO V3 (Buscador, Chips y Banner Gratis)
+   ══════════════════════════════════════════════════════════════════ */
+.ag3-catalog__subtitle {
+  max-width: 640px;
+  margin-top: 14px;
+  color: var(--ag3-muted);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+/* Banner de Prueba Gratuita (Agricultura Orgánica) */
+.ag3-free-trial-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 34px;
+  padding: 24px 30px;
+  border-radius: 24px;
+  background: linear-gradient(135deg, rgba(221, 167, 43, .12), rgba(23, 56, 47, .06));
+  border: 1px solid rgba(221, 167, 43, .38);
+  box-shadow: 0 8px 24px rgba(23, 56, 47, .04);
+}
+.ag3-free-trial__badge {
+  display: inline-block;
+  font-size: .72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: #8c5d0a;
+  background: #fef3c7;
+  padding: 4px 10px;
+  border-radius: 999px;
+  margin-bottom: 6px;
+}
+.ag3-free-trial__info h3 {
+  font-family: var(--ag3-display);
+  font-size: 1.25rem;
+  color: var(--ag3-green);
+  margin-bottom: 4px;
+}
+.ag3-free-trial__info p {
+  color: var(--ag3-muted);
+  font-size: .9rem;
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+/* Buscador y Controles */
+.ag3-catalog__controls {
+  margin-bottom: 32px;
+}
+.ag3-search-bar {
+  position: relative;
+  max-width: 720px;
+  margin-bottom: 16px;
+}
+.ag3-search-bar svg {
+  position: absolute;
+  left: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 19px;
+  height: 19px;
+  color: var(--ag3-muted);
+  pointer-events: none;
+}
+.ag3-search-bar input {
+  width: 100%;
+  padding: 14px 44px 14px 50px;
+  border: 1px solid var(--ag3-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: .95rem;
+  color: var(--ag3-ink);
+  transition: border-color .2s, box-shadow .2s;
+  box-shadow: 0 4px 14px rgba(0,0,0,.03);
+}
+.ag3-search-bar input:focus {
+  outline: none;
+  border-color: var(--ag3-green);
+  box-shadow: 0 0 0 3px rgba(40, 83, 69, .15);
+}
+.ag3-search-clear {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: none;
+  color: var(--ag3-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+.ag3-filter-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.ag3-chip {
+  padding: 8px 18px;
+  border: 1px solid var(--ag3-line);
+  border-radius: 999px;
+  background: #fff;
+  font-size: .83rem;
+  font-weight: 700;
+  color: var(--ag3-muted);
+  cursor: pointer;
+  transition: all .2s ease;
+}
+.ag3-chip:hover {
+  border-color: var(--ag3-green);
+  color: var(--ag3-green);
+}
+.ag3-chip.is-active {
+  background: var(--ag3-green);
+  border-color: var(--ag3-green);
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(23, 56, 47, .2);
+}
+.ag3-chip--free {
+  border-color: rgba(221, 167, 43, .55);
+}
+.ag3-chip--free.is-active {
+  background: var(--ag3-gold);
+  border-color: var(--ag3-gold);
+  color: #17382f;
+}
+.ag3-catalog__status {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: .84rem;
+  color: var(--ag3-muted);
+}
+.ag3-course__badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 2;
+  padding: 4px 11px;
+  border-radius: 999px;
+  font-size: .7rem;
+  font-weight: 800;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+.ag3-course__badge--free {
+  background: #dda72b;
+  color: #17382f;
+  box-shadow: 0 4px 12px rgba(0,0,0,.18);
+}
+.ag3-course__summary {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-size: .84rem;
+  color: var(--ag3-muted);
+  margin-top: 8px;
+  line-height: 1.45;
+  min-height: 2.85em;
+}
+
+@media (max-width: 768px) {
+  .ag3-free-trial-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 16px;
+  }
+  .ag3-free-trial-banner .ag3-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  .ag3-filter-chips {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 6px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .ag3-chip {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
 }
