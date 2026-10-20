@@ -1,4 +1,4 @@
-const CACHE_NAME = 'agrotec-shell-v1';
+const CACHE_NAME = 'agrotec-shell-v3';
 const ASSETS = [
   './',
   'landing-v3.css',

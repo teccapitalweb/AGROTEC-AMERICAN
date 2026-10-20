@@ -112,12 +112,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     courseCards.forEach((card, idx) => {
       const cat = card.dataset.category || '';
-      const hasFree = card.dataset.free === 'true';
       const keywords = (card.dataset.keywords || '') + ' ' + (card.querySelector('h3')?.textContent || '').toLowerCase();
 
       let matchesCat = (activeCat === 'all');
-      if (activeCat === 'gratis') matchesCat = hasFree;
-      else if (activeCat !== 'all') matchesCat = (cat === activeCat);
+      if (activeCat !== 'all') matchesCat = (cat === activeCat);
 
       const matchesSearch = !term || keywords.includes(term);
       const passesFilter = matchesCat && matchesSearch;
