@@ -127,16 +127,20 @@
     display: inline-block;
     line-height: 0;
     flex-shrink: 0;
+    min-width: 160px;
   }
   .logo-img {
     height: 42px;
     width: 160px;
+    min-width: 160px;
+    max-width: none;
     object-fit: contain;
     object-position: left center;
     display: block;
   }
   @media (max-width: 540px) {
-    .logo-img { height: 34px; width: 130px; }
+    .logo { min-width: 130px; }
+    .logo-img { height: 34px; width: 130px; min-width: 130px; }
   }
 
   .nav {
