@@ -354,6 +354,9 @@
     cookie.hidden = true;
   });
 
-  // Se abre en cada carga por solicitud del proyecto; no se guarda una marca de cierre.
-  openWelcome();
+  // El modal YA NO se auto-abre: mataba la primera impresión y aumentaba el
+  // rebote. Ahora es opt-in — se dispara solo cuando el visitante clica los
+  // CTAs "Encuentra tu ruta" / "Que Agro me recomiende" (hero, menú, footer)
+  // o cualquier link a `encuesta/`, o programáticamente vía
+  // `window.agrotecOpenRoute()`.
 })();
