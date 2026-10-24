@@ -124,16 +124,20 @@
   }
 
   .logo {
-    display: inline-flex;
-    align-items: center;
+    display: inline-block;
     line-height: 0;
+    flex-shrink: 0;
   }
   .logo-img {
     height: 42px;
-    width: auto;
+    width: 160px;
+    object-fit: contain;
+    object-position: left center;
     display: block;
   }
-  @media (max-width: 540px) { .logo-img { height: 34px; } }
+  @media (max-width: 540px) {
+    .logo-img { height: 34px; width: 130px; }
+  }
 
   .nav {
     display: inline-flex;
