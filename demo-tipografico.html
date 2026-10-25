@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>AgroTec América · Demo tipográfico</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700;12..96,800;12..96,900&family=Space+Mono:wght@400;700&display=swap">
+<style>
+  /* AgroTec Tipográfico v1 — Carta de la tierra:
+     Fondo oscuro de madrugada, verde brote como único acento,
+     tipografía monumental, imágenes grandes a sangre. */
+  :root {
+    --fondo: #0C0F09;
+    --fondo-elev: #141811;
+    --fondo-card: #1A1E15;
+    --tinta: #F2EFE4;
+    --tinta-mute: #8A8E82;
+    --tinta-apag: #3A3E34;
+    --brote: #C2EC6B;
+    --brote-prof: #85B33F;
+    --sombra: #050703;
+    --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+    --font-mono: 'Space Mono', ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--fondo); color: var(--tinta); }
+  body {
+    font-family: var(--font-display);
+    font-size: 17px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+  img { max-width: 100%; display: block; }
+
+  .wrap {
+    width: 100%;
+    padding-left: max(20px, env(safe-area-inset-left, 0px));
+    padding-right: max(20px, env(safe-area-inset-right, 0px));
+    max-width: 1480px;
+    margin: 0 auto;
+  }
+  @media (min-width: 760px) {
+    .wrap { padding-left: max(32px, env(safe-area-inset-left, 0px)); padding-right: max(32px, env(safe-area-inset-right, 0px)); }
+  }
+
+  /* ---- TOP BAR (como la del ref: logo + nav + search + CTA) ---- */
+  .top {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(12, 15, 9, 0.85);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border-bottom: 1px solid var(--tinta-apag);
+  }
+  .top-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 32px;
+    align-items: center;
+    padding-block: 18px;
+  }
+  @media (max-width: 900px) {
+    .top-inner { grid-template-columns: 1fr auto; gap: 12px; padding-block: 14px; }
+    .top-nav { display: none !important; }
+  }
+  .marca {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 22px;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    color: var(--tinta);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .marca .ac {
+    color: var(--brote);
+    font-weight: 800;
+  }
+  .marca .punto {
+    display: inline-block;
+    width: 6px; height: 6px;
+    background: var(--brote);
+    border-radius: 50%;
+    margin-left: 4px;
+    translate: 0 -6px;
+  }
+  .top-nav {
+    display: inline-flex;
+    justify-content: center;
+    gap: 32px;
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 15px;
+  }
+  .top-nav a {
+    color: var(--tinta);
+    text-decoration: none;
+    opacity: 0.75;
+    transition: opacity .15s ease, color .15s ease;
+  }
+  .top-nav a:hover { color: var(--brote); opacity: 1; }
+  .top-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .enlace {
+    color: var(--tinta);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+  @media (max-width: 540px) { .enlace { display: none; } }
+  .cta-top {
+    background: var(--brote);
+    color: var(--fondo);
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    transition: background .15s ease, transform .15s ease;
+  }
+  @media (max-width: 540px) {
+    .cta-top { padding: 10px 16px; font-size: 13px; }
+    .cta-top::after { display: none; }
+  }
+  .cta-top:hover { background: var(--brote-prof); transform: translateY(-1px); }
+  .cta-top::after { content: "→"; font-weight: 800; }
+
+  /* ---- HERO full-bleed con imagen + titular monumental ---- */
+  .hero {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    margin-top: 20px;
+  }
+  .hero-media {
+    position: relative;
+    aspect-ratio: 16/9;
+    min-height: 560px;
+    max-height: 90vh;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+  @media (max-width: 760px) {
+    .hero-media {
+      aspect-ratio: auto;
+      min-height: auto;
+      max-height: none;
+      border-radius: 14px;
+      display: flex;
+      flex-direction: column;
+      background: var(--fondo-elev);
+    }
+  }
+  .hero-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    object-position: center 60%;
+  }
+  .hero-media::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(12,15,9,0.1) 0%, rgba(12,15,9,0) 30%, rgba(12,15,9,0.5) 80%, rgba(12,15,9,0.9) 100%),
+      linear-gradient(90deg, rgba(12,15,9,0.6) 0%, rgba(12,15,9,0.1) 60%);
+    pointer-events: none;
+  }
+
+  .hero-copy {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(20px, 5vw, 56px);
+    z-index: 2;
+    gap: 20px;
+  }
+
+  @media (max-width: 760px) {
+    .hero-media img {
+      position: static;
+      width: 100%;
+      height: 340px;
+      object-fit: cover;
+      object-position: center;
+    }
+    .hero-media::after {
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 340px;
+      background: linear-gradient(180deg, rgba(12,15,9,0) 60%, rgba(12,15,9,0.85) 100%);
+    }
+    .hero-copy {
+      position: static;
+      padding: 28px 22px 36px;
+      gap: 24px;
+      background: var(--fondo-elev);
+    }
+    .hero-tag {
+      position: absolute;
+      top: 20px; left: 22px;
+      z-index: 3;
+    }
+  }
+  .hero-tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brote);
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+  }
+  .hero-tag::before {
+    content: "";
+    width: 32px; height: 1px;
+    background: var(--brote);
+  }
+  .hero-h {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(56px, 13vw, 220px);
+    line-height: 0.82;
+    letter-spacing: -0.055em;
+    margin: 0;
+    color: var(--tinta);
+    text-wrap: balance;
+    max-width: 14ch;
+    text-shadow: 0 2px 40px rgba(0,0,0,0.4);
+  }
+  @media (max-width: 540px) {
+    .hero-h { font-size: clamp(48px, 14vw, 72px); max-width: 100%; }
+  }
+  .hero-h .brote { color: var(--brote); }
+  .hero-bottom {
+    display: grid;
+    grid-template-columns: 1.5fr auto;
+    gap: 32px;
+    align-items: end;
+  }
+  @media (max-width: 760px) {
+    .hero-bottom { grid-template-columns: 1fr; gap: 20px; }
+  }
+  @media (max-width: 540px) {
+    .hero-actions { flex-direction: column; align-items: stretch; }
+    .hero-actions .btn { justify-content: center; }
+  }
+  .hero-sub {
+    font-size: clamp(16px, 1.8vw, 20px);
+    line-height: 1.5;
+    color: var(--tinta);
+    max-width: 48ch;
+    margin: 0;
+    opacity: 0.9;
+    text-shadow: 0 1px 20px rgba(0,0,0,0.4);
+  }
+  .hero-actions {
+    display: flex; gap: 12px; flex-wrap: wrap;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 28px;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 15px;
+    text-decoration: none;
+    transition: all .18s ease;
+    white-space: nowrap;
+  }
+  .btn-primary {
+    background: var(--brote);
+    color: var(--fondo);
+  }
+  .btn-primary:hover { background: var(--brote-prof); transform: translateY(-2px); }
+  .btn-ghost {
+    background: rgba(255,255,255,0.1);
+    color: var(--tinta);
+    border: 1px solid rgba(255,255,255,0.3);
+    backdrop-filter: blur(10px);
+  }
+  .btn-ghost:hover { background: rgba(255,255,255,0.2); border-color: var(--brote); }
+
+  /* ---- BAND de stats + beneficios (como "Why Thousands Choose" del ref) ---- */
+  .band-why {
+    display: grid;
+    grid-template-columns: 1.4fr 2fr;
+    gap: clamp(32px, 5vw, 72px);
+    padding-block: clamp(60px, 9vw, 120px);
+    align-items: start;
+  }
+  @media (max-width: 900px) { .band-why { grid-template-columns: 1fr; } }
+
+  .why-intro h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(28px, 3.6vw, 44px);
+    line-height: 1.1;
+    letter-spacing: -0.025em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+    max-width: 18ch;
+  }
+  .why-intro h2 em {
+    font-style: italic;
+    color: var(--brote);
+    font-weight: 300;
+  }
+  .why-intro p {
+    color: var(--tinta-mute);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0 0 32px;
+    max-width: 46ch;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    padding-top: 28px;
+    border-top: 1px solid var(--tinta-apag);
+  }
+  @media (max-width: 540px) { .stats-row { grid-template-columns: 1fr; } }
+  .stat {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .stat .n {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 42px;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
+    color: var(--brote);
+    font-feature-settings: "tnum", "lnum";
+  }
+  .stat .l {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--tinta-mute);
+  }
+
+  .why-cards {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .why-card {
+    display: grid;
+    grid-template-columns: 56px 1fr;
+    gap: 20px;
+    padding: 22px 24px;
+    background: var(--fondo-card);
+    border: 1px solid var(--tinta-apag);
+    border-radius: 16px;
+    align-items: start;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .why-card:hover { border-color: var(--brote); transform: translateX(4px); }
+  .why-icon {
+    width: 56px; height: 56px;
+    background: var(--brote);
+    color: var(--fondo);
+    border-radius: 14px;
+    display: grid; place-items: center;
+    font-size: 24px;
+    font-weight: 900;
+  }
+  .why-card h3 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 20px;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin: 0 0 6px;
+    color: var(--tinta);
+  }
+  .why-card p {
+    color: var(--tinta-mute);
+    font-size: 14px;
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  /* ---- CATÁLOGO (como Top Destinations) ---- */
+  .section {
+    padding-block: clamp(50px, 8vw, 100px);
+  }
+  .section-head {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 24px;
+    align-items: end;
+    margin-bottom: 44px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--tinta-apag);
+  }
+  @media (max-width: 640px) {
+    .section-head { grid-template-columns: 1fr; }
+  }
+  .section-head .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brote);
+    display: block;
+    margin-bottom: 14px;
+  }
+  .section-h {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(40px, 6vw, 76px);
+    line-height: 0.92;
+    letter-spacing: -0.04em;
+    margin: 0;
+    text-wrap: balance;
+    max-width: 16ch;
+  }
+  .section-h em {
+    font-style: italic;
+    font-weight: 300;
+    color: var(--brote);
+  }
+  .section-aside {
+    font-size: 14px;
+    color: var(--tinta-mute);
+    max-width: 28ch;
+    line-height: 1.5;
+    text-align: right;
+    padding-bottom: 8px;
+  }
+  @media (max-width: 640px) { .section-aside { text-align: left; } }
+
+  .catalog-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 1100px) { .catalog-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 760px) { .catalog-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 480px) { .catalog-grid { grid-template-columns: 1fr 1fr; gap: 10px; } }
+
+  .course-card {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--fondo-elev);
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    color: var(--tinta);
+    transition: transform .25s ease;
+  }
+  .course-card:hover { transform: translateY(-4px); }
+  .course-card img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform .5s ease;
+  }
+  .course-card:hover img { transform: scale(1.05); }
+  .course-card::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(12,15,9,0) 40%, rgba(12,15,9,0.85) 100%);
+  }
+  .course-tag {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: rgba(12,15,9,0.75);
+    color: var(--brote);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 999px;
+    backdrop-filter: blur(8px);
+    z-index: 2;
+  }
+  .course-body {
+    position: absolute;
+    left: 16px; right: 16px; bottom: 16px;
+    z-index: 2;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .course-nom {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(15px, 1.3vw, 18px);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--tinta);
+  }
+  .course-meta {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: var(--tinta);
+    opacity: 0.85;
+  }
+  .course-meta .clases { color: var(--brote); }
+
+  .catalog-footer {
+    display: flex; justify-content: space-between;
+    align-items: center; flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--tinta-apag);
+  }
+  .catalog-footer span {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    color: var(--tinta-mute);
+  }
+  .catalog-footer a {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 24px;
+    border: 1px solid var(--tinta-apag);
+    border-radius: 999px;
+    color: var(--tinta);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 14px;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .catalog-footer a:hover { border-color: var(--brote); color: var(--brote); }
+  .catalog-footer a::after { content: "→"; }
+
+  /* ---- HERRAMIENTAS: 2 cards grandes con foto ---- */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 900px) { .tools-grid { grid-template-columns: 1fr; } }
+
+  .tool-feat {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    min-height: 460px;
+    background: var(--fondo-elev);
+    padding: clamp(28px, 4vw, 44px);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    color: var(--tinta);
+  }
+  .tool-feat img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+    z-index: 0;
+  }
+  .tool-feat::after {
+    content: "";
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, rgba(12,15,9,0.3) 0%, rgba(12,15,9,0.5) 50%, rgba(12,15,9,0.95) 100%);
+    z-index: 1;
+  }
+  .tool-feat > * { position: relative; z-index: 2; }
+
+  .tool-feat .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--brote);
+    margin-bottom: 12px;
+  }
+  .tool-feat h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(28px, 3.5vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin: 0 0 14px;
+    max-width: 15ch;
+    text-wrap: balance;
+  }
+  .tool-feat p {
+    color: var(--tinta);
+    opacity: 0.9;
+    font-size: 15px;
+    line-height: 1.55;
+    max-width: 44ch;
+    margin: 0 0 20px;
+  }
+  .tool-list {
+    display: flex; flex-wrap: wrap; gap: 8px;
+    margin-bottom: 20px;
+  }
+  .tool-chip {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.12);
+    color: var(--tinta);
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+  }
+
+  .calc-feat {
+    position: relative;
+    background: var(--brote);
+    color: var(--fondo);
+    border-radius: 20px;
+    padding: clamp(28px, 4vw, 40px);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .calc-feat::before {
+    content: "";
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(12,15,9,0.08), transparent 70%);
+    border-radius: 50%;
+  }
+  .calc-feat .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fondo);
+    opacity: 0.75;
+    margin-bottom: 12px;
+  }
+  .calc-feat h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(26px, 3.2vw, 36px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0 0 20px;
+    text-wrap: balance;
+  }
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: rgba(12,15,9,0.2);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: auto;
+  }
+  .calc-cell {
+    background: var(--brote);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .calc-cell .k {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--fondo);
+    letter-spacing: -0.005em;
+  }
+  .calc-cell .u {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--fondo);
+    opacity: 0.65;
+  }
+
+  /* ---- COMUNIDAD con foto de graduados ---- */
+  .community {
+    position: relative;
+    overflow: hidden;
+    border-radius: 24px;
+    min-height: 520px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+  }
+  @media (max-width: 760px) {
+    .community { grid-template-columns: 1fr; min-height: auto; }
+  }
+  .community-media {
+    position: relative;
+    min-height: 420px;
+    background: var(--fondo-elev);
+    overflow: hidden;
+  }
+  .community-media img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover;
+  }
+  .community-copy {
+    padding: clamp(32px, 4vw, 52px);
+    background: var(--fondo-card);
+    display: flex; flex-direction: column; justify-content: center;
+    gap: 20px;
+  }
+  .community-copy .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--brote);
+  }
+  .community-copy h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: clamp(28px, 3.5vw, 44px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .community-copy h2 em {
+    font-style: italic;
+    color: var(--brote);
+    font-weight: 300;
+  }
+  .community-copy p {
+    color: var(--tinta-mute);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+    max-width: 42ch;
+  }
+  .roles-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: var(--tinta-apag);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-top: 8px;
+  }
+  .role-cell {
+    background: var(--fondo-card);
+    padding: 14px 16px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .role-cell .k {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--brote);
+  }
+  .role-cell .v {
+    font-family: var(--font-display);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--tinta);
+  }
+
+  /* ---- CIERRE monumental ---- */
+  .closing {
+    padding-block: clamp(70px, 11vw, 140px);
+    text-align: left;
+  }
+  .closing h2 {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: clamp(60px, 15vw, 200px);
+    line-height: 0.82;
+    letter-spacing: -0.06em;
+    margin: 0 0 48px;
+    text-wrap: balance;
+    max-width: 14ch;
+  }
+  .closing h2 em {
+    color: var(--brote);
+    font-style: italic;
+    font-weight: 300;
+  }
+  .closing-foot {
+    margin-top: clamp(60px, 10vw, 100px);
+    padding-top: 24px;
+    border-top: 1px solid var(--tinta-apag);
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 16px; flex-wrap: wrap;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tinta-mute);
+  }
+
+  :focus-visible { outline: 2px solid var(--brote); outline-offset: 3px; border-radius: 4px; }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <a href="#" class="marca">
+      Agro<span class="ac">Tec</span><span class="punto"></span>
+    </a>
+    <nav class="top-nav">
+      <a href="#catalogo">Catálogo</a>
+      <a href="#herramientas">Herramientas</a>
+      <a href="#comunidad">Comunidad</a>
+      <a href="#historia">Nuestra visión</a>
+    </nav>
+    <div class="top-actions">
+      <a href="#" class="enlace">Iniciar sesión</a>
+      <a href="#" class="cta-top">Entrar al club</a>
+    </div>
+  </div>
+</header>
+
+<!-- HERO -->
+<div class="wrap">
+  <section class="hero">
+    <div class="hero-media">
+      <img src="img/v3/hero-agrotec-fields-v4.jpg" alt="Campos agrícolas al amanecer en México, con cultivos ordenados en surcos y luz dorada">
+      <div class="hero-copy">
+        <span class="hero-tag">Formación agrícola que se queda contigo</span>
+        <h1 class="hero-h">
+          Aprende.<br>
+          Aplica.<br>
+          <span class="brote">Cosecha.</span>
+        </h1>
+        <div class="hero-bottom">
+          <p class="hero-sub">
+            Clases con casos reales. Calculadoras del día. Bitácora para tu propia parcela. Y una comunidad trabajando contigo. Todo lo que haces en el campo, acompañado.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#">Entrar al club</a>
+            <a class="btn btn-ghost" href="#catalogo">Ver qué hay dentro</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY: stats + 3 beneficios -->
+  <section class="band-why">
+    <div class="why-intro">
+      <h2>Formación hecha para <em>el campo real</em>, no para el aula.</h2>
+      <p>
+        Clases cortas con productores que ya puso las manos en la tierra, herramientas que resuelven la cuenta del día y una comunidad que ya está trabajando. Esto es lo que te llevas al entrar.
+      </p>
+      <div class="stats-row">
+        <div class="stat">
+          <span class="n">23</span>
+          <span class="l">Cursos técnicos</span>
+        </div>
+        <div class="stat">
+          <span class="n">103</span>
+          <span class="l">Clases con casos reales</span>
+        </div>
+        <div class="stat">
+          <span class="n">6</span>
+          <span class="l">Áreas de especialidad</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="why-cards">
+      <div class="why-card">
+        <div class="why-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 3v12a3 3 0 0 0 3 3h9"/>
+            <path d="M15 6h6l-3 3-3-3Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Conocimiento aplicable, no teoría</h3>
+          <p>Clases con casos reales de productores mexicanos, en los cultivos, suelos y mercados que ya conoces.</p>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18M9 3v18"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Herramientas listas para el día a día</h3>
+          <p>Seis calculadoras y una bitácora para tu propia parcela. Dejas de aprender en abstracto.</p>
+        </div>
+      </div>
+      <div class="why-card">
+        <div class="why-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/>
+            <circle cx="17" cy="7" r="3"/>
+            <path d="M21 21v-1.5a3.5 3.5 0 0 0-2.5-3.3"/>
+          </svg>
+        </div>
+        <div>
+          <h3>Alianzas con quien está en lo mismo</h3>
+          <p>Un directorio de productores, asesores y técnicos. Tú decides a quién le compartes tu contacto.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATÁLOGO: grid de cursos reales -->
+  <section class="section" id="catalogo">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">01 — El catálogo</span>
+        <h2 class="section-h">Veintitrés caminos <em>para empezar.</em></h2>
+      </div>
+      <div class="section-aside">
+        De cacao a berries, de nutrición de suelos a inocuidad de exportación. Elige por donde te hable tu campo.
+      </div>
+    </div>
+
+    <div class="catalog-grid">
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/01-cacao.webp" alt="Cacao" loading="lazy">
+        <span class="course-tag">Cultivos</span>
+        <div class="course-body">
+          <span class="course-nom">Cultivo Integral de Cacao</span>
+          <span class="course-meta"><span>Clases con caso real</span><span class="clases">8 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/04-hidroponia.webp" alt="Hidroponía" loading="lazy">
+        <span class="course-tag">Cultivos</span>
+        <div class="course-body">
+          <span class="course-nom">Hidroponía y Cultivo sin Suelo</span>
+          <span class="course-meta"><span>Práctico</span><span class="clases">6 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/08-fertirrigacion.webp" alt="Fertirrigación" loading="lazy">
+        <span class="course-tag">Nutrición</span>
+        <div class="course-body">
+          <span class="course-nom">Diseño de Programas de Fertirrigación</span>
+          <span class="course-meta"><span>Avanzado</span><span class="clases">7 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/13-chiles.webp" alt="Chiles" loading="lazy">
+        <span class="course-tag">Cultivos</span>
+        <div class="course-body">
+          <span class="course-nom">Manejo Integral del Chile</span>
+          <span class="course-meta"><span>Técnico</span><span class="clases">5 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/06-bioinsumos.webp" alt="Bioinsumos" loading="lazy">
+        <span class="course-tag">Sanidad</span>
+        <div class="course-body">
+          <span class="course-nom">Bioinsumos para Agricultura Sana</span>
+          <span class="course-meta"><span>Práctico</span><span class="clases">6 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/20-inocuidad.webp" alt="Inocuidad" loading="lazy">
+        <span class="course-tag">Agroindustria</span>
+        <div class="course-body">
+          <span class="course-nom">Inocuidad en Empaque y Exportación</span>
+          <span class="course-meta"><span>Certificable</span><span class="clases">9 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/15-nopal.webp" alt="Nopal" loading="lazy">
+        <span class="course-tag">Cultivos</span>
+        <div class="course-body">
+          <span class="course-nom">Producción Comercial del Nopal</span>
+          <span class="course-meta"><span>Práctico</span><span class="clases">4 clases</span></span>
+        </div>
+      </a>
+      <a href="#" class="course-card">
+        <img src="img/editorial/cursos-v2/10-biofabricas.webp" alt="Biofábricas" loading="lazy">
+        <span class="course-tag">Sanidad</span>
+        <div class="course-body">
+          <span class="course-nom">Biofábricas en Campo</span>
+          <span class="course-meta"><span>Avanzado</span><span class="clases">5 clases</span></span>
+        </div>
+      </a>
+    </div>
+
+    <div class="catalog-footer">
+      <span>+ 15 cursos más adentro. Al entrar escoges por dónde empezar.</span>
+      <a href="#">Ver catálogo completo</a>
+    </div>
+  </section>
+
+  <!-- HERRAMIENTAS: 2 cards grandes -->
+  <section class="section" id="herramientas">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">02 — Las herramientas</span>
+        <h2 class="section-h">Tu parcela, dentro <em>de la app.</em></h2>
+      </div>
+      <div class="section-aside">
+        Dejas de aprender en abstracto: registras ciclos y los cálculos salen con los datos de tu terreno.
+      </div>
+    </div>
+
+    <div class="tools-grid">
+      <article class="tool-feat">
+        <img src="img/v3/tecnologia-campo-v3.webp" alt="Técnico revisando cultivo con tableta en campo">
+        <span class="eyebrow">AgroTec Campo</span>
+        <h3>Lleva la bitácora de tu propia parcela.</h3>
+        <p>
+          Registras tus parcelas con superficie, cultivo, riego y ubicación. Cierras ciclos, llevas la bitácora y comparas temporadas. Todo en el bolsillo.
+        </p>
+        <div class="tool-list">
+          <span class="tool-chip">Siembra</span>
+          <span class="tool-chip">Riego</span>
+          <span class="tool-chip">Fertilización</span>
+          <span class="tool-chip">Aplicación</span>
+          <span class="tool-chip">Monitoreo</span>
+          <span class="tool-chip">Mano de obra</span>
+          <span class="tool-chip">Cosecha</span>
+          <span class="tool-chip">Observación</span>
+        </div>
+      </article>
+
+      <article class="calc-feat">
+        <span class="eyebrow">Seis calculadoras</span>
+        <h3>La cuenta justa, en el idioma del productor.</h3>
+        <div class="calc-grid">
+          <div class="calc-cell"><span class="k">Densidad de siembra</span><span class="u">plantas / ha</span></div>
+          <div class="calc-cell"><span class="k">Lámina de riego</span><span class="u">mm → L · min</span></div>
+          <div class="calc-cell"><span class="k">Aporte de fertilizante</span><span class="u">kg / dosis</span></div>
+          <div class="calc-cell"><span class="k">Punto de equilibrio</span><span class="u">$ · volumen</span></div>
+          <div class="calc-cell"><span class="k">Mezcla de aplicación</span><span class="u">prod + agua</span></div>
+          <div class="calc-cell"><span class="k">Conversor agrícola</span><span class="u">ha ↔ m²</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- COMUNIDAD -->
+  <section class="section" id="comunidad">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow">03 — La comunidad</span>
+        <h2 class="section-h">Alianzas que crecen <em>con la tierra.</em></h2>
+      </div>
+      <div class="section-aside">
+        Un directorio real. Contacto solo cuando aceptas una conexión.
+      </div>
+    </div>
+
+    <div class="community">
+      <div class="community-media">
+        <img src="img/editorial/agroclub-comunidad.webp" alt="Grupo de productores y técnicos agrícolas en una capacitación de AgroTec América">
+      </div>
+      <div class="community-copy">
+        <span class="eyebrow">Directorio Técnico</span>
+        <h2>El futuro del campo <em>se construye con alianzas.</em></h2>
+        <p>
+          Conecta con productores, asesores, encargados de rancho e investigadores. Encuentra talento, publica una oportunidad o encuentra a quien pueda resolverte el problema que traes del campo.
+        </p>
+        <div class="roles-list">
+          <div class="role-cell">
+            <span class="k">Productores</span>
+            <span class="v">Hortalizas, berries, granos</span>
+          </div>
+          <div class="role-cell">
+            <span class="k">Asesores</span>
+            <span class="v">Suelos, riego, sanidad</span>
+          </div>
+          <div class="role-cell">
+            <span class="k">Encargados</span>
+            <span class="v">Rancho, maquinaria</span>
+          </div>
+          <div class="role-cell">
+            <span class="k">Investigación</span>
+            <span class="v">Fitomejoramiento, trópico</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CIERRE -->
+  <section class="closing">
+    <h2>
+      Nos vemos <em>adentro.</em>
+    </h2>
+    <div class="hero-actions">
+      <a class="btn btn-primary" href="#">Entrar al club</a>
+      <a class="btn btn-ghost" href="#catalogo">Explorar sin compromiso</a>
+    </div>
+    <div class="closing-foot">
+      <span>AgroTec América · Formación para el campo</span>
+      <span>Hecho en México · 2026</span>
+    </div>
+  </section>
+</div>
+
+</body>
+</html>
