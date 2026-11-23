@@ -49,8 +49,30 @@ test("ships the five official modules closed by default", () => {
 test("includes responsive and reduced-motion safeguards", () => {
   assert.match(css, /@media \(max-width: 560px\)/);
   assert.match(css, /@media \(max-width: 360px\)/);
+  assert.match(css, /\.hero__visual\s*\{[\s\S]*?aspect-ratio:\s*16\s*\/\s*10/);
+  assert.match(css, /\.quick-facts\s*\{[\s\S]*?grid-template-columns:\s*1fr\s+1fr/);
   assert.match(css, /prefers-reduced-motion:\s*reduce/);
   assert.match(html, /width=device-width, initial-scale=1/);
+});
+
+test("keeps Irene's portrait only in the instructor section", () => {
+  assert.equal((html.match(/irene-garcia\.png/g) ?? []).length, 1);
+
+  const instructorStart = html.indexOf('id="ponente"');
+  const instructorEnd = html.indexOf('id="certificado"');
+  assert.ok(instructorStart >= 0, "Missing instructor section");
+  assert.ok(instructorEnd > instructorStart, "Missing section after instructor");
+
+  const instructorMarkup = html.slice(instructorStart, instructorEnd);
+  assert.match(instructorMarkup, /<img[^>]+src="\.\/assets\/irene-garcia\.png"/);
+});
+
+test("reserves the hero for the future promotional video without embedding a fake player", () => {
+  assert.match(html, /data-video-placeholder/);
+  assert.match(html, /Video promocional/i);
+  assert.match(html, /Próximamente/i);
+  assert.doesNotMatch(html, /<iframe\b|<video\b/i);
+  assert.doesNotMatch(html, /(?:youtube(?:-nocookie)?\.com|youtu\.be|vimeo\.com)/i);
 });
 
 test("does not advertise a purchasable schema offer while checkout is inactive", () => {
